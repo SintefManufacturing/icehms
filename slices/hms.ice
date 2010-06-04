@@ -57,45 +57,11 @@ module hms {
 
     
     
-    // Topics
-    // topics must use of those or make declare own
-    interface LogMonitor {
-        void appendLog(string info);
-    };
-    
-    struct Pos2D {
-        double x;
-        double y;
-    };
-    
-    interface TopicClient { //attempt to implement a generic topic interface for all holons
-        void appendLog(string info);
-        void newLog(string info);
-        void newState(StringSeq state);
-    };
-   // The implementation specific holons should be in their own files
-    // please remove them
-
-    // Device adapters
-    /*
-    olivier.roulet@jabber.no: men jeg synes at ideen med en 'DeviceAdapterMedLocking interface som arver DeviceAdapter' er ikke så dum
-    Morten på Jabber: nei, det kan hende det er veldig hensiktsmessig
-    Morten på Jabber: da må bare strategien for å gi tilgang implementeres i den specifikke klasse
-    Morten på Jabber: og jeg tror ikke vi skal kalde det "Lock"
-    Morten på Jabber: bedre med "acccess"
-    Morten på Jabber: kanskje returverdien er en tid man har access
-    Morten på Jabber: kanskje man til metoden kan gi forskjellig spesifikasjon av hvor lenge man vill ha access
-    Morten på Jabber: kanskje det må være en getExclusiveAccess, som sikrer at den klienten som får den, er eneste som i den gitte periode kan tilgå
-    Morten på Jabber: osv. osv. osv.....
-    current.id.name er navnet på holonen 
-    current.con.toString() gir ip addressen og port til client og server
-    */
    interface DeviceAdapter extends Holon { 
        string getDeviceName();
        StrStrMap getDescriptor();
-       //double getExclusiveAccess();
-       //bool releaseExclusiveAccess();
    };
+
    //Proposition Access control
    interface SimpleAccessControl { 
        double getAccessTimeout();
