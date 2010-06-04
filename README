@@ -1,0 +1,6 @@
+
+
+icehms is holonic framework based on "The Internet Communication Engine"(Ice)
+
+It requires an ice and python installation 
+environment variables need to be setup, see exmaple_environment.sh.  

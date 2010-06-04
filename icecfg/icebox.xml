@@ -1,0 +1,35 @@
+<icegrid>
+    <application name="IceBoxApp">
+        <node name="Node1">
+            <icebox id="IceBoxServer" exe="icebox" activation="on-demand">
+                <service name="IceStorm" entry="IceStormService,33:createIceStorm">
+                    <dbenv name="${service}"/>
+                    <adapter name="${service}.TopicManager"  >
+                        <object identity="IceStorm/TopicManager" 
+                            type="::IceStorm::TopicManager"/>
+                    </adapter>
+                    <adapter name="${service}.Publish" />
+                    <property name="${service}.Trace.Topic" value="1"/>
+                    <property name="${service}.Trace.TopicManager" value="2"/>
+                    <property name="${service}.Trace.Subscriber" value="1"/>
+                    <!-- time in ms before removing a dead subscriber-->
+                    <property name="${service}.Send.Timeout" value="60000"/>
+                    <!-- wait x second before retrying to send to dead subscriber -->
+                    <property name="${service}.Discard.Interval" value="1"/>
+                    <!-- batch reliability frequence timeout -->
+                    <property name="${service}.Flush.Timeout" value="100"/>
+                    <!-- do not create a database on disk -->
+                    <property name="${service}.Transient" value="1"/>
+                    <!-- This are vey configuration dependent cf documentation -->
+                    <property name="${service}.Publish.ThreadPool.Size" value="3"/>
+                    <property name="${service}.Publish.ThreadPool.SizeMax" value="50"/>
+                    <property name="${service}.Publishe.ThreadPool.Client.Size" value="3"/>
+                    <property name="${service}.Publishe.ThreadPool.Client.SizeMax" value="3"/>
+                    <property name="Ice.Trace.Network" value="2"/>
+                    <property name="Ice.Trace.Protocol" value="0"/>
+                </service>
+            </icebox>
+        </node>
+    </application>
+</icegrid>
+
