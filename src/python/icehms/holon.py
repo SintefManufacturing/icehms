@@ -9,7 +9,7 @@ import Ice
 from icehms import hms
 
 
-class Agent(hms.Agent, Thread):
+class _Agent(Thread):
     """Abstract agent class
     to be inherited by all agent
     implements mainly lifecycle (start stop, methods) and logging
@@ -291,7 +291,7 @@ class Agent(hms.Agent, Thread):
 
 
 
-class Holon(hms.Holon, Agent):
+class _Holon(_Agent):
     """Abstract holon class
     to be inherited by all holons
     """
@@ -309,7 +309,12 @@ class Holon(hms.Holon, Agent):
         return ans
 
 
+class Holon(hms.Holon, Agent):
+    """ To be inherited by generic holons """
+    pass
  
+class Agent(hms.Agent, Thread):
+    pass
 
 class MessageQueue(object):
     def __init__(self):
