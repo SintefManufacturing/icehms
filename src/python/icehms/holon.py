@@ -286,6 +286,21 @@ class _Agent(Thread):
         self.mailbox.append(msg)
 
 
+    def saveState(self, ctx=None):
+        """
+        Let holon save their internal state before relocation 
+        return a state object
+        return False if state saving is not possible or not implemented
+        """
+        return False
+
+    def restoreState(self, state, ctx=None):
+        """
+        Let holon restore their internal state after relocation
+        """
+        return False
+
+
 
 
 
@@ -297,7 +312,7 @@ class _Holon(_Agent):
     """
 
     def __init__(self, *args, **kw):
-        Agent.__init__(self, *args, **kw)
+        _Agent.__init__(self, *args, **kw)
 
     def getState(self, current=None):
         """ default implementation of a getState
@@ -309,12 +324,21 @@ class _Holon(_Agent):
         return ans
 
 
-class Holon(hms.Holon, Agent):
+class Holon(hms.Holon, _Holon):
     """ To be inherited by generic holons """
-    pass
+    def __init__(self, *args, **kwargs):
+        _Holon.__init__(self, *args, **kwargs)
  
-class Agent(hms.Agent, Thread):
-    pass
+class Agent(hms.Agent, _Agent):
+    """ To be inherited by generic agents """
+    def __init__(self, *args, **kwargs):
+        _Agent.__init__(self, *args, **kwargs)
+
+
+
+
+
+
 
 class MessageQueue(object):
     def __init__(self):
