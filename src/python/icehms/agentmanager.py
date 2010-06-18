@@ -10,7 +10,7 @@ from time import sleep
 
 import Ice 
 
-from icehms.icemanager import IceManager
+import icehms
 
 
 class AgentManager(Thread):
@@ -35,7 +35,7 @@ class AgentManager(Thread):
         self._lock = Lock()
         self._agents = []
         if not icemgr:
-            self.icemgr = IceManager(adapterId=adapterId, logLevel=logLevel)
+            self.icemgr = icehms.IceManager(adapterId=adapterId, logLevel=logLevel)
         else:
             self.icemgr = icemgr
         self._stop = False
@@ -213,6 +213,25 @@ class AgentManager(Thread):
         else:
             self._ilog( "agent %s stopped" % agent.name , level=1 )
         self._removeAgent(agent)
+
+
+    def moveHolon(selv, prx, holonState):
+        """
+        This method attemps to relocate a holon to the current agentmanager
+        This must be supported by the holon through implementation of specific methods and 
+        correct logic.
+        The current implementation is python specific and may feil in most cases
+        (only support generic holons !!)
+        """
+        prxclass = prx.getClass()
+        holon = None
+        cmd = "holon = icehms." + prxclass + "()"
+        exec(cmd)
+        if holon:
+            if holon.restoreState(holonState):
+                self.addHolon(holon)
+                return True
+        return False
  
 
 

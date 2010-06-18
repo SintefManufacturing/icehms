@@ -9,12 +9,8 @@ class Client(Holon):
             msg = self.mailbox.pop()
             if msg:
                 print "got message:", msg
-            sleep(1)
+            sleep(0.1)
 
-    def putMessage(self, msg, ctx=None):
-        print "call"
-        sleep(3)
-        return "KK"
 
 if __name__ == "__main__":
     holon = Client("Holon2")

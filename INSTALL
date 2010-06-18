@@ -28,3 +28,4 @@ python examples/test1.py
 #run another program to test communication in another shell
 python examples/test2.py
 
+#Look at the code in test1 to get an idea of basic usage

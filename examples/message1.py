@@ -4,7 +4,7 @@ import Ice
 
 from icehms import Holon, startHolonStandalone, hms
 class CB(object):
-    def ice_response(self, _result, l):
+    def ice_response(self, _result=None, l=None):
         print "response: ", _result, l
 
     def ice_exception(self, ex):
@@ -15,12 +15,15 @@ class TestHolon(Holon):
         self._log("I am "+ self.name)
         sleep(0.2) # wait for verything to initialize 
         prx = self._getProxyBlocking(self.other)
-        m = hms.Message()
-        m.body = "Dummy message from "+ self.name
+        masync = hms.Message()
+        masync.body = "Async message from "+ self.name
+        msync = hms.Message()
+        msync.body = "Sync message from "+ self.name
         cb = CB()
         while not self._stop:
             try:
-                prx.putMessage_async(cb, m)
+                prx.putMessage_async(cb, masync)
+                prx.putMessage(msync)
                 self._ilog( "State of ",prx.ice_id(), " is ", prx.getState() )
             except Ice.Exception, why:
                 self._ilog("Exception running thread:", why)

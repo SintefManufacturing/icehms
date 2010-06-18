@@ -294,11 +294,14 @@ class _Agent(Thread):
         """
         return False
 
-    def restoreState(self, state, ctx=None):
+    def restoreState(self, state):
         """
         Let holon restore their internal state after relocation
         """
         return False
+    
+    def getClassName(self, ctx=None):
+        return self.__class__.__name__
 
 
 
