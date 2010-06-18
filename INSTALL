@@ -1,0 +1,30 @@
+
+#ON THE REGISTRY SERVER
+
+# install system wide
+python setup.py install
+
+#export registry address
+export ICEHMS_REGISTRY="tcp -p 12000 -h toto.mydomain.com"
+
+#run registry
+run_ice_servers.py
+
+#setup topic server (only for first installtion)
+register_hms_services.py
+
+
+
+#ON THE CLIENTS
+# install system wide
+python setup.py install
+
+#export registry address
+export ICEHMS_REGISTRY="tcp -p 12000 -h toto.mydomain.com "
+
+#run whatever program 
+python examples/test1.py
+
+#run another program to test communication in another shell
+python examples/test2.py
+
