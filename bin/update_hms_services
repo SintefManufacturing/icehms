@@ -1,2 +1,2 @@
 #!/bin/bash
-./register_services.py update
+register_hms_services.py update
