@@ -10,18 +10,11 @@ class Server(Holon):
         Holon.__init__(self, "Server")
 
     def run(self):
-        pub = self._getPublisher("MyTopic", hms.agv.LocalizedPositionPrx)
+        pub = self._getPublisher("MyTopic", hms.TestEventPrx)
         counter = 0
-        t = time.time()
         while not self._stop:
-            p  = hms.agv.Pose()
-            p.x = time.time()
-            print time.time(), p.x
-            p.y = float(counter)
             counter +=1
-            p.th = t 
-            t = t + 1
-            pub.newLocalizedPosition(p)
+            pub.newEvent(counter)
             time.sleep(0.5)
     
     def getState(self, current):

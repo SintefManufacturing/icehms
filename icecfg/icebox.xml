@@ -9,23 +9,25 @@
                             type="::IceStorm::TopicManager"/>
                     </adapter>
                     <adapter name="${service}.Publish" />
-                    <property name="${service}.Trace.Topic" value="1"/>
-                    <property name="${service}.Trace.TopicManager" value="2"/>
-                    <property name="${service}.Trace.Subscriber" value="1"/>
-                    <!-- time in ms before removing a dead subscriber-->
+                    <property name="${service}.Trace.Topic" value="0"/>
+                    <property name="${service}.Trace.TopicManager" value="0"/>
+                    <property name="${service}.Trace.Subscriber" value="0"/>
+                    <!-- time in ms before removing a dead subscriber, This MUST be high, otherwise some clients may be removed-->
                     <property name="${service}.Send.Timeout" value="60000"/>
-                    <!-- wait x second before retrying to send to dead subscriber -->
-                    <property name="${service}.Discard.Interval" value="1"/>
-                    <!-- batch reliability frequence timeout -->
+                    <!-- wait x second before retrying to send to dead subscriber, must be low -->
+                    <property name="${service}.Discard.Interval" value="0"/>
+                    <!-- batch reliability frequence timeout in ms, high value increases latency -->
                     <property name="${service}.Flush.Timeout" value="100"/>
                     <!-- do not create a database on disk -->
                     <property name="${service}.Transient" value="1"/>
                     <!-- This are vey configuration dependent cf documentation -->
                     <property name="${service}.Publish.ThreadPool.Size" value="3"/>
-                    <property name="${service}.Publish.ThreadPool.SizeMax" value="50"/>
-                    <property name="${service}.Publishe.ThreadPool.Client.Size" value="3"/>
-                    <property name="${service}.Publishe.ThreadPool.Client.SizeMax" value="3"/>
-                    <property name="Ice.Trace.Network" value="2"/>
+                    <property name="${service}.Publish.ThreadPool.SizeMax" value="1000"/>
+                    <!--
+                    <property name="${service}.Publish.ThreadPool.Client.Size" value="3"/>
+                    <property name="${service}.Publish.ThreadPool.Client.SizeMax" value="1000"/>
+                    -->
+                    <property name="Ice.Trace.Network" value="0"/>
                     <property name="Ice.Trace.Protocol" value="0"/>
                 </service>
             </icebox>

@@ -39,6 +39,10 @@ module hms {
         void startLogging();
     };
     
+    interface TestEvent {
+        void newEvent(int counter);
+    };
+    
     // The PROSA Holons
     interface ResourceHolon extends Holon {
     };

@@ -51,7 +51,7 @@ class IceManager(object):
             if myIP:
                 myIP = " -h " + myIP
             prop.setProperty("hms.Endpoints", "tcp " + myIP)
-        prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.iceconfig.IceRegistryServer)
+        prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.IceRegistryServer)
         prop.setProperty("Ice.ThreadPool.Server.Size", "5")
         prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")
         prop.setProperty("Ice.ThreadPool.Client.Size", "5")
@@ -91,7 +91,7 @@ class IceManager(object):
         return 127.0.0.1 if IceGrid server is not known
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        serv = icehms.iceconfig.IceRegistryServer.split()
+        serv = icehms.IceRegistryServer.split()
         ip = None 
         for idx, val in enumerate(serv): 
             if val == "-h":

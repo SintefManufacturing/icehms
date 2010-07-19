@@ -8,7 +8,7 @@ import IceStorm
 sys.path.append("..")
 import re
 import icehms
-server = icehms.iceconfig.IceRegistryServer 
+server = icehms.IceRegistryServer 
 
 prop = Ice.createProperties()
 prop.setProperty("Ice.Default.Locator","IceGrid/Locator:" + server)

@@ -3,7 +3,7 @@ import sys
 
 from icehms import Holon, startHolonStandalone, hms
 
-class Client(Holon, hms.agv.LocalizedPosition):
+class Client(Holon, hms.TestEvent):
     def __init__(self, tn):
         Holon.__init__(self, "Client")
         self._tn = tn
@@ -12,8 +12,8 @@ class Client(Holon, hms.agv.LocalizedPosition):
         self.log("Started")
         self._subscribeTopic(self._tn)
 
-    def newLocalizedPosition(self, pose, ctx=None):
-        print "New pose: ", pose
+    def newEvent(self, counter, ctx=None):
+        print "New Event: ", counter
 
 
 if __name__ == "__main__":
