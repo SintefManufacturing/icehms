@@ -13,13 +13,15 @@ class IceManager(object):
     create connection to ice
     creates also usefull proxies and wrapper methods around Ice methods
     """
-    def __init__(self, adapterId=None, logLevel = 2):
+    def __init__(self, adapterId=None, defaultTimeout=500, logLevel = 2):
         """
         No argument means no adapter is created
         it can currently only handle one adapter, but we may have
         to add support for several adapter....maybe
         """
         self._logLevel = logLevel
+
+        self._defaultTimeout = defaultTimeout
 
         self.initialized = False
         self._adapterId = adapterId
@@ -131,17 +133,17 @@ class IceManager(object):
         """
         get ice type from ice, parse string and cast to specific type !
         """
-        prx = prx.ice_timeout(500) #why do I need that !! since timeout is defined in icegrid.cfg
+        prx = prx.ice_timeout(300) 
         debugPrx = prx
         try:
             prx.ice_ping()
         except Ice.Exception, why:
-            self._ilog( "Found dead reference in icegrid database, it needs cleaning !!", why )
+            self._ilog("Proxy could not be ping, maybe proxy is dead, maybe clean database", why, prx )
             return None # no need to return a dead proxy
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
             self._ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=3)
             return None
-        icetype = prx.ice_id() #should be under a try
+        icetype = prx.ice_id() 
         icetype = icetype.replace("::", "", 1)
         icetype = icetype.replace("::", ".")
         try:
@@ -149,6 +151,7 @@ class IceManager(object):
             exec tmp 
         except NameError:
             self._ilog( "Error executing:  ", tmp, level=3)
+        prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 
     def registerToIceGrid(self, proxy):
@@ -210,10 +213,10 @@ class IceManager(object):
         self._log(msg, level)
 
 
-    def getProxy(self, name, timeout=1000):
-        return self.getHolon(name, timeout)
+    def getProxy(self, name):
+        return self.getHolon(name)
 
-    def getHolon(self, name, timeout=1000):
+    def getHolon(self, name):
         """
         return a proxy object of an Ice Holon, knowing its name(==id)
         return None if not found
@@ -225,7 +228,6 @@ class IceManager(object):
                 prx = self.automatedCast(prx)
                 if prx:
                     self._ilog( "got proxy for ", prx)
-                    prx = prx.ice_timeout(timeout) #automatedcast changed the timeout
         return prx
 
     def findAllObjectsByType(self, icetype):

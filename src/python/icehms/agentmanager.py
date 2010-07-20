@@ -215,7 +215,7 @@ class AgentManager(Thread):
         self._removeAgent(agent)
 
 
-    def moveHolon(selv, prx, holonState):
+    def moveHolon(self, prx, holonState):
         """
         This method attemps to relocate a holon to the current agentmanager
         This must be supported by the holon through implementation of specific methods and 

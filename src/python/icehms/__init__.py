@@ -5,7 +5,7 @@ import exceptions
 import Ice
 
 
-#Find necessary files
+#Find The installation root and setup some paths 
 intree = False
 try:
     root = os.environ["ICEHMS_ROOT"]
@@ -29,7 +29,7 @@ slicespath = os.path.join(root, "slices") # default slice files
 icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration
 iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration
 
-
+#setup ice database path
 if intree:
     nodeData = os.path.join(root, "db", "node") # node registry
     registryData = os.path.join(root, "db", "registry") #registry database path
@@ -42,12 +42,12 @@ else:
     nodeData = os.path.join(db_dir, "node")
     registryData = os.path.join(db_dir, "registry")
 
-#Where is the ice registry 
+#setup ice registry address 
 if os.environ.has_key("ICEHMS_REGISTRY"):
     IceRegistryServer = os.environ["ICEHMS_REGISTRY"]
 else:
     print "ICEHMS_REGISTRY environment variable not set, using localhost:12000"
-    IceRegistryServer = 'tcp -p 12000 ' #we just hope ICe get the right interface
+    IceRegistryServer = 'tcp -p 12000 ' #we let Ice chose the network interface
 
 
 
@@ -77,7 +77,10 @@ for path in dirs:
         else:
             #print 'icehms.__init__.py: not loading non-slice file:', icefile
             pass
-        
+
+
+#commodity imports
+
 import hms # only to be able to write "from icehms import hms"
 
 from holon import * # from icehms import holon
