@@ -39,9 +39,6 @@ module hms {
         void startLogging();
     };
     
-    interface TestEvent {
-        void newEvent(int counter);
-    };
     
     // The PROSA Holons
     interface ResourceHolon extends Holon {
@@ -80,7 +77,16 @@ module hms {
     sequence<double> Vector;
     sequence<Vector> Matrix;
     sequence<Vector> VectorSeq;
+
+    // A few testing interfaces
     
+    interface TestEvent {
+        void newEvent(int counter);
+    };
+
+    interface SleepHolon {
+        bool sleep(int time);
+    };
    
 };
 

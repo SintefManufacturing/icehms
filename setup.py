@@ -13,7 +13,7 @@ setup (name = "icehms", version = "0.1",
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",
         
-        scripts = ["bin/cleaner_hms", "bin/lsholons", "bin/lstopics", "bin/register_hms_services.py", "bin/run_ice_servers.py", "bin/update_hms_services.py", "postinstall.py"],
+        scripts = ["bin/cleaner_hms.py", "bin/lsholons.py", "bin/lstopics.py", "bin/register_hms_services.py", "bin/run_ice_servers.py", "bin/update_hms_services.py", "postinstall.py"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
         ('share/icehms/slices', glob.glob('slices/*')) ]
