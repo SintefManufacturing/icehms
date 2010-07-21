@@ -24,8 +24,8 @@ module hms {
 
      //Inherited by holons. Agent are used when implemented objects that should not be visible to the HMS
     interface Agent {
-        void start();
-        void stop();
+        //void start(); //Muts be disabled with ice3.4...why ?
+        //void stop();
         string getName();
         bool isRunning();
         StringSeq getPublishedTopics();
