@@ -1,0 +1,4 @@
+db/registry/*
+db/node/*
+build
+dist
