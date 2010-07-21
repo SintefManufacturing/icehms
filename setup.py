@@ -8,7 +8,7 @@ import os
 setup (name = "icehms", version = "0.1",
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
         author = "Oivier R-D",
-        url = '',
+        url = 'http://sourceforge.net/projects/coldhms/',
         packages = ["icehms"],
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",
