@@ -205,7 +205,8 @@ class AgentManager(Thread):
     def _shutdownAgent(self, agent):
         agent.stop() #might allready be called but that is fine
         self._ilog( "Waiting for agent %s to stop ..." % agent.name  )
-        agent.join(2) 
+        if agent.isAlive():
+            agent.join(2) 
         agent.cleanup() # remove personal topics for example
 
         if agent.isAlive():
