@@ -10,6 +10,7 @@ intree = False
 try:
     root = os.environ["ICEHMS_ROOT"]
 except KeyError, why:
+    # First see if we are in source tree, if not check if we are installed
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
     print "root is ", root
@@ -17,15 +18,16 @@ except KeyError, why:
         print "Looks like we are in source tree"
         intree = True
     else:
+        #see if we are installed
         root = os.path.join(sys.prefix, "share", "icehms")
         if os.path.isdir(root):
-            # we are installed
+            # we are installed, this is good
             pass
         else:
-            print "Error: set ICEHMS_ROOT environment variable"
+            print "Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable"
             sys.exit(1)
 
-slicespath = os.path.join(root, "slices") # default slice files
+slicespath = os.path.join(root, "slices") # system slice files
 icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration
 iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration
 
@@ -52,20 +54,28 @@ else:
 
 
 #dynamic compiling Ice slice files
-dirs = []
+slicedirs = []
 
-dirs.append(slicespath)
+slicedirs.append(slicespath) #append system path
+
+if os.environ.has_key("ICEHMS_USER"):
+    icehms_user = os.environ["ICEHMS_USER"]
+    userslices = os.path.join(icehms_user, "slices")
+    if os.path.isdir(userslices):
+        for d in os.walk(userslices):
+            slicedirs.append(os.path.join(icehms_user, d[0]))
+
 
 if os.environ.has_key("ICEHMS_SLICES"):
     icehms_slices = os.environ["ICEHMS_SLICES"]
     icehms_slices = icehms_slices.split(";")
     for path in icehms_slices:
         if os.path.isdir(path):
-            dirs.append(path)
+            slicedirs.append(path)
 
-print "Loading slice files from ", dirs
+print "Loading slice files from ", slicedirs
 
-for path in dirs:
+for path in slicedirs:
     for icefile in os.listdir(path):
         if re.match("[^#\.].*\.ice$", icefile):
             #print 'icehms.__init__.py: trying to load slice definition:', icefile

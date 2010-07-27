@@ -289,10 +289,10 @@ class IceManager(object):
         """
         topic = self.getTopic(topicName)
         qos = {}
-        qos["reliability"] = "" #"ordered" is the other possibility see doc
-        qos["retryCount"] = -1
+        qos["reliability"] = "" #"" and "ordered" are the only possibilities see doc
+        qos["retryCount"] = -1 #-1 means to never remove a dead subscriber from list 
         try:
-            topic.subscribe({}, prx.ice_oneway()) #
+            topic.subscribe({}, prx.ice_oneway()) #oneway is more efficient, but messages may get lost
         except IceStorm.AlreadySubscribed:
             self._ilog( "Allready subscribed to topic" )
         self._ilog( "subscribed", prx, " to topic ", topicName )

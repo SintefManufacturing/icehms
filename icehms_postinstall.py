@@ -23,14 +23,19 @@ def hack():
     os.chmod(node, 0777)  
 
     #inform setup.py that we created files
-    directory_created(node)
-    directory_created(registry)
+    if globals().has_key("dircetory_created"):
+        #we are called from distutil
+        directory_created(node)
+        directory_created(registry)
 
-if len(sys.argv) > 1:
-    if sys.argv[1] == "-install":
-        hack()
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-install":
+            hack()
+        else :
+            pass
+            #Nothing to do
     else:
-        #Nothing to do
-        pass
-
+        hack()
+    
 

@@ -5,6 +5,19 @@ import sys
 
 import icehms 
 
+if not os.path.isdir(icehms.nodeData):
+    try:
+        os.makedirs(icehms.nodeData)
+    except os.IOError, why:
+        print "Could not create directory for node data, create it and set permission :",icehms.nodeData 
+        sys.exit(1)
+if not os.path.isdir(icehms.registryData):
+    try;
+        os.makedirs(icehms.registryData)
+    except os.IOError, why:
+        print "Could not create directory for registry data, create it and set permission :",icehms.registryData 
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     cmd = "icegridnode"
