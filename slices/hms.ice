@@ -85,7 +85,7 @@ module hms {
     };
 
     interface SleepHolon {
-        bool sleep(int time);
+        bool sleep(double time);
     };
    
 };

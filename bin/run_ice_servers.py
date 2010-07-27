@@ -12,7 +12,7 @@ if not os.path.isdir(icehms.nodeData):
         print "Could not create directory for node data, create it and set permission :",icehms.nodeData 
         sys.exit(1)
 if not os.path.isdir(icehms.registryData):
-    try;
+    try:
         os.makedirs(icehms.registryData)
     except os.IOError, why:
         print "Could not create directory for registry data, create it and set permission :",icehms.registryData 
