@@ -27,7 +27,7 @@ except KeyError, why:
             print "Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable"
             sys.exit(1)
 
-slicespath = os.path.join(root, "slices") # system slice files
+sysSlicesPath = os.path.join(root, "slices") # system slice files
 icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration
 iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration
 
@@ -56,16 +56,21 @@ else:
 #dynamic compiling Ice slice files
 slicedirs = []
 
-slicedirs.append(slicespath) #append system path
+slicedirs.append(sysSlicesPath) #append system path
 
+#do we have user slices
+icehms_user = ""
 if os.environ.has_key("ICEHMS_USER"):
     icehms_user = os.environ["ICEHMS_USER"]
+elif  os.environ.has_key("HOME") and os.path.isdir(os.path.join(os.environ["HOME"], ".icehms")):
+    icehms_user = os.path.join(os.environ["HOME"], ".icehms")
+if icehms_user:
     userslices = os.path.join(icehms_user, "slices")
     if os.path.isdir(userslices):
         for d in os.walk(userslices):
             slicedirs.append(os.path.join(icehms_user, d[0]))
 
-
+#now find application slices
 if os.environ.has_key("ICEHMS_SLICES"):
     icehms_slices = os.environ["ICEHMS_SLICES"]
     icehms_slices = icehms_slices.split(";")
@@ -81,7 +86,7 @@ for path in slicedirs:
             #print 'icehms.__init__.py: trying to load slice definition:', icefile
             icefilepath = os.path.normpath(os.path.join(path, icefile))
             try:
-                Ice.loadSlice("", ["--all", "-I" + path, icefilepath])
+                Ice.loadSlice("", ["--all", "-I" + path, "-I" + sysSlicesPath, icefilepath])
             except exceptions.RuntimeError, e:
                 print 'icehms.__init__.py: !!! Runtime Error !!!, on loading slice file:', icefile
         else:
