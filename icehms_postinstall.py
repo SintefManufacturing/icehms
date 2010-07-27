@@ -25,13 +25,14 @@ def hack():
     os.chmod(node, 0777)  
 
     #Now create a shortcut on desktop
-    desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
-    link = os.path.join(desktoppath, "run_ice.lnk")
-    app = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
-    create_shortcut(app, "Tun the necessary Ice servers", link) 
+    if os.name == "nt":
+        desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
+        link = os.path.join(desktoppath, "run_ice.lnk")
+        app = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
+        create_shortcut(app, "Run Ice servers", link) 
 
     #inform setup.py that we created files
-    if globals().has_key("dircetory_created"):
+    if globals().has_key("directory_created"):
         #we are called from distutil
         directory_created(node)
         directory_created(registry)
