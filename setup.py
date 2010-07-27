@@ -16,6 +16,7 @@ setup (name = "icehms", version = "0.6",
         scripts = ["bin/cleaner_hms.py", "bin/lsholons.py", "bin/lstopics.py", "bin/register_hms_services.py", "bin/run_ice_servers.py", "bin/update_hms_services.py", "icehms_postinstall.py"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
+                      ('doc/icehms', ["README.txt", "INSTALL.txt"]),
         ('share/icehms/slices', glob.glob('slices/*')) ]
 
         )

@@ -2,6 +2,8 @@
 
 import sys
 import os
+import icehms
+import sys
 
 def hack():
     #if someone knows a better way, it would be nice
@@ -22,11 +24,18 @@ def hack():
     os.chmod(registry, 0777) 
     os.chmod(node, 0777)  
 
+    #Now create a shortcut on desktop
+    desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
+    link = os.path.join(desktoppath, "run_ice.lnk")
+    app = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
+    create_shortcut(app, "Tun the necessary Ice servers", link) 
+
     #inform setup.py that we created files
     if globals().has_key("dircetory_created"):
         #we are called from distutil
         directory_created(node)
         directory_created(registry)
+        file_created(link)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
