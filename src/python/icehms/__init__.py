@@ -28,8 +28,8 @@ except KeyError, why:
             sys.exit(1)
 
 sysSlicesPath = os.path.join(root, "slices") # system slice files
-icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration
-iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration
+icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration ice
+iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration icestorm
 
 #setup ice database path
 if intree:
