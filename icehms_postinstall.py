@@ -2,8 +2,6 @@
 
 import sys
 import os
-import icehms
-import sys
 
 def hack():
     #if someone knows a better way, it would be nice
@@ -47,5 +45,8 @@ if __name__ == "__main__":
             #Nothing to do
     else:
         hack()
+        if os.name != "nt":
+            #ugly hack for debian, not idea, how to avoid it
+            os.system("update-python-modules icehms.public")
     
 
