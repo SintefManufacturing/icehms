@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 from copy import copy 
 import signal
 from threading import Lock, Thread
