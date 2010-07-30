@@ -52,7 +52,7 @@ class IceManager(object):
             myIP = self._getIPToIceGrid()
             if myIP:
                 myIP = " -h " + myIP
-            prop.setProperty("hms.Endpoints", "tcp " + myIP)
+            prop.setProperty("hms.Endpoints", "tcp " + myIP + ":udp " + myIP)
         prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.IceRegistryServer)
         prop.setProperty("Ice.ThreadPool.Server.Size", "5")
         prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")

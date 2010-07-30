@@ -18,5 +18,5 @@ if __name__ == "__main__":
         prx = mgr.getProxy(name)
         print prx
     #handle bad exit
-    atexit.register(__del__)
+    #atexit.register(__del__)
 

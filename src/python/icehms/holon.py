@@ -275,7 +275,7 @@ class _Agent(Thread):
         self._ilog( "Got connection to ", address)
         return prx
 
-    def printMsgQueue(self):
+    def printMsgQueue(self, ctx=None):
         for msg in self.mailbox.copy():
             print "%s" % msg.creationTime + ' receiving ' + msg.body
 
