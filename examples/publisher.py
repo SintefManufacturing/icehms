@@ -2,6 +2,7 @@
 
 import time
 import sys
+from struct import pack, unpack
 
 from icehms import Holon, startHolonStandalone, hms
 
@@ -10,15 +11,16 @@ class Server(Holon):
         Holon.__init__(self, "Server")
 
     def run(self):
-        pub = self._getPublisher("MyTopic", hms.TestEventPrx)
+        #pub = self._getPublisher("MyTopic", hms.GenericEventInterfacePrx)
+        pub = self._getEventPublisher("MyTopic")
         counter = 0
         while not self._stop:
             counter +=1
-            pub.newEvent(counter)
+            pub.newEvent("counter", [str(counter)], pack("=i", counter) )
             time.sleep(0.5)
     
     def getState(self, current):
-        return ["Running and publishing"]
+        return ["Running and publishing", str(counter)]
 
 
 

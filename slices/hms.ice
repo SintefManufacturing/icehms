@@ -80,8 +80,8 @@ module hms {
 
     // A few testing interfaces
     
-    interface TestEvent {
-        void newEvent(int counter);
+    interface GenericEventInterface {
+        void newEvent(string name, StringSeq data, ByteSeq data2 );
     };
 
     interface SleepHolon {

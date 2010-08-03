@@ -9,7 +9,7 @@ import Ice
 from icehms import hms
 
 
-class _Agent(Thread):
+class Agent(hms.Agent, Thread, hms.GenericEventInterface):
     """Abstract agent class
     to be inherited by all agent
     implements mainly lifecycle (start stop, methods) and logging
@@ -63,7 +63,7 @@ class _Agent(Thread):
         self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
         return self._getPublisher(topicName, prxobj, permanentTopic)
 
-    def _getPublisher(self, topicName, prxobj, permanentTopic=False):
+    def _getPublisher(self, topicName, prxobj, permanentTopic=True):
         """
         get a publisher object for a topic
         create it if it does not exist
@@ -75,6 +75,18 @@ class _Agent(Thread):
         pub = self._icemgr.getPublisher(topicName, prxobj)
         self._publishedTopics[topicName] = permanentTopic
         return  pub
+
+    def _getEventPublisher(self, topicName, permanentTopic=True):
+        """
+        Wrapper over getPublisher, for generic event interface
+        """
+        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=False)
+
+    def newEvent(self, name, stringList, icebytes):
+        """
+        Received event from GenericEventInterface
+        """
+        self._log(2, "Holon registered to topic, but newEvent method not overwritten")
 
     def unsubscribeTopic(self, name):
         self._log("Call to deprecated method Holon.unsubscribeTopic, use Holon._unsubscribeTopic", 2)
@@ -192,9 +204,10 @@ class _Agent(Thread):
         """ To be re-implemented by active holons
         """
         pass
+
     def cleanup(self):
         """
-        Remove stuff from databasen
+        Remove stuff from the database
         not catching exceptions since it is not very important
         """
         for topic in self._subscribedTopics.keys():
@@ -309,13 +322,13 @@ class _Agent(Thread):
 
 
 
-class _Holon(_Agent):
+class Holon(hms.Holon, Agent):
     """Abstract holon class
     to be inherited by all holons
     """
 
     def __init__(self, *args, **kw):
-        _Agent.__init__(self, *args, **kw)
+        Agent.__init__(self, *args, **kw)
 
     def getState(self, current=None):
         """ default implementation of a getState
@@ -325,19 +338,6 @@ class _Holon(_Agent):
         for msg in self.mailbox.copy():
             ans.append(msg.body)
         return ans
-
-
-class Holon(hms.Holon, _Holon):
-    """ To be inherited by generic holons """
-    def __init__(self, *args, **kwargs):
-        _Holon.__init__(self, *args, **kwargs)
- 
-class Agent(hms.Agent, _Agent):
-    """ To be inherited by generic agents """
-    def __init__(self, *args, **kwargs):
-        _Agent.__init__(self, *args, **kwargs)
-
-
 
 
 
