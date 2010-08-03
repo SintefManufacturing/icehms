@@ -154,10 +154,19 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
 
     def _subscribeTopic(self, topicName):
         """
-        subscribe ourself to a topic
+        subscribe ourself to a topic using safest ice tramsmition protocol
         The holon needs to inherit the topic proxy and implemented the topic methods
         """
-        topic = self._icemgr.subscribeTopic(topicName, self.proxy)
+        topic = self._icemgr.subscribeTopic(topicName, self.proxy.ice_twoway())
+        self._subscribedTopics[topicName] = topic
+        return topic
+
+    def _subscribeTopicUDP(self, topicName):
+        """
+        subscribe ourself to a topic, using UDP
+        The holon needs to inherit the topic proxy and implemented the topic methods
+        """
+        topic = self._icemgr.subscribeTopic(topicName, self.proxy.ice_datagram())
         self._subscribedTopics[topicName] = topic
         return topic
 
