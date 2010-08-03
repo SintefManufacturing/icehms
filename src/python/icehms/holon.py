@@ -9,97 +9,15 @@ import Ice
 from icehms import hms
 
 
-class Agent(hms.Agent, Thread, hms.GenericEventInterface):
-    """Abstract agent class
-    to be inherited by all agent
-    implements mainly lifecycle (start stop, methods) and logging
-    """
-    def __init__(self, name=None, logLevel=3):
-        Thread.__init__(self)
-        self._icemgr = None
+class Logger(object):
+    def __init__(self, logLevel=3):
         self._logLevel = logLevel
         self._stop = False
         self._logPub = None
         self._logFile = None
         self._logToFile = False
         self._logToStdout = True
-        if not name:
-            name = self.__class__.__name__ + "_" + str(uuid.uuid1())
-        self.name = name
-        self.registeredToGrid = False
         self._logToTopic = False
-        self._lock = Lock()
-        self._agentMgr = None
-        self.proxy = None
-        self._publishedTopics = {} 
-        self._subscribedTopics = {}
-        self.mailbox = MessageQueue()
-
-    def getName(self, ctx=None): # we override method from Thread but I guess it is fine
-        return self.name
-
-    def setAgentManager(self, mgr): 
-        """
-        Set agent manager object for a holon. keeping a pointer enable us create other holons 
-        also keep a pointer to icemgr
-        """
-        self._agentMgr = mgr
-        self._icemgr = mgr.icemgr
-
-    def subscribeTopic(self, topicName):
-        self._log("Call to deprecated method Holon.subscribeTopic, use Holon._subscribeTopic", 2)
-        return self._subscribeTopic(topicName)
-
-    def _subscribeTopic(self, topicName):
-        """
-        subscribe ourself to a topic
-        The holon needs to inherit the topic proxy and implemented the topic methods
-        """
-        topic = self._icemgr.subscribeTopic(topicName, self.proxy)
-        self._subscribedTopics[topicName] = topic
-        return topic
-
-    def getPublisher(self, topicName, prxobj, permanentTopic=False):
-        self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
-        return self._getPublisher(topicName, prxobj, permanentTopic)
-
-    def _getPublisher(self, topicName, prxobj, permanentTopic=True):
-        """
-        get a publisher object for a topic
-        create it if it does not exist
-        prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
-        if permanentTopic is False then we destroy it when we leave
-        otherwise it stays
-        """
- 
-        pub = self._icemgr.getPublisher(topicName, prxobj)
-        self._publishedTopics[topicName] = permanentTopic
-        return  pub
-
-    def _getEventPublisher(self, topicName, permanentTopic=True):
-        """
-        Wrapper over getPublisher, for generic event interface
-        """
-        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=False)
-
-    def newEvent(self, name, stringList, icebytes):
-        """
-        Received event from GenericEventInterface
-        """
-        self._log(2, "Holon registered to topic, but newEvent method not overwritten")
-
-    def unsubscribeTopic(self, name):
-        self._log("Call to deprecated method Holon.unsubscribeTopic, use Holon._unsubscribeTopic", 2)
-        return self._unsubscribeTopic(name)
-
-    def _unsubscribeTopic(self, name):
-        """
-        As the name says. It is necessary to unsubscribe to topics before exiting to avoid exceptions
-        and being able to re-subscribe without error next time
-        """
-        self._subscribedTopics[name].unsubscribe(self.proxy)
-        del(self._subscribedTopics[name])
-
 
     def setLogLevel(self, level, ctx=True):
         """
@@ -112,7 +30,7 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         Start logging to a topic
         """
         self._logToTopic = True
-        self._logPub = self.getPublisher("Log:" + self.name, hms.LogMonitorPrx, permanentTopic=False)
+        self._logPub = self._getPublisher("Log:" + self.name, hms.LogMonitorPrx, permanentTopic=False)
 
     def disableLogToTopic(self, current=None):
         """
@@ -192,7 +110,99 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
 
     def disableLogToFile(self, ctx=None):
         self._logToFile = False
-   
+ 
+
+
+
+
+
+
+class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
+    """Abstract agent class
+    to be inherited by all agent
+    implements mainly lifecycle (start stop, methods) and logging
+    """
+    def __init__(self, name=None, logLevel=3):
+        Thread.__init__(self)
+        Logger.__init__(self)
+        self._icemgr = None
+        if not name:
+            name = self.__class__.__name__ + "_" + str(uuid.uuid1())
+        self.name = name
+        self.registeredToGrid = False
+        self._lock = Lock()
+        self._agentMgr = None
+        self.proxy = None
+        self._publishedTopics = {} 
+        self._subscribedTopics = {}
+        self.mailbox = MessageQueue()
+
+    def getName(self, ctx=None): # we override method from Thread but I guess it is fine
+        return self.name
+
+    def setAgentManager(self, mgr): 
+        """
+        Set agent manager object for a holon. keeping a pointer enable us create other holons 
+        also keep a pointer to icemgr
+        """
+        self._agentMgr = mgr
+        self._icemgr = mgr.icemgr
+
+    def subscribeTopic(self, topicName):
+        self._log("Call to deprecated method Holon.subscribeTopic, use Holon._subscribeTopic", 2)
+        return self._subscribeTopic(topicName)
+
+    def _subscribeTopic(self, topicName):
+        """
+        subscribe ourself to a topic
+        The holon needs to inherit the topic proxy and implemented the topic methods
+        """
+        topic = self._icemgr.subscribeTopic(topicName, self.proxy)
+        self._subscribedTopics[topicName] = topic
+        return topic
+
+    def getPublisher(self, topicName, prxobj, permanentTopic=False):
+        self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
+        return self._getPublisher(topicName, prxobj, permanentTopic)
+
+    def _getPublisher(self, topicName, prxobj, permanentTopic=True):
+        """
+        get a publisher object for a topic
+        create it if it does not exist
+        prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
+        if permanentTopic is False then we destroy it when we leave
+        otherwise it stays
+        """
+ 
+        pub = self._icemgr.getPublisher(topicName, prxobj)
+        self._publishedTopics[topicName] = permanentTopic
+        return  pub
+
+    def _getEventPublisher(self, topicName, permanentTopic=True):
+        """
+        Wrapper over getPublisher, for generic event interface
+        """
+        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=False)
+
+    def newEvent(self, name, stringList, icebytes):
+        """
+        Received event from GenericEventInterface
+        """
+        self._log(2, "Holon registered to topic, but newEvent method not overwritten")
+
+    def unsubscribeTopic(self, name):
+        self._log("Call to deprecated method Holon.unsubscribeTopic, use Holon._unsubscribeTopic", 2)
+        return self._unsubscribeTopic(name)
+
+    def _unsubscribeTopic(self, name):
+        """
+        As the name says. It is necessary to unsubscribe to topics before exiting to avoid exceptions
+        and being able to re-subscribe without error next time
+        """
+        self._subscribedTopics[name].unsubscribe(self.proxy)
+        del(self._subscribedTopics[name])
+
+  
     def isRunning(self, current=None):
         """
         Return True if thread runnnig
@@ -201,7 +211,7 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         return self.isAlive()
 
     def run(self):
-        """ To be re-implemented by active holons
+        """ To be implemented by active holons
         """
         pass
 
@@ -245,7 +255,6 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         except Ice.Exception, why:
             self._ilog(why)
         
-
 
     def getPublishedTopics(self, current):
         """
@@ -298,7 +307,12 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         self._ilog(self.__class__.__name__ + " got Message " + msg.body)
         self.mailbox.append(msg)
 
+    def getClassName(self, ctx=None):
+        return self.__class__.__name__
 
+
+
+class stateSaver(object):
     def saveState(self, ctx=None):
         """
         Let holon save their internal state before relocation 
@@ -313,9 +327,6 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         """
         return False
     
-    def getClassName(self, ctx=None):
-        return self.__class__.__name__
-
 
 
 
@@ -338,8 +349,6 @@ class Holon(hms.Holon, Agent):
         for msg in self.mailbox.copy():
             ans.append(msg.body)
         return ans
-
-
 
 
 
