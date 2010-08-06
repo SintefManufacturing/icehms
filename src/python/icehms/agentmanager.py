@@ -12,8 +12,10 @@ import icehms
 
 
 class AgentManager(Thread):
-    """ Initialize Ice and register holons as servant to Ice registry
-    also takes care of catching signals and exiting Ice
+    """ 
+    Manage holons lifecycle.
+    create an IceManager if necessary
+    also takes care of catching signals 
     """
     def __init__(self, adapterId=None, catchSignals=True, daemon=False, icemgr=None, logLevel=3):
         """
@@ -121,7 +123,7 @@ class AgentManager(Thread):
 
     def removeAgent(self, agent):
         """
-        De-register an agent. to be called by external threads who destroyed an agent themselv
+        De-register and shutdown an agent. 
         """
         with self._agentsToRemoveLock:
             self._agentsToRemove.append(agent)
@@ -156,7 +158,6 @@ class AgentManager(Thread):
         """
         Internal, called from agent mgr thread
         """
-
         self._ilog( "Closing agent manager" )
         with self._lock:
             #send stop signal to all holons 
@@ -213,7 +214,7 @@ class AgentManager(Thread):
             self._ilog( "agent %s stopped" % agent.name , level=1 )
         self._removeAgent(agent)
 
-
+"""
     def moveHolon(self, prx, holonState):
         """
         This method attemps to relocate a holon to the current agentmanager
@@ -232,7 +233,7 @@ class AgentManager(Thread):
                 return True
         return False
  
-
+"""
 
 def startHolonStandalone(holon, registerToGrid=True, logLevel=None, parseCmdLine=True):
     """
