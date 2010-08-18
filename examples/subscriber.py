@@ -7,7 +7,7 @@ from icehms import Holon, startHolonStandalone, hms
 #class Client(Holon, hms.GenericEventInterface):
 class Client(Holon):
     def __init__(self, tn):
-        Holon.__init__(self, "Client")
+        Holon.__init__(self )
         self._tn = tn
 
     def run(self):

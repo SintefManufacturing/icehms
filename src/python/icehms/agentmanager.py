@@ -216,13 +216,11 @@ class AgentManager(Thread):
 
 """
     def moveHolon(self, prx, holonState):
-        """
         This method attemps to relocate a holon to the current agentmanager
         This must be supported by the holon through implementation of specific methods and 
         correct logic.
         The current implementation is python specific and may feil in most cases
         (only support generic holons !!)
-        """
         prxclass = prx.getClass()
         holon = None
         cmd = "holon = icehms." + prxclass + "()"
