@@ -11,7 +11,7 @@ class TestHolon(Holon):
         prx = self._getProxyBlocking(self.other)
         while not self._stop:
             try:
-                self._ilog( "State of ",prx.ice_id(), " is ", prx.getState() )
+                self._ilog( "State of ",prx.getName(), prx.ice_id(), " is ", prx.getState() )
             except Ice.Exception, why:
                 self._ilog("Exception while querying proxy", why)
             sleep(1)
