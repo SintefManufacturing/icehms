@@ -2,7 +2,8 @@
     <application name="IceBoxApp">
         <node name="Node1">
             <icebox id="IceBoxServer" exe="icebox" activation="on-demand">
-                <service name="IceStorm" entry="IceStormService:createIceStorm">
+                <!-- 34 is the library version and must be harcoded on some systems if no link exists-->
+                <service name="IceStorm" entry="IceStormService,${ice-version}:createIceStorm">
                     <dbenv name="${service}"/>
                     <adapter name="${service}.TopicManager"  >
                         <object identity="IceStorm/TopicManager" 
