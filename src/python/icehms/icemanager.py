@@ -64,8 +64,10 @@ class IceManager(object):
         prop.setProperty("Ice.ThreadPool.Client.Size", "5")
         prop.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
         if self._publishedEndpoints:
+            self._ilog( "setting published endpoints: ", self._publishedEndpoints)
             prop.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
         if self._endpoints:
+            self._ilog( "setting endpoints: ", self._endpoints)
             prop.setProperty("hms.Endpoints", self._endpoints)
 
         
