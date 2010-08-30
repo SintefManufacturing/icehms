@@ -36,6 +36,12 @@ def hack():
         directory_created(registry)
         file_created(link)
 
+    if os.name == "nt":
+        #some warnings from windows
+        print """
+        IceHMS needs a working Ice and python installation to run
+        Install Ice and set the PYTHONPATH environment variable if necessary
+        """
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "-install":
