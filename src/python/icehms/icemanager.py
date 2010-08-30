@@ -13,15 +13,18 @@ class IceManager(object):
     create connection to ice
     creates also usefull proxies and wrapper methods around Ice methods
     """
-    def __init__(self, adapterId=None, defaultTimeout=500, logLevel = 2):
+    def __init__(self, adapterId=None, defaultTimeout=500, endpoints=None, publishedEndpoints=None, logLevel = 2):
         """
-        No argument means no adapter is created
+        No adapterId argument means no adapter is created
         it can currently only handle one adapter, but we may have
         to add support for several adapter....maybe
         """
         self._logLevel = logLevel
 
         self._defaultTimeout = defaultTimeout
+
+        self._publishedEndpoints = publishedEndpoints
+        self._endpoints = endpoints
 
         self.initialized = False
         self._adapterId = adapterId
@@ -43,6 +46,8 @@ class IceManager(object):
     def initIce(self):
         """ Initiliaze Ice and keep proxy to many interesting ice objects
         """
+        if self.initialized:
+            return
 
         prop = Ice.createProperties(sys.argv) 
 
@@ -58,6 +63,13 @@ class IceManager(object):
         prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")
         prop.setProperty("Ice.ThreadPool.Client.Size", "5")
         prop.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
+        if self._publishedEndpoints:
+            self._ilog( "setting published endpoints: ", self._publishedEndpoints)
+            prop.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
+        if self._endpoints:
+            self._ilog( "setting endpoints: ", self._endpoints)
+            prop.setProperty("hms.Endpoints", self._endpoints)
+
         
         #All properties set, now initialize Ice and get communicator object
         iceid = Ice.InitializationData()
@@ -138,11 +150,11 @@ class IceManager(object):
         try:
             prx.ice_ping()
         except Ice.Exception, why:
-            self._ilog("Proxy could not be ping, maybe proxy is dead, maybe clean database", why, prx )
-            return None # no need to return a dead proxy
+            self._ilog("Proxy could not be ping, maybe proxy is dead, maybe clean database", why, prx, level=2)
+            return prx # prx is dead but maybe wants to investigate it 
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
-            self._ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=3)
-            return None
+            self._ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
+            return prx
         icetype = prx.ice_id() 
         icetype = icetype.replace("::", "", 1)
         icetype = icetype.replace("::", ".")
@@ -150,7 +162,7 @@ class IceManager(object):
             tmp = "prx = icehms." + icetype + "Prx.checkedCast(prx)"
             exec tmp 
         except NameError:
-            self._ilog( "Error executing:  ", tmp, level=3)
+            self._ilog( "Error executing:  ", tmp, level=2)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 

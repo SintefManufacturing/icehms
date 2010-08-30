@@ -47,7 +47,6 @@ class AgentManager(Thread):
             signal.signal(signal.SIGINT, self.shutdown)
             signal.signal(signal.SIGTERM, self.shutdown)
 
-        self._iceInitialized = False
         self._initializationFailed = False
 
         if daemon:
@@ -57,7 +56,7 @@ class AgentManager(Thread):
 
         self.start()
 
-        while not self._iceInitialized: # we need to make sure ice is initalized before anyone calls us
+        while not self.icemgr.initialized: # we need to make sure ice is initalized before anyone calls us
             if self._initializationFailed:
                 self._log( "Could not connect to Ice, is IceGrid running ? Exiting ...", level=1)
                 sys.exit(1)
@@ -178,7 +177,6 @@ class AgentManager(Thread):
     def run(self):
         try:
             self.icemgr.initIce()
-            self._iceInitialized = True
         except Ice.Exception, why:
             self._initializationFailed = True
             self._ilog( why , level=1)

@@ -5,7 +5,7 @@ from distutils.command.install_data import install_data
 import glob
 import os
 
-setup (name = "icehms", version = "0.6",
+setup (name = "icehms", version = "0.6.5",
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
         author = "Oivier R-D",
         url = 'http://sourceforge.net/projects/coldhms/',

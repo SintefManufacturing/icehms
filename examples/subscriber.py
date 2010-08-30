@@ -15,6 +15,8 @@ class Client(Holon):
         self._subscribeTopic(self._tn)
 
     def newEvent(self, name, stringList, bytesStr, ctx=None):
+        if ctx:
+            print ctx.con.toString() # print my own address and the one from icestorm
         print "New Event: ", name, stringList, unpack("=i", bytesStr)
 
 
