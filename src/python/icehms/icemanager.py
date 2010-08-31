@@ -37,6 +37,8 @@ class IceManager(object):
         self.query = None
         self.ic = None
         self.topicMgr = None
+        self.eventMgr = None
+        self.realtimeMgr = None
         
         #authentication is disable so whatever works
         self._adminUser = "foo"
@@ -89,6 +91,8 @@ class IceManager(object):
         self._admin  = self._session.getAdmin()
         try:
             self.topicMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("IceStorm/TopicManager"))
+            self.eventMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("EventServer/TopicManager"))
+            self.realtimeMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("RealTimeServer/TopicManager"))
         except Ice.NotRegisteredException:
             print "Exception : if we fail here it is proably because icestorm is not registered in node !!"
             print "run register_services.sh in icehms"
@@ -264,37 +268,41 @@ class IceManager(object):
                     newlist.append(prx)
         return newlist
     
-    def getTopic(self, topicName, create=True):
+    def getTopic(self, topicName, create=True, server=None):
         """
         return an ice topic object for name topicName
         if create is True(default) then create topic if it does not exist
         """
+        if not server:
+            server = self.topicMgr
+
         try:
-            topic = self.topicMgr.retrieve(topicName)
+            topic = server.retrieve(topicName)
         except Ice.Exception: #sometime we crash with strange error message so better catch everything
             if create:
                 try:
-                    topic = self.topicMgr.create(topicName)
+                    topic = server.create(topicName)
                 except IceStorm.TopicExists:
                     #maybe someone has created it in between so re-try without catching check 
                     # if we get an exception here we cannot do much more
-                    topic = self.topicMgr.retrieve(topicName)
+                    topic = server.retrieve(topicName)
             else:
                 raise
         return topic
 
-    def getPublisher(self, topicName, prxobj):
+    def getPublisher(self, topicName, prxobj, server=None):
         """
         get a publisher object for a topic
         create it if it does not exist
         prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
+        if server is None, default server is used
         """
-        topic = self.getTopic(topicName)
+        topic = self.getTopic(topicName, server)
         publisher = topic.getPublisher() # get twoways publisher for topic
         self._ilog("Got publisher for ", topicName)
         return  prxobj.uncheckedCast(publisher)
     
-    def subscribeTopic(self, topicName, prx):
+    def subscribeTopic(self, topicName, prx, server=None):
         """
         subscribe prx to a topic
         The object pointed by the proxy needs to inherit the topic proxy and implemented the topic methods

@@ -12,7 +12,8 @@ class Client(Holon):
 
     def run(self):
         self._log("Started")
-        self._subscribeTopic(self._tn)
+        #self._subscribeTopic(self._tn)
+        self._subscribeEvent(self._tn)
 
     def newEvent(self, name, stringList, bytesStr, ctx=None):
         if ctx:

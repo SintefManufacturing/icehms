@@ -152,7 +152,10 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         self._log("Call to deprecated method Holon.subscribeTopic, use Holon._subscribeTopic", 2)
         return self._subscribeTopic(topicName)
 
-    def _subscribeTopic(self, topicName):
+    def _subscribeEvent(self, topicName):
+        self._subscribeTopic(topicName, server=self._icemgr.eventMgr)
+
+    def _subscribeTopic(self, topicName, server=None):
         """
         subscribe ourself to a topic using safest ice tramsmition protocol
         The holon needs to inherit the topic proxy and implemented the topic methods
@@ -174,24 +177,25 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
         return self._getPublisher(topicName, prxobj, permanentTopic)
 
-    def _getPublisher(self, topicName, prxobj, permanentTopic=True):
+    def _getPublisher(self, topicName, prxobj, permanentTopic=True, server=None):
         """
         get a publisher object for a topic
         create it if it does not exist
         prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
         if permanentTopic is False then we destroy it when we leave
         otherwise it stays
+        if server is None then default server is used
         """
  
-        pub = self._icemgr.getPublisher(topicName, prxobj)
+        pub = self._icemgr.getPublisher(topicName, prxobj, server=server)
         self._publishedTopics[topicName] = permanentTopic
         return  pub
 
-    def _getEventPublisher(self, topicName, permanentTopic=True):
+    def _getEventPublisher(self, topicName):
         """
         Wrapper over getPublisher, for generic event interface
         """
-        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=False)
+        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=False, server=self._icemgr.eventMgr)
 
     def newEvent(self, name, stringList, icebytes):
         """

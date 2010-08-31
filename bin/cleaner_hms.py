@@ -73,7 +73,9 @@ print "Adapter: ", ids
 if not ids:
     print "No dead adapter found in registry"
 for id in ids:
-    if not re.match(".*IceStorm.*", id):
+    if re.match(".*\.[Publish,TopicManager].*", id):
+        print id, " seems to be part of an IceStorm server...skipping..."
+    else:
         print "Removing adapter: ", id
         admin.removeAdapter(id)
 
