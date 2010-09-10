@@ -25,9 +25,14 @@ def hack():
     #Now create a shortcut on desktop
     if os.name == "nt":
         desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
-        link = os.path.join(desktoppath, "run_ice.lnk")
-        app = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
-        create_shortcut(app, "Run Ice servers", link) 
+        menupath = get_special_folder_path("CSIDL_COMMON_PROGRAMS")
+        menupath = os.path.joint(menupath, "IceHMS")
+        link =         apprun = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
+        appupdate = os.path.join(sys.prefix, "Scripts", "update_hms_services.py")
+        appregister = os.path.join(sys.prefix, "Scripts", "register_hms_services.py")
+        create_shortcut(apprun, "Run Ice servers", os.path.join(desktoppath, "run_ice.lnk") )
+        create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
+        create_shortcut(appregister, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
 
     #inform setup.py that we created files
     if globals().has_key("directory_created"):
