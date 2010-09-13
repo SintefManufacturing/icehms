@@ -160,7 +160,7 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         subscribe ourself to a topic using safest ice tramsmition protocol
         The holon needs to inherit the topic proxy and implemented the topic methods
         """
-        topic = self._icemgr.subscribeTopic(topicName, self.proxy.ice_twoway())
+        topic = self._icemgr.subscribeTopic(topicName, self.proxy.ice_twoway(), server=server)
         self._subscribedTopics[topicName] = topic
         return topic
 
@@ -186,7 +186,6 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         otherwise it stays
         if server is None then default server is used
         """
- 
         pub = self._icemgr.getPublisher(topicName, prxobj, server=server)
         self._publishedTopics[topicName] = permanentTopic
         return  pub

@@ -297,7 +297,7 @@ class IceManager(object):
         prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
         if server is None, default server is used
         """
-        topic = self.getTopic(topicName, server)
+        topic = self.getTopic(topicName, server=server)
         publisher = topic.getPublisher() # get twoways publisher for topic
         self._ilog("Got publisher for ", topicName)
         return  prxobj.uncheckedCast(publisher)
@@ -307,7 +307,7 @@ class IceManager(object):
         subscribe prx to a topic
         The object pointed by the proxy needs to inherit the topic proxy and implemented the topic methods
         """
-        topic = self.getTopic(topicName)
+        topic = self.getTopic(topicName, server=server)
         qos = {}
         qos["reliability"] = "" #"" and "ordered" are the only possibilities see doc
         qos["retryCount"] = -1 #-1 means to never remove a dead subscriber from list 
