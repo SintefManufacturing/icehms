@@ -13,7 +13,11 @@ class Client(Holon):
         self._subscribeEvent(self._tn)
 
     def newEvent(self, name, stringList, bytesStr, ctx=None):
-        print "New Event: ", name, stringList, bytesStr
+        print "New Event: ", name, stringList, 
+        if bytesStr:
+            print " and binary data"
+        else:
+            print ""
 
 
 def print_topics():
