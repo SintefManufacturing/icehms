@@ -22,24 +22,30 @@ def hack():
     os.chmod(registry, 0777) 
     os.chmod(node, 0777)  
 
-    #Now create a shortcut on desktop
+    #Now create menus for windows 
     if os.name == "nt":
         desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
         menupath = get_special_folder_path("CSIDL_COMMON_PROGRAMS")
-        menupath = os.path.joint(menupath, "IceHMS")
+        menupath = os.path.join(menupath, "IceHMS")
+	if not os.path.isdir(menupath):
+		os.makedirs(menupath)
         link =         apprun = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
         appupdate = os.path.join(sys.prefix, "Scripts", "update_hms_services.py")
         appregister = os.path.join(sys.prefix, "Scripts", "register_hms_services.py")
         create_shortcut(apprun, "Run Ice servers", os.path.join(desktoppath, "run_ice.lnk") )
+        create_shortcut(apprun, "Run Ice servers", os.path.join(menupath, "run_ice.lnk") )
         create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
-        create_shortcut(appregister, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
+        create_shortcut(appupdate, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
 
     #inform setup.py that we created files
     if globals().has_key("directory_created"):
         #we are called from distutil
         directory_created(node)
         directory_created(registry)
-        file_created(link)
+        directory_created(menupath)
+        file_created(apprun)
+        file_created(appupdate)
+        file_created(appregister)
 
     if os.name == "nt":
         #some warnings from windows
