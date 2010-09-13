@@ -30,8 +30,8 @@ def hack():
 	if not os.path.isdir(menupath):
 		os.makedirs(menupath)
         link =         apprun = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
-        appupdate = os.path.join(sys.prefix, "Scripts", "update_hms_services.py")
-        appregister = os.path.join(sys.prefix, "Scripts", "register_hms_services.py")
+        appupdate = os.path.join(sys.prefix, "Scripts", "hms_update_services.py")
+        appregister = os.path.join(sys.prefix, "Scripts", "hms_register_services.py")
         create_shortcut(apprun, "Run Ice servers", os.path.join(desktoppath, "run_ice.lnk") )
         create_shortcut(apprun, "Run Ice servers", os.path.join(menupath, "run_ice.lnk") )
         create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )

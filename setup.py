@@ -5,7 +5,7 @@ from distutils.command.install_data import install_data
 import glob
 import os
 
-setup (name = "icehms", version = "0.6.7",
+setup (name = "icehms", version = "0.7.0",
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
         author = "Oivier R-D",
         url = 'http://sourceforge.net/projects/coldhms/',
@@ -13,7 +13,7 @@ setup (name = "icehms", version = "0.6.7",
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",
         
-        scripts = ["bin/cleaner_hms.py", "bin/lsholons.py", "bin/lstopics.py", "bin/register_hms_services.py", "bin/run_ice_servers.py", "bin/update_hms_services.py", "icehms_postinstall.py"],
+        scripts = ["bin/hms_events.py", "bin/hms_cleaner.py", "bin/lsholons.py", "bin/lstopics.py", "bin/hms_register_services.py", "bin/run_ice_servers.py", "bin/hms_update_services.py", "icehms_postinstall.py"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
                       ('doc/icehms', ["README.txt", "INSTALL.txt"]),
