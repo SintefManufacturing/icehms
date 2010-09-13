@@ -173,7 +173,7 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         self._subscribedTopics[topicName] = topic
         return topic
 
-    def getPublisher(self, topicName, prxobj, permanentTopic=False):
+    def getPublisher(self, topicName, prxobj, permanentTopic=True):
         self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
         return self._getPublisher(topicName, prxobj, permanentTopic)
 
@@ -187,14 +187,14 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         if server is None then default server is used
         """
         pub = self._icemgr.getPublisher(topicName, prxobj, server=server)
-        self._publishedTopics[topicName] = permanentTopic
+        self._publishedTopics[topicName] = (server, permanentTopic)
         return  pub
 
     def _getEventPublisher(self, topicName):
         """
         Wrapper over getPublisher, for generic event interface
         """
-        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=False, server=self._icemgr.eventMgr)
+        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=True, server=self._icemgr.eventMgr)
 
     def newEvent(self, name, stringList, icebytes):
         """
@@ -234,9 +234,10 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         """
         for topic in self._subscribedTopics.keys():
             self._unsubscribeTopic(topic)
+
         for k, v in self._publishedTopics.items():
-            if not v:
-                topic = self._icemgr.getTopic(k, create=False)
+            if not v[1]:
+                topic = self._icemgr.getTopic(k, server=v[0], create=False)
                 if topic:
                     #topic.destroy()
                     self._ilog("Topic destroying disabled since it can confused clients")
