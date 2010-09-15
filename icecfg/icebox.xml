@@ -39,7 +39,7 @@
 
 
 
-        <node name="Node1">
+        <node name="HMSDefaultNode">
             <icebox id="IceBoxServer" exe="icebox" activation="on-demand">
 
     <!-- Default IceStorm server -->
