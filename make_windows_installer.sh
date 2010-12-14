@@ -1,3 +1,2 @@
 #!/bin/sh
-set -x
-python setup.py bdist_wininst  --install-script postinstall.py
+python setup.py bdist_wininst  --install-script icehms_postinstall.py

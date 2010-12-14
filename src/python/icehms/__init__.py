@@ -40,7 +40,7 @@ else:
     if os.name == "nt":
         db_dir = "c:\icehms_db"
     else:
-        db_dir = '/var/lib/icehms/db'
+        db_dir = os.path.join(os.path.expanduser("~"), ".icehms/db") # This is not a config so do not use .config
     nodeData = os.path.join(db_dir, "node")
     registryData = os.path.join(db_dir, "registry")
 

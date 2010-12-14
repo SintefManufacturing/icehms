@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import subprocess
 import sys
 import icehms
 
@@ -12,7 +13,11 @@ if len(sys.argv) > 1:
     action = " update "
 
 #cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"' +  icehms.IceRegistryServer + '" -e "application ' + action + icehms.iceboxpath + '"'
-cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"%s" -e "application %s %s ice-version=%s"' % (icehms.IceRegistryServer, action, icehms.iceboxpath, version) 
+cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"%s" -e "application %s %s ice-version=%s" --username foo --password bar' % (icehms.IceRegistryServer, action, icehms.iceboxpath, version) 
 print cmd
-os.system(cmd)
+p = subprocess.Popen(cmd, shell=True)
+rcode = p.wait()
+#os.system(cmd)
+if os.name == "nt":
+    raw_input("Press a key to exit...")
 

@@ -1,6 +1,7 @@
 #!/bin/sh
 set -x
-VERSION=0.7.1
+#get version from setup.py file
+VERSION=`cat setup.py | grep "VERSION =" | sed s/'VERSION = '// | sed s/\"//g   ` 
 rm -r deb_dist
 python setup.py --command-packages=stdeb.command sdist_dsc
 echo '#!/bin/sh \npython /usr/bin/icehms_postinstall.py' > deb_dist/icehms-$VERSION/debian/icehms.postinst
