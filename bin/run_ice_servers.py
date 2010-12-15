@@ -42,9 +42,9 @@ if __name__ == "__main__":
     print cmd
 
     try:
-    	icegrid = subprocess.Popen(cmd, shell=True)
+        icegrid = subprocess.Popen(cmd, shell=True)
 
-    	# check if icebox config is up to date
+        # check if icebox config is up to date
         f = open(icehms.iceboxpath)
         md5 =  hashlib.md5(f.read())
         md5 = md5.digest()
@@ -74,6 +74,6 @@ if __name__ == "__main__":
             raw_input("Press Enter to exit...")
         try:
             icegrid.kill() # I may not kill it here
-	except Exception, why:
+        except Exception, why:
             print why
 
