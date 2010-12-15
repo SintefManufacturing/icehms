@@ -14,8 +14,8 @@ def create_windows_menu():
             print "Could not create menus for all users"
         else:
             create_shortcut(apprun, "Run Ice servers", os.path.join(menupath, "run_ice.lnk") )
-            create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
-            create_shortcut(appupdate, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
+            #create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
+            #create_shortcut(appupdate, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
     # the other links should always work
     apprun = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
     appupdate = os.path.join(sys.prefix, "Scripts", "hms_update_services.py")

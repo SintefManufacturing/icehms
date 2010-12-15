@@ -17,7 +17,4 @@ cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"%s" -e "application %
 print cmd
 p = subprocess.Popen(cmd, shell=True)
 rcode = p.wait()
-#os.system(cmd)
-if os.name == "nt":
-    raw_input("Press a key to exit...")
 

@@ -11,8 +11,8 @@ import icehms
 servreg = "hms_register_services.py"
 servup = "hms_update_services.py"
 if os.name == "nt":
-    servreg = os.path.join(sys.prefix, servreg)
-    servup = os.path.join(sys.prefix, servup)
+    servreg = "python " + os.path.join(sys.prefix, "Scripts", servreg)
+    servup =  "python " + os.path.join(sys.prefix,  "Scripts", servup)
 
 if not os.path.isdir(icehms.nodeData):
     try:
@@ -40,10 +40,11 @@ if __name__ == "__main__":
             if idx != 0: #argv[0] is program name
                 cmd += " " + a + " "
     print cmd
-    icegrid = subprocess.Popen(cmd, shell=True)
 
-    # check if icebox config is up to date
     try:
+    	icegrid = subprocess.Popen(cmd, shell=True)
+
+    	# check if icebox config is up to date
         f = open(icehms.iceboxpath)
         md5 =  hashlib.md5(f.read())
         md5 = md5.digest()
@@ -54,11 +55,11 @@ if __name__ == "__main__":
         else:
             oldmd5 = ""
         if md5 != oldmd5 :
-            print("Service data have changed , updating db ", md5, oldmd5 )
-            sleep(3)
-            p = subprocess.Popen(servreg)
+            print("Service data have changed , updating db in 2 seconds ... ", md5, oldmd5 )
+            sleep(2)
+            p = subprocess.Popen(servreg, shell=True)
             p.wait()
-            subprocess.Popen(servup)
+            subprocess.Popen(servup, shell=True)
             code = p.wait()
             if code == 0:
                 h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
@@ -69,7 +70,10 @@ if __name__ == "__main__":
         icegrid.wait()
         #os.system(cmd)
     finally:
-        icegrid.kill() # I may not kill it here
         if os.name == "nt":
             raw_input("Press Enter to exit...")
+        try:
+            icegrid.kill() # I may not kill it here
+	except Exception, why:
+            print why
 
