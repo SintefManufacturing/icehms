@@ -6,22 +6,22 @@ import os
 def create_windows_menu():
     desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
     menupath = get_special_folder_path("CSIDL_COMMON_PROGRAMS ")
-    menupath2 = get_special_folder_path("CSIDL_PROGRAMS")
+    #menupath2 = get_special_folder_path("CSIDL_PROGRAMS")
     menupath = os.path.join(menupath, "IceHMS")
     if not os.path.isdir(menupath):
         try:
             os.makedirs(menupath)
         except Exception, why:
-            # if we are not allowed to create link to common dir, use the user one
-            menupath = menupath2
-            os.makedirs(menupath)
+            print "Could not create menus for all users"
+        else:
+            create_shortcut(apprun, "Run Ice servers", os.path.join(menupath, "run_ice.lnk") )
+            create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
+            create_shortcut(appupdate, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
+    # the other links should always work
     apprun = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
     appupdate = os.path.join(sys.prefix, "Scripts", "hms_update_services.py")
     appregister = os.path.join(sys.prefix, "Scripts", "hms_register_services.py")
     create_shortcut(apprun, "Run Ice servers", os.path.join(desktoppath, "run_ice.lnk") )
-    create_shortcut(apprun, "Run Ice servers", os.path.join(menupath, "run_ice.lnk") )
-    create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
-    create_shortcut(appupdate, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
     #inform setup.py that we created files
     if globals().has_key("directory_created"):
         #we are called from distutil
