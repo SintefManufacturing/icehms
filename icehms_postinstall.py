@@ -5,8 +5,7 @@ import os
 
 def create_windows_menu():
     desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
-    menupath = get_special_folder_path("CSIDL_COMMON_PROGRAMS ")
-    #menupath2 = get_special_folder_path("CSIDL_PROGRAMS")
+    menupath = get_special_folder_path("CSIDL_COMMON_PROGRAMS")
     menupath = os.path.join(menupath, "IceHMS")
     if not os.path.isdir(menupath):
         try:
