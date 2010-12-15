@@ -8,6 +8,12 @@ from time import sleep
 
 import icehms 
 
+servreg = "hms_register_services.py"
+servup = "hms_update_services.py"
+if os.name == "nt":
+    servreg = os.path.join(sys.prefix, servreg)
+    servup = os.path.join(sys.prefix, servup)
+
 if not os.path.isdir(icehms.nodeData):
     try:
         os.makedirs(icehms.nodeData)
@@ -50,9 +56,9 @@ if __name__ == "__main__":
         if md5 != oldmd5 :
             print("Service data have changed , updating db ", md5, oldmd5 )
             sleep(3)
-            p = subprocess.Popen("hms_register_services.py")
+            p = subprocess.Popen(servreg)
             p.wait()
-            subprocess.Popen("hms_update_services.py")
+            subprocess.Popen(servup)
             code = p.wait()
             if code == 0:
                 h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
