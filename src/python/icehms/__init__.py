@@ -78,6 +78,9 @@ if os.environ.has_key("ICEHMS_SLICES"):
         if os.path.isdir(path):
             slicedirs.append(path)
 
+# Read slice files in current diretory, usefull for small projects
+slicedirs.append(".")
+
 print "Loading slice files from ", slicedirs
 
 for path in slicedirs:
