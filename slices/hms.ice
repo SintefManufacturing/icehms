@@ -82,6 +82,7 @@ module hms {
     
     interface GenericEventInterface {
         ["ami"] void newEvent(string name, StringSeq data, ByteSeq data2 );
+        ["ami"] void putMessage(Message s);
     };
 
     interface SleepHolon {

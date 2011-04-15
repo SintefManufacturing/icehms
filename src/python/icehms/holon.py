@@ -240,7 +240,7 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
                 topic = self._icemgr.getTopic(k, server=v[0], create=False)
                 if topic:
                     #topic.destroy()
-                    self._ilog("Topic destroying disabled since it can confused clients")
+                    self._ilog("Topic destroying disabled since it can confuse clients")
         if self._logToFile:
             self._logFile.close()
 
