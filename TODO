@@ -1,4 +1,6 @@
-create an example with custom interface
+Holon should not inherit Logger but instanciate one. carefull this might brake a lot of code
+AgentManager could then use the same logger class
+
 
 use isinstance to automatically detect agents and holons in agentmanager
 

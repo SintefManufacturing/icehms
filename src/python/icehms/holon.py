@@ -9,110 +9,6 @@ import Ice
 from icehms import hms
 
 
-class Logger(object):
-    def __init__(self, logLevel=3):
-        self._logLevel = logLevel
-        self._stop = False
-        self._logPub = None
-        self._logFile = None
-        self._logToFile = False
-        self._logToStdout = True
-        self._logToTopic = False
-
-    def setLogLevel(self, level, ctx=True):
-        """
-        As name says
-        """
-        self._logLevel = level
- 
-    def enableLogToTopic(self, current=None):
-        """
-        Start logging to a topic
-        """
-        self._logToTopic = True
-        self._logPub = self._getPublisher("Log:" + self.name, hms.LogMonitorPrx, permanentTopic=False)
-
-    def disableLogToTopic(self, current=None):
-        """
-        Stop logging to a topic
-        """
-        self._logToTopic = False
-
-    def _log(self, msg, level=6):
-        """
-        log to enabled channels 
-
-        0 Emergency: system is unusable
-        1 Alert: action must be taken immediately
-        2 Critical: critical conditions
-        3 Error: error conditions
-        4 Warning: warning conditions
-        5 Notice: normal but significant condition
-        6 Informational: informational messages
-        7 Debug: debug-level messages
-        """
-        if type(level) != int:
-            self.__log("self._log called with wrong argument !!!", 1)
-            level = 1
-        if level <= self._logLevel:
-            self.__log(msg, level)
-
-    def log(self, *args):
-        """
-        keep backward compatibility
-        """
-        self._log("Call to deprecated method self.log, please use self._log")
-        return self._log(*args)
-
-    def _ilog(self, *args, **kwargs):
-        """
-        format everything to string before logging
-        """
-        msg = ""
-        if kwargs.has_key("level"):
-            level = kwargs["level"]
-        else:
-            level = 6
-        for arg in args:
-            msg += " " + str(arg)
-        self._log(msg, level)
-
-    def __log(self, msg, level):
-        """
-        internal , used by logging functions
-        """
-        msg = str(level) + "::" + self.__class__.__name__ + "::" + self.name + ": " + str(msg)
-        if self._logToStdout:
-            print(msg)
-        if self._logToTopic and self._logPub:
-            try:
-                self._logPub.appendLog(msg)
-            except Ice.Exception:
-                print "Exception when publishing to topic, check topic manager"
-        if self._logToFile:
-            self._logFile.write(msg + "\n")
-
-    def enableLogToStdout(self, ctx=None):
-        self._logToStdout = True
-
-    def disableLogToStdout(self, ctx=None):
-        self._logToStdout = False
-
-    def enableLogToFile(self, ctx=None):
-        if not self._logToFile:
-            try:
-                self._logFile = open("Trace_"+ self.name + "_" + str(time()) + ".txt", "w")
-            except IOError, why:
-                self._ilog("Error opening log file: ", why)
-                return False
-            self._logToFile = True
-        return True
-
-    def disableLogToFile(self, ctx=None):
-        self._logToFile = False
- 
-
-
 
 
 
@@ -326,6 +222,9 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
 
 
 class stateSaver(object):
+    """
+    Not Implemented
+    """
     def saveState(self, ctx=None):
         """
         Let holon save their internal state before relocation 
@@ -362,6 +261,110 @@ class Holon(hms.Holon, Agent):
         for msg in self.mailbox.copy():
             ans.append(msg.body)
         return ans
+
+
+class Logger(object):
+    def __init__(self, logLevel=3):
+        self._logLevel = logLevel
+        self._stop = False
+        self._logPub = None
+        self._logFile = None
+        self._logToFile = False
+        self._logToStdout = True
+        self._logToTopic = False
+
+    def setLogLevel(self, level, ctx=True):
+        """
+        As name says
+        """
+        self._logLevel = level
+ 
+    def enableLogToTopic(self, current=None):
+        """
+        Start logging to a topic
+        """
+        self._logToTopic = True
+        self._logPub = self._getPublisher("Log:" + self.name, hms.LogMonitorPrx, permanentTopic=False)
+
+    def disableLogToTopic(self, current=None):
+        """
+        Stop logging to a topic
+        """
+        self._logToTopic = False
+
+    def _log(self, msg, level=6):
+        """
+        log to enabled channels 
+
+        0 Emergency: system is unusable
+        1 Alert: action must be taken immediately
+        2 Critical: critical conditions
+        3 Error: error conditions
+        4 Warning: warning conditions
+        5 Notice: normal but significant condition
+        6 Informational: informational messages
+        7 Debug: debug-level messages
+        """
+        if type(level) != int:
+            self.__log("self._log called with wrong argument !!!", 1)
+            level = 1
+        if level <= self._logLevel:
+            self.__log(msg, level)
+
+    def log(self, *args):
+        """
+        keep backward compatibility
+        """
+        self._log("Call to deprecated method self.log, please use self._log")
+        return self._log(*args)
+
+    def _ilog(self, *args, **kwargs):
+        """
+        format everything to string before logging
+        """
+        msg = ""
+        if kwargs.has_key("level"):
+            level = kwargs["level"]
+        else:
+            level = 6
+        for arg in args:
+            msg += " " + str(arg)
+        self._log(msg, level)
+
+    def __log(self, msg, level):
+        """
+        internal , used by logging functions
+        """
+        msg = str(level) + "::" + self.__class__.__name__ + "::" + self.name + ": " + str(msg)
+        if self._logToStdout:
+            print(msg)
+        if self._logToTopic and self._logPub:
+            try:
+                self._logPub.appendLog(msg)
+            except Ice.Exception:
+                print "Exception when publishing to topic, check topic manager"
+        if self._logToFile:
+            self._logFile.write(msg + "\n")
+
+    def enableLogToStdout(self, ctx=None):
+        self._logToStdout = True
+
+    def disableLogToStdout(self, ctx=None):
+        self._logToStdout = False
+
+    def enableLogToFile(self, ctx=None):
+        if not self._logToFile:
+            try:
+                self._logFile = open("Trace_"+ self.name + "_" + str(time()) + ".txt", "w")
+            except IOError, why:
+                self._ilog("Error opening log file: ", why)
+                return False
+            self._logToFile = True
+        return True
+
+    def disableLogToFile(self, ctx=None):
+        self._logToFile = False
+ 
 
 
 
