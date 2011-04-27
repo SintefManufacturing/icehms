@@ -21,8 +21,10 @@ echo -e '#!/bin/sh \npython /usr/bin/icehms_postinstall.py' > deb_dist/icehms-$V
 cd deb_dist/icehms-$VERSION/
 dpkg-buildpackage -rfakeroot -uc -us
 cd .. 
-echo "\n Install package ?(Y/n)\n"
+echo -e "\n Install package ?(Y/n)\n"
 read ANS
 if [ X"$ANS" = "Xy" ]; then 
     sudo dpkg -i icehms_${VERSION}-1_all.deb
+elif
+    echo "OK, not installing"
 fi

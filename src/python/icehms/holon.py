@@ -13,14 +13,15 @@ from icehms import hms
 
 
 
-class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
+class Agent(hms.Agent, Thread, hms.GenericEventInterface):
     """Abstract agent class
     to be inherited by all agent
     implements mainly lifecycle (start stop, methods) and logging
     """
     def __init__(self, name=None, logLevel=3):
         Thread.__init__(self)
-        Logger.__init__(self)
+        self._stop = False
+        self.logger = Logger(self, logLevel)
         self._icemgr = None
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
@@ -43,6 +44,7 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         """
         self._agentMgr = mgr
         self._icemgr = mgr.icemgr
+        self.logger.icemgr = self._icemgr
 
     def subscribeTopic(self, topicName):
         self._log("Call to deprecated method Holon.subscribeTopic, use Holon._subscribeTopic", 2)
@@ -123,6 +125,25 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         """
         pass
 
+    def log(self, *args):
+        """
+        keep backward compatibility
+        """
+        self._log("Call to deprecated method self.log, please use self._log")
+        return self._log(*args)
+
+    def _log(self, msg, level=6):
+        """
+        Log to enabled log channels
+        """
+        return self.logger.log(msg, level)
+
+    def _ilog(self, *args, **kwargs):
+        """
+        format everything to string before logging
+        """
+        return self.logger.ilog(*args, **kwargs)
+
     def cleanup(self):
         """
         Remove stuff from the database
@@ -137,8 +158,7 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
                 if topic:
                     #topic.destroy()
                     self._ilog("Topic destroying disabled since it can confuse clients")
-        if self._logToFile:
-            self._logFile.close()
+        self.logger.cleanup()
 
     def start(self, current=None):
         """ overrriden so that it can be called from ice
@@ -178,8 +198,8 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
         return self._icemgr.getHolon(name)
  
     def findAllObjectsByType(self, icetype):
-        self.log( "Call to deprecated method Holon.findAllObjectsByType", 2)
-        self.log( "Use IceManager.findHolons", 2)
+        self._log( "Call to deprecated method Holon.findAllObjectsByType", 2)
+        self._log( "Use IceManager.findHolons", 2)
         return self._icemgr.findHolons(icetype)
     
     def getProxyBlocking(self, name):
@@ -219,9 +239,15 @@ class Agent(hms.Agent, Logger, Thread, hms.GenericEventInterface):
     def getClassName(self, ctx=None):
         return self.__class__.__name__
 
+    def setLogLevel(self, level):
+        """
+        should be deprecated, use Agent.logger.setLogLevel
+        """
+        self.logger.setLogLevel(level)
 
 
-class stateSaver(object):
+
+class StateSaver(object):
     """
     Not Implemented
     """
@@ -264,14 +290,15 @@ class Holon(hms.Holon, Agent):
 
 
 class Logger(object):
-    def __init__(self, logLevel=3):
+    def __init__(self, parent, logLevel):
+        self.parent = parent
         self._logLevel = logLevel
-        self._stop = False
         self._logPub = None
         self._logFile = None
         self._logToFile = False
         self._logToStdout = True
         self._logToTopic = False
+        self.icemgr = None
 
     def setLogLevel(self, level, ctx=True):
         """
@@ -281,10 +308,14 @@ class Logger(object):
  
     def enableLogToTopic(self, current=None):
         """
-        Start logging to a topic
+        Enable logging to a topic
         """
         self._logToTopic = True
-        self._logPub = self._getPublisher("Log:" + self.name, hms.LogMonitorPrx, permanentTopic=False)
+        if self.icemgr:
+            self._createLogPub()
+
+    def _createLogPub(self):
+        self._logPub = self.icemgr.getPublisher("Log:" + self.parent.name, hms.LogMonitorPrx, server=None)
 
     def disableLogToTopic(self, current=None):
         """
@@ -292,7 +323,7 @@ class Logger(object):
         """
         self._logToTopic = False
 
-    def _log(self, msg, level=6):
+    def log(self, msg, level=6):
         """
         log to enabled channels 
 
@@ -306,19 +337,13 @@ class Logger(object):
         7 Debug: debug-level messages
         """
         if type(level) != int:
-            self.__log("self._log called with wrong argument !!!", 1)
+            self._log("self._log called with wrong argument !!!", 1)
             level = 1
         if level <= self._logLevel:
-            self.__log(msg, level)
+            self._log(msg, level)
 
-    def log(self, *args):
-        """
-        keep backward compatibility
-        """
-        self._log("Call to deprecated method self.log, please use self._log")
-        return self._log(*args)
 
-    def _ilog(self, *args, **kwargs):
+    def ilog(self, *args, **kwargs):
         """
         format everything to string before logging
         """
@@ -329,20 +354,23 @@ class Logger(object):
             level = 6
         for arg in args:
             msg += " " + str(arg)
-        self._log(msg, level)
+        self.log(msg, level)
 
-    def __log(self, msg, level):
+    def _log(self, msg, level):
         """
         internal , used by logging functions
         """
-        msg = str(level) + "::" + self.__class__.__name__ + "::" + self.name + ": " + str(msg)
+        msg = str(level) + "::" + self.parent.getClassName() + "::" + self.parent.name + ": " + str(msg)
         if self._logToStdout:
             print(msg)
-        if self._logToTopic and self._logPub:
-            try:
-                self._logPub.appendLog(msg)
-            except Ice.Exception:
-                print "Exception when publishing to topic, check topic manager"
+        if self._logToTopic:
+            if not self._logPub and self.icemgr:
+                self._createLogPub()
+            if self._logPub:
+                try:
+                    self._logPub.appendLog(msg)
+                except Ice.Exception:
+                    print "Exception when publishing to topic, check topic manager"
         if self._logToFile:
             self._logFile.write(msg + "\n")
 
@@ -355,16 +383,19 @@ class Logger(object):
     def enableLogToFile(self, ctx=None):
         if not self._logToFile:
             try:
-                self._logFile = open("Trace_"+ self.name + "_" + str(time()) + ".txt", "w")
+                self._logFile = open("Trace_"+ self.parent.name + "_" + str(time()) + ".txt", "w")
             except IOError, why:
-                self._ilog("Error opening log file: ", why)
+                self.ilog("Error opening log file: ", why)
                 return False
             self._logToFile = True
         return True
 
     def disableLogToFile(self, ctx=None):
         self._logToFile = False
- 
+
+    def cleanup(self):
+        if self._logToFile:
+            self._logFile.close()
 
 
 

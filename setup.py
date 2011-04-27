@@ -5,7 +5,7 @@ from distutils.command.install_data import install_data
 import glob
 import os
 
-VERSION = "0.7.3"
+VERSION = "0.7.99"
 
 setup (name = "icehms", 
         version = VERSION,
