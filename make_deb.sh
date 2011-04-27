@@ -25,6 +25,6 @@ echo -e "\n Install package ?(Y/n)\n"
 read ANS
 if [ X"$ANS" = "Xy" ]; then 
     sudo dpkg -i icehms_${VERSION}-1_all.deb
-elif
+else
     echo "OK, not installing"
 fi

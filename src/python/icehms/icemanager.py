@@ -6,6 +6,7 @@ import IceGrid
 import IceStorm
 
 import icehms 
+from icehms.logger import Logger
 
 
 class IceManager(object):
@@ -19,7 +20,7 @@ class IceManager(object):
         it can currently only handle one adapter, but we may have
         to add support for several adapter....maybe
         """
-        self._logLevel = logLevel
+        self.logger = Logger(self, "", logLevel)
 
         self._defaultTimeout = defaultTimeout
 
@@ -66,10 +67,10 @@ class IceManager(object):
         prop.setProperty("Ice.ThreadPool.Client.Size", "5")
         prop.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
         if self._publishedEndpoints:
-            self._ilog( "setting published endpoints: ", self._publishedEndpoints)
+            self.logger.ilog( "setting published endpoints: ", self._publishedEndpoints)
             prop.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
         if self._endpoints:
-            self._ilog( "setting endpoints: ", self._endpoints)
+            self.logger.ilog( "setting endpoints: ", self._endpoints)
             prop.setProperty("hms.Endpoints", self._endpoints)
 
         
@@ -118,7 +119,7 @@ class IceManager(object):
             return "" 
         s.connect((ip, 0))#opening a dummy socket to port 0 on icegrid server
         ip = s.getsockname()[0]
-        self._ilog( "Deduced local IP address is: ", s.getsockname()[0])
+        self.logger.ilog( "Deduced local IP address is: ", s.getsockname()[0])
         return s.getsockname()[0]
 
 
@@ -154,10 +155,10 @@ class IceManager(object):
         try:
             prx.ice_ping()
         except Ice.Exception, why:
-            self._ilog("Proxy could not be ping, maybe proxy is dead, maybe clean database", why, prx, level=2)
+            self.logger.ilog("Proxy could not be ping, maybe proxy is dead, maybe clean database", why, prx, level=2)
             return prx # prx is dead but maybe wants to investigate it 
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
-            self._ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
+            self.logger.ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
             return prx
         icetype = prx.ice_id() 
         icetype = icetype.replace("::", "", 1)
@@ -166,7 +167,7 @@ class IceManager(object):
             tmp = "prx = icehms." + icetype + "Prx.checkedCast(prx)"
             exec tmp 
         except NameError:
-            self._ilog( "Error executing:  ", tmp, level=2)
+            self.logger.ilog( "Error executing:  ", tmp, level=2)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 
@@ -180,7 +181,7 @@ class IceManager(object):
             self.admin.updateObject(proxy)
             return False
         except Ice.Exception, why:
-            self._ilog( "Could not register holon to grid !!!!!!", why, level=3)
+            self.logger.ilog( "Could not register holon to grid !!!!!!", why, level=3)
             return False
 
     def deregisterToIceGrid(self, iceid):
@@ -191,42 +192,11 @@ class IceManager(object):
         try:
             self.admin.removeObject(iceid)
         except IceGrid.ObjectNotRegisteredException, why:
-            self._ilog( "Holon was not registered in database" )
+            self.logger.ilog( "Holon was not registered in database" )
         except Ice.ObjectNotExistException, why:
-            self._ilog( "Could not de-register holon, admin obejct is dead !!!! report !!", why )
+            self.logger.ilog( "Could not de-register holon, admin obejct is dead !!!! report !!", why )
         else:
-            self._ilog( "Holon %s de-registered" % iceid.name )
-
-
-    def _log(self, msg, level=6):
-        """
-        log to stdout 
-
-        0 Emergency: system is unusable
-        1 Alert: action must be taken immediately
-        2 Critical: critical conditions
-        3 Error: error conditions
-        4 Warning: warning conditions
-        5 Notice: normal but significant condition
-        6 Informational: informational messages
-        7 Debug: debug-level messages
- 
-        """
-        if level <= self._logLevel:
-            print(str(level) + ":" + self.__class__.__name__ +" : " + msg)
-
-    def _ilog(self, *args, **kwargs):
-        """
-        format everything to string before logging
-        """
-        msg = ""
-        if kwargs.has_key("level"):
-            level = kwargs["level"]
-        else:
-            level = 6
-        for arg in args:
-            msg += str(arg)
-        self._log(msg, level)
+            self.logger.ilog( "Holon %s de-registered" % iceid.name )
 
 
     def getProxy(self, name):
@@ -243,7 +213,7 @@ class IceManager(object):
             if prx:
                 prx = self.automatedCast(prx)
                 if prx:
-                    self._ilog( "got proxy for ", prx)
+                    self.logger.ilog( "got proxy for ", prx)
         return prx
 
     def findAllObjectsByType(self, icetype):
@@ -299,7 +269,7 @@ class IceManager(object):
         """
         topic = self.getTopic(topicName, server=server)
         publisher = topic.getPublisher() # get twoways publisher for topic
-        self._ilog("Got publisher for ", topicName)
+        self.logger.ilog("Got publisher for ", topicName)
         return  prxobj.uncheckedCast(publisher)
     
     def subscribeTopic(self, topicName, prx, server=None):
@@ -314,8 +284,8 @@ class IceManager(object):
         try:
             topic.subscribe({}, prx) 
         except IceStorm.AlreadySubscribed:
-            self._ilog( "Allready subscribed to topic" )
-        self._ilog( "subscribed", prx, " to topic ", topicName )
+            self.logger.ilog( "Allready subscribed to topic" )
+        self.logger.ilog( "subscribed", prx, " to topic ", topicName )
         return topic
 
 

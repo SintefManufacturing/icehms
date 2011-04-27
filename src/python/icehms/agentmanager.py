@@ -9,6 +9,7 @@ from time import sleep
 import Ice 
 
 import icehms
+from icehms.logger import Logger
 
 
 class AgentManager(Thread):
@@ -28,9 +29,8 @@ class AgentManager(Thread):
         if not adapterId:
             adapterId = Ice.generateUUID()
 
-        self.setName(self.__class__.__name__ + "::" + adapterId) #set thread name for debuggin
 
-        self._logLevel = logLevel
+        self.logger = Logger(self, str(adapterId) + "::" + self.getName() , logLevel)
         self._shutdownEvent = False
         self._lock = Lock()
         self._agents = []
@@ -52,45 +52,16 @@ class AgentManager(Thread):
         if daemon:
             self.setDaemon(1)
 
-        self._log("Starting", level=2)
+        self.logger.log("Starting", level=2)
 
         self.start()
 
         while not self.icemgr.initialized: # we need to make sure ice is initalized before anyone calls us
             if self._initializationFailed:
-                self._log( "Could not connect to Ice, is IceGrid running ? Exiting ...", level=1)
+                self.logger.log( "Could not connect to Ice, is IceGrid running ? Exiting ...", level=1)
                 sys.exit(1)
             sleep(0.1)
 
-    def _log(self, msg, level=6):
-        """
-        log to stdout 
-
-        0 Emergency: system is unusable
-        1 Alert: action must be taken immediately
-        2 Critical: critical conditions
-        3 Error: error conditions
-        4 Warning: warning conditions
-        5 Notice: normal but significant condition
-        6 Informational: informational messages
-        7 Debug: debug-level messages
- 
-        """
-        if level <= self._logLevel:
-            print(str(level) + ":" + Thread.getName(self) +" : " + msg)
-
-    def _ilog(self, *args, **kwargs):
-        """
-        format everything to string before logging
-        """
-        msg = ""
-        if kwargs.has_key("level"):
-            level = kwargs["level"]
-        else:
-            level = 6
-        for arg in args:
-            msg += str(arg)
-        self._log(msg, level)
 
     def addAgent(self, agent, registerToGrid=False, daemon=False):
         """ Register an agen after the adapter has started
@@ -99,7 +70,7 @@ class AgentManager(Thread):
         try:
             agent.proxy = self.icemgr.adapter.add(agent, iceid) #register holon
         except Ice.AlreadyRegisteredException:
-            self._log( "Looks like you tried to register 2 times the same agent  : %s" % agent.name, level=2)
+            self.logger.log( "Looks like you tried to register 2 times the same agent  : %s" % agent.name, level=2)
             return
         agent.proxy = self.icemgr.automatedCast(agent.proxy)
         agent.setAgentManager(self)
@@ -148,7 +119,7 @@ class AgentManager(Thread):
         Clean shutdown
         stop thread and deregister/destroy Ice objects
         """
-        self._ilog( "Sending shutdown event" )
+        self.logger.ilog( "Sending shutdown event" )
         self._shutdownEvent = True
         if join:
             self.join()
@@ -157,21 +128,21 @@ class AgentManager(Thread):
         """
         Internal, called from agent mgr thread
         """
-        self._ilog( "Closing agent manager" )
+        self.logger.ilog( "Closing agent manager" )
         with self._lock:
             #send stop signal to all holons 
             for agent in self._agents: 
-                self._ilog( "sending stop to ", agent.name )
+                self.logger.ilog( "sending stop to ", agent.name )
                 agent.stop() 
             # wait for holons to stop, if one is broken , we are dead ..
             for agent in copy(self._agents): 
                 try:
                     self._shutdownAgent(agent)
                 except (AttributeError, Ice.Exception), why: #catch everything we must not fail
-                    self._ilog( why )
-        self._ilog( "Now closing Ice" )
+                    self.logger.ilog( why )
+        self.logger.ilog( "Now closing Ice" )
         self.icemgr.destroy()
-        self._ilog( "Ice closed" )
+        self.logger.ilog( "Ice closed" )
 
 
     def run(self):
@@ -179,13 +150,13 @@ class AgentManager(Thread):
             self.icemgr.initIce()
         except Ice.Exception, why:
             self._initializationFailed = True
-            self._ilog( why , level=1)
+            self.logger.ilog( why , level=1)
             self._shutdownEvent = True
 
         while True:
             if self._shutdownEvent:
                 self._shutdown()
-                self._log("Finished !", level=2)
+                self.logger.log("Finished !", level=2)
                 return
             if self._agentsToRemove:
                 with self._agentsToRemoveLock:
@@ -193,23 +164,23 @@ class AgentManager(Thread):
                         try:
                             self._shutdownAgent(agent)
                         except Ice.Exception, why: #catch everything we must not fail
-                            self._ilog( why, level=3 )
+                            self.logger.ilog( why, level=3 )
                         self._agentsToRemove.remove(agent)
             if not sleep:
-                self._ilog( "DEBUG: Sleep is None, ", self._shutdownEvent )
+                self.logger.ilog( "DEBUG: Sleep is None, ", self._shutdownEvent )
             sleep(0.1)
 
     def _shutdownAgent(self, agent):
         agent.stop() #might allready be called but that is fine
-        self._ilog( "Waiting for agent %s to stop ..." % agent.name  )
+        self.logger.ilog( "Waiting for agent %s to stop ..." % agent.name  )
         if agent.isAlive():
             agent.join(2) 
         agent.cleanup() # remove personal topics for example
 
         if agent.isAlive():
-            self._ilog( "Failed to stop main thread for agent: ", agent.name , level=1)
+            self.logger.ilog( "Failed to stop main thread for agent: ", agent.name , level=1)
         else:
-            self._ilog( "agent %s stopped" % agent.name , level=1 )
+            self.logger.ilog( "agent %s stopped" % agent.name , level=1 )
         self._removeAgent(agent)
 
 """
