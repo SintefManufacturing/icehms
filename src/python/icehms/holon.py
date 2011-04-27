@@ -1,6 +1,6 @@
 from threading import Thread, Lock
 from copy import copy
-from time import sleep, time
+from time import sleep
 import uuid
 
 import Ice 
@@ -245,29 +245,6 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         should be deprecated, use Agent.logger.setLogLevel
         """
         self.logger.setLogLevel(level)
-
-
-
-class StateSaver(object):
-    """
-    Not Implemented
-    """
-    def saveState(self, ctx=None):
-        """
-        Let holon save their internal state before relocation 
-        return a state object
-        return False if state saving is not possible or not implemented
-        """
-        return False
-
-    def restoreState(self, state):
-        """
-        Let holon restore their internal state after relocation
-        """
-        return False
-    
-
-
 
 
 
