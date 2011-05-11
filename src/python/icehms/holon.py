@@ -1,6 +1,6 @@
 from threading import Thread, Lock
 from copy import copy
-from time import sleep
+from time import sleep, time
 import uuid
 
 import Ice 
@@ -265,6 +265,24 @@ class Holon(hms.Holon, Agent):
         for msg in self.mailbox.copy():
             ans.append(msg.body)
         return ans
+
+
+
+class Message(hms.Message):
+    """
+    Wrapper over the Ice Message definition, 
+    not really necessary but users expect to find it here
+    """
+    def __init__(self, *args, **kwargs):
+        hms.Message.__init__(self, *args, **kwargs)
+        self.creationTime = time()
+
+    def __setattr__(self, name, val):
+        #format everything to string
+        if name == "parameters" and val:
+            #convert everything to string
+            val = [str(i) for i in val]
+        return hms.Message.__setattr__(self, name, val)
 
 
 
