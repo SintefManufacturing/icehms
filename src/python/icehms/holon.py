@@ -275,7 +275,7 @@ class Message(hms.Message):
     """
     def __init__(self, *args, **kwargs):
         hms.Message.__init__(self, *args, **kwargs)
-        self.creationTime = time()
+        self.initTime = time()
 
     def __setattr__(self, name, val):
         #format everything to string

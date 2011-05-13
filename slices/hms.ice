@@ -17,7 +17,8 @@ module hms {
         string address;
         string header;
         string body;
-        double creationTime;
+        string creationTime;
+        double initTime;
         string processingTime;
         StringSeq parameters;
     };
