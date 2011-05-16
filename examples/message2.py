@@ -1,6 +1,5 @@
 from time import sleep
 import sys
-sys.path.append("..")
 from icehms import startHolonStandalone, Holon
 
 class Client(Holon):

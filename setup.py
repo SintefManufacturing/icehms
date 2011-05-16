@@ -16,7 +16,7 @@ setup (name = "icehms",
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",
         
-        scripts = ["bin/hms_events.py", "bin/hms_cleaner.py", "bin/lsholons.py", "bin/lstopics.py", "bin/hms_register_services.py", "bin/run_ice_servers.py", "bin/hms_update_services.py", "icehms_postinstall.py"],
+        scripts = ["bin/hms_print_events.py", "bin/hms_cleaner.py", "bin/lsholons.py", "bin/lstopics.py", "bin/hms_register_services.py", "bin/run_ice_servers.py", "bin/hms_update_services.py", "icehms_postinstall.py"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
                       ('doc/icehms', ["README.txt", "INSTALL.txt"]),
