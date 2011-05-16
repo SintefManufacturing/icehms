@@ -19,6 +19,8 @@ class Client(Holon):
         else:
             print ""
 
+    def putMessage(self, msg, ctx=None):
+        print "New Message: ", msg 
 
 def print_topics():
     mgr = IceManager()
