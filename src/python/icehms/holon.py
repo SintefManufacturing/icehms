@@ -280,8 +280,9 @@ class Message(hms.Message):
     def __setattr__(self, name, val):
         #format everything to string
         if name == "parameters" and val:
-            #convert everything to string
             val = [str(i) for i in val]
+        elif name == "arguments" and val:
+            val = {k:str(v) for k,v in val.items()}
         return hms.Message.__setattr__(self, name, val)
 
 

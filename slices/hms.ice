@@ -17,8 +17,10 @@ module hms {
         string address;
         string header;
         string body;
-        string creationTime;
         double initTime;
+        StrStrMap arguments;
+        //The following members are legacy:
+        string creationTime;
         string processingTime;
         StringSeq parameters;
     };
