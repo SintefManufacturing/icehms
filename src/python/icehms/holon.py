@@ -282,7 +282,13 @@ class Message(hms.Message):
         if name == "parameters" and val:
             val = [str(i) for i in val]
         elif name == "arguments" and val:
-            val = {k:str(v) for k,v in val.items()}
+            #val = {k:str(v) for k,v in val.items()} # does not work with python < 2.6
+            d = dict()
+            for k, v in val.items():
+                if v in ("None", None): 
+                    v = ""
+                d[k] = str(v)
+            val = d
         return hms.Message.__setattr__(self, name, val)
 
 
