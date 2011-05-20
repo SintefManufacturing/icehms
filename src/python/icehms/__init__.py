@@ -38,6 +38,7 @@ if intree:
 else:
     #The code here must be the same as setup.py
     if os.name == "nt":
+        #FIXME: should not require C drive !!
         db_dir = "c:\icehms_db"
     else:
         db_dir = os.path.join(os.path.expanduser("~"), ".icehms/db") # This is not a config so do not use .config

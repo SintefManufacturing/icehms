@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+#!f:\Python26\python.exe
 
 import os
 import sys
@@ -59,13 +59,15 @@ if __name__ == "__main__":
             sleep(2)
             p = subprocess.Popen(servreg, shell=True)
             p.wait()
-            subprocess.Popen(servup, shell=True)
+            p = subprocess.Popen(servup, shell=True)
             code = p.wait()
             if code == 0:
+                print("update succesfull, writting hash file")
                 h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
                 h.write(md5)
         else:
             print "IceBox services are up to date"
+        print("Running IceGrid")
 
         icegrid.wait()
         #os.system(cmd)

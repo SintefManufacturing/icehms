@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!f:\Python26\python.exe
 import os
 import subprocess
 import sys
