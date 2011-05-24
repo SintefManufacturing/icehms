@@ -314,7 +314,7 @@ class MessageQueue(object):
     def pop(self):
         self.lock.acquire()
         if len(self._list) > 0:
-            msg = self._list.pop()
+            msg = self._list.pop(0)
         else: 
             msg = None
         self.lock.release()
