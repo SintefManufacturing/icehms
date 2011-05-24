@@ -1,4 +1,4 @@
-#!f:\Python26\python.exe
+#!/usr/bin/env python
 import os
 import sys
 cmd = "hms_register_services.py update"
