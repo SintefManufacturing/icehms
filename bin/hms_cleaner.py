@@ -4,8 +4,6 @@ import Ice
 import IceGrid
 import IceStorm
 
-#Ice.loadSlice('hms.ice')
-sys.path.append("..")
 import re
 import icehms
 server = icehms.IceRegistryServer 
@@ -23,11 +21,21 @@ session = registry.createAdminSession("olivier", "olivier")
 admin  = session.getAdmin()
 
 manager = IceStorm.TopicManagerPrx.checkedCast(ic.stringToProxy("IceStorm/TopicManager"))
-#objs = admin.getAllObjectInfos("*")
-#for obj in objs:
-#    print obj.type
-#    print obj.proxy
 
+topics = manager.retrieveAll()
+
+print "Topics: ", topics
+
+for topicName in topics.keys():
+    try:
+        topic = manager.retrieve(topicName)
+    except IceStorm.NoSuchTopic, e:
+        print "could not retrive topic from topicmanager"
+    else:
+        topic.destroy()
+        print "topic %s destroyed" % topicName
+
+manager = IceStorm.TopicManagerPrx.checkedCast(ic.stringToProxy("EventServer/TopicManager"))
 
 topics = manager.retrieveAll()
 
