@@ -1,4 +1,6 @@
 from icehms import hms
+from time import time
+import Ice # only for exception handling
 
 
 class Logger(object):
@@ -65,10 +67,13 @@ class Logger(object):
         format everything to string before logging
         """
         msg = ""
-        if kwargs.has_key("level"):
-            level = kwargs["level"]
-        else:
-            level = 6
+        level = 6
+        for k, v in kwargs.items():
+            if k in ("level", "logLevel"):
+                level  = v
+            else:
+                self.ilog("Error: Unknown argument to ilog method: ", k, v, level=2)
+
         for arg in args:
             msg += " " + str(arg)
         self.log(msg, level)
