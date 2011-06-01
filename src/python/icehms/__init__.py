@@ -13,7 +13,7 @@ except KeyError, why:
     # First see if we are in source tree, if not check if we are installed
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
-    print "root is ", root
+    #print "root is ", root
     if os.path.isdir(os.path.join(root, "icecfg")):
         print "Looks like we are in source tree"
         intree = True
@@ -82,7 +82,7 @@ if os.environ.has_key("ICEHMS_SLICES"):
 # Read slice files in current diretory, usefull for small projects
 slicedirs.append(".")
 
-print "Loading slice files from ", slicedirs
+#print "Loading slice files from ", slicedirs
 
 for path in slicedirs:
     for icefile in os.listdir(path):
