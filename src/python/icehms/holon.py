@@ -234,7 +234,7 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
     
     def putMessage(self, msg, current=None):
         #is going to be called by other process/or threads so must be protected
-        self._ilog(self.__class__.__name__ + " got Message " + msg.body)
+        self._ilog("Received message: " + msg.body, level=9)
         self.mailbox.append(msg)
 
     def getClassName(self, ctx=None):
@@ -271,7 +271,6 @@ class Holon(hms.Holon, Agent):
 class Message(hms.Message):
     """
     Wrapper over the Ice Message definition, 
-    not really necessary but users expect to find it here
     """
     def __init__(self, *args, **kwargs):
         hms.Message.__init__(self, *args, **kwargs)

@@ -149,6 +149,7 @@ class IceManager(object):
     def automatedCast(self, prx):
         """
         get ice type from ice, parse string and cast to specific type !
+        FIXME: exec can probably be replace by using __dict__ on module
         """
         prx = prx.ice_timeout(300) 
         debugPrx = prx
