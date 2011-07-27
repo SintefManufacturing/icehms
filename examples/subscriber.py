@@ -15,10 +15,10 @@ class Client(Holon):
         #self._subscribeTopic(self._tn)
         self._subscribeEvent(self._tn)
 
-    def newEvent(self, name, stringList, bytesStr, ctx=None):
+    def newEvent(self, name, arguments, data, ctx=None):
         if ctx:
             print ctx.con.toString() # print my own address and the one from icestorm
-        print "New Event: ", name, stringList, unpack("=i", bytesStr)
+        print "New Event: ", name, arguments, "binary data: ", unpack("=i", data)[0]
 
 
 if __name__ == "__main__":

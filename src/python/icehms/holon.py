@@ -1,3 +1,11 @@
+"""
+This file define the main holon class
+It also define LightHolon and BaseHolon for specific uses
+and utility objects like Message and mailbox
+"""
+
+
+
 from threading import Thread, Lock
 from copy import copy
 from time import sleep, time
@@ -12,30 +20,22 @@ from icehms.logger import Logger
 
 
 
-
-
-class Agent(hms.Agent, Thread, hms.GenericEventInterface):
-    """Abstract agent class
-    to be inherited by all agent
-    implements mainly lifecycle (start stop, methods) and logging
+class LightHolon(hms.Holon):
+    """
+    very basic holon only implementing registration to ice
+    and some default methods called by AgentManager
     """
     def __init__(self, name=None, logLevel=3):
-        Thread.__init__(self)
-        self._stop = False
-        self._icemgr = None
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
         self.name = name
         self.logger = Logger(self, self.name, logLevel)
+        self._icemgr = None
         self.registeredToGrid = False
-        self._lock = Lock()
         self._agentMgr = None
         self.proxy = None
-        self._publishedTopics = {} 
-        self._subscribedTopics = {}
-        self.mailbox = MessageQueue()
 
-    def getName(self, ctx=None): # we override method from Thread but I guess it is fine
+    def getName(self, ctx=None): # we may override method from Thread but I guess it is fine
         return self.name
 
     def setAgentManager(self, mgr): 
@@ -47,9 +47,129 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         self._icemgr = mgr.icemgr
         self.logger.icemgr = self._icemgr
 
+    def cleanup(self):
+        """
+        Call by agent manager when deregistering
+        """
+
+    def start(self, current=None):
+        """ 
+        Call by Agent manager after registering
+        """
+        self._log("Starting" )
+                
+    def stop(self, current=None):
+        """ 
+        Call by agent manager before deregistering
+        """
+        self._ilog("stop called ")
+
+
+    def shutdown(self, ctx=None):
+        """
+        shutdown a holon, deregister from icegrid and icestorm and stop thread if one is running
+        I read somewhere this should notbe available in a MAS, holons should only shutdown themselves
+        """
+        try:
+            self._agentMgr.removeAgent(self)
+        except Ice.Exception, why:
+            self._ilog(why)
+
+    def getClassName(self, ctx=None):
+        return self.__class__.__name__
+
+    def _log(self, msg, level=6):
+        """
+        Log to enabled log channels
+        """
+        return self.logger.log(msg, level)
+
+    def _ilog(self, *args, **kwargs):
+        """
+        format everything to string before logging
+        """
+        return self.logger.ilog(*args, **kwargs)
+
+    def setLogLevel(self, level):
+        """
+        maybe should be deprecated, use Agent.logger.setLogLevel
+        """
+        self.logger.setLogLevel(level)
+
+
+class LegacyMethods:
+    """
+    All legacy methods are moved in this class to reduce amount of visble code in Holon
+    """
+    # pylint: disable-msg=E1101
     def subscribeTopic(self, topicName):
         self._log("Call to deprecated method Holon.subscribeTopic, use Holon._subscribeTopic", 2)
         return self._subscribeTopic(topicName)
+
+    def getPublisher(self, topicName, prxobj, permanentTopic=True):
+        self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
+        return self._getPublisher(topicName, prxobj, permanentTopic)
+
+    def unsubscribeTopic(self, name):
+        self._log("Call to deprecated method Holon.unsubscribeTopic, use Holon._unsubscribeTopic", 2)
+        return self._unsubscribeTopic(name)
+  
+    def isRunning(self, current=None):
+        """
+        Return True if thread runnnig
+        Since some agents do not need threads, it might return False even if everythig is fine
+        """
+        return self.isAlive()
+
+    def log(self, *args):
+        """
+        keep backward compatibility
+        """
+        self._log("Call to deprecated method self.log, please use self._log")
+        return self._log(*args)
+
+
+    def getProxy(self, name):
+        self._log( "Call to deprecated method Holon.getProxy", 2)
+        self._log( "Use IceManager.getProxy", 2)
+        return self._icemgr.getHolon(name)
+ 
+    def findAllObjectsByType(self, icetype):
+        self._log( "Call to deprecated method Holon.findAllObjectsByType", 2)
+        self._log( "Use IceManager.findHolons", 2)
+        return self._icemgr.findHolons(icetype)
+    
+    def getProxyBlocking(self, name):
+        self._log( "Call to deprecated method Holon.getProxyBlocking", 2)
+        self._log( "Use Holon._getProxyBlocking", 2)
+        return self._getProxyBlocking(name)
+
+
+    def getState(self, current=None):
+        """ default implementation of a getState
+        should be re-imlemented in all clients
+        """
+        self._log("Call to default state method is deprecated, please fix caller")
+        ans = []
+        for msg in self.mailbox.copy():
+            ans.append(msg.body)
+        return ans
+
+
+
+
+
+class BaseHolon(LightHolon, hms.GenericEventInterface, LegacyMethods):
+    """Base Class for non active Holons 
+    to be inherited by all holons
+    implements mainly helper methods like logging interface to topics and the Ice registry
+    """
+    def __init__(self, name=None, logLevel=3):
+        LightHolon.__init__(self, name, logLevel)
+        self._publishedTopics = {} 
+        self._subscribedTopics = {}
+        self.mailbox = MessageQueue()
+
 
     def _subscribeEvent(self, topicName):
         self._subscribeTopic(topicName, server=self._icemgr.eventMgr)
@@ -72,9 +192,6 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         self._subscribedTopics[topicName] = topic
         return topic
 
-    def getPublisher(self, topicName, prxobj, permanentTopic=True):
-        self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
-        return self._getPublisher(topicName, prxobj, permanentTopic)
 
     def _getPublisher(self, topicName, prxobj, permanentTopic=True, server=None):
         """
@@ -95,15 +212,12 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         """
         return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=True, server=self._icemgr.eventMgr)
 
-    def newEvent(self, name, stringList, icebytes):
+    def newEvent(self, name, arguments, icebytes):
         """
         Received event from GenericEventInterface
         """
         self._log(2, "Holon registered to topic, but newEvent method not overwritten")
 
-    def unsubscribeTopic(self, name):
-        self._log("Call to deprecated method Holon.unsubscribeTopic, use Holon._unsubscribeTopic", 2)
-        return self._unsubscribeTopic(name)
 
     def _unsubscribeTopic(self, name):
         """
@@ -112,38 +226,6 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         """
         self._subscribedTopics[name].unsubscribe(self.proxy)
         del(self._subscribedTopics[name])
-
-  
-    def isRunning(self, current=None):
-        """
-        Return True if thread runnnig
-        Since some agents do not need threads, it might return False even if everythig is fine
-        """
-        return self.isAlive()
-
-    def run(self):
-        """ To be implemented by active holons
-        """
-        pass
-
-    def log(self, *args):
-        """
-        keep backward compatibility
-        """
-        self._log("Call to deprecated method self.log, please use self._log")
-        return self._log(*args)
-
-    def _log(self, msg, level=6):
-        """
-        Log to enabled log channels
-        """
-        return self.logger.log(msg, level)
-
-    def _ilog(self, *args, **kwargs):
-        """
-        format everything to string before logging
-        """
-        return self.logger.ilog(*args, **kwargs)
 
     def cleanup(self):
         """
@@ -160,31 +242,7 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
                     #topic.destroy()
                     self._ilog("Topic destroying disabled since it can confuse clients")
         self.logger.cleanup()
-
-    def start(self, current=None):
-        """ overrriden so that it can be called from ice
-        maybe ice should call something else ....
-        """
-        self._log("Starting", level=2)
-        Thread.start(self)
-                
-    def stop(self, current=None):
-        """
-        Attempt to stop processing thread
-        """
-        self._ilog("stop called ")
-        self._stop = True
-
-    def shutdown(self, ctx=None):
-        """
-        shutdown a holon, stop thread and deregister from icegrid and icestorm
-        I am not sure it is a good idea, maybe it should be private
-        """
-        try:
-            self._agentMgr.removeAgent(self)
-        except Ice.Exception, why:
-            self._ilog(why)
-        
+       
 
     def getPublishedTopics(self, current):
         """
@@ -192,21 +250,38 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         """
         return self._publishedTopics.keys()
 
+    def printMsgQueue(self, ctx=None):
+        for msg in self.mailbox.copy():
+            print "%s" % msg.creationTime + ' receiving ' + msg.body
 
-    def getProxy(self, name):
-        self._log( "Call to deprecated method Holon.getProxy", 2)
-        self._log( "Use IceManager.getProxy", 2)
-        return self._icemgr.getHolon(name)
- 
-    def findAllObjectsByType(self, icetype):
-        self._log( "Call to deprecated method Holon.findAllObjectsByType", 2)
-        self._log( "Use IceManager.findHolons", 2)
-        return self._icemgr.findHolons(icetype)
     
-    def getProxyBlocking(self, name):
-        self._log( "Call to deprecated method Holon.getProxyBlocking", 2)
-        self._log( "Use Holon._getProxyBlocking", 2)
-        return self._getProxyBlocking(name)
+    def putMessage(self, msg, current=None):
+        #is going to be called by other process/or threads so must be protected
+        self._ilog("Received message: " + msg.body, level=9)
+        self.mailbox.append(msg)
+
+class Holon(BaseHolon, Thread):
+    """
+    Holon is the same as BaseHolon but starts a thread automatically
+    """
+    def __init__(self, name=None, logLevel=3):
+        Thread.__init__(self)
+        BaseHolon.__init__(self, name, logLevel)
+        self._stop = False
+        self._lock = Lock()
+
+    def start(self):
+        """
+        Re-implement because start exist in LightHolon
+        """
+        Thread.start(self)
+
+    def stop(self, current=None):
+        """
+        Attempt to stop processing thread
+        """
+        self._ilog("stop called ")
+        self._stop = True
 
     def _getProxyBlocking(self, address):
         return self._getHolonBlocking(address)
@@ -227,46 +302,22 @@ class Agent(hms.Agent, Thread, hms.GenericEventInterface):
         self._ilog( "Got connection to ", address)
         return prx
 
-    def printMsgQueue(self, ctx=None):
-        for msg in self.mailbox.copy():
-            print "%s" % msg.creationTime + ' receiving ' + msg.body
-
-    
-    def putMessage(self, msg, current=None):
-        #is going to be called by other process/or threads so must be protected
-        self._ilog("Received message: " + msg.body, level=9)
-        self.mailbox.append(msg)
-
-    def getClassName(self, ctx=None):
-        return self.__class__.__name__
-
-    def setLogLevel(self, level):
+    def run(self):
+        """ To be implemented by active holons
         """
-        should be deprecated, use Agent.logger.setLogLevel
-        """
-        self.logger.setLogLevel(level)
+        pass
 
 
 
 
-class Holon(hms.Holon, Agent):
-    """Abstract holon class
-    to be inherited by all holons
+
+class Agent(hms.Agent, Holon):
+    """
+    Legacy
     """
 
     def __init__(self, *args, **kw):
-        Agent.__init__(self, *args, **kw)
-
-    def getState(self, current=None):
-        """ default implementation of a getState
-        should be re-imlemented in all clients
-        """
-        ans = []
-        for msg in self.mailbox.copy():
-            ans.append(msg.body)
-        return ans
-
-
+        Holon.__init__(self, *args, **kw)
 
 class Message(hms.Message):
     """
@@ -339,6 +390,7 @@ class MessageQueue(object):
     def __repr__(self):
         """ what is printed when printing the maibox  """
         return self._list.__repr__()
+
 
 
 

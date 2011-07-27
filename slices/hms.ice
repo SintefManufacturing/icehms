@@ -11,6 +11,13 @@ module hms {
     sequence<byte> ByteSeq; // defaults to a python string while other sequences defaults to list !!
     //["python:seq:tuple"] sequence<int> IntTuple; // if we want ice to return tuple and list
     dictionary<string, string> StrStrMap;
+
+    sequence<double> Vector;
+    sequence<Vector> Matrix;
+    sequence<Vector> VectorSeq;
+
+
+
 	
     // to support messages
     struct Message {
@@ -25,21 +32,20 @@ module hms {
         StringSeq parameters;
     };
 
-     //Inherited by holons. Agent are used when implemented objects that should not be visible to the HMS
-    interface Agent {
+     //To be inherited by holon objects
+    interface Holon {
         //void start(); //Muts be disabled with ice3.4...why ?
         //void stop();
         string getName();
         bool isRunning();
         StringSeq getPublishedTopics();
         ["ami"] void putMessage(Message s);
+        //StringSeq getState();   
         void printMsgQueue();
     };
     
-    // base holon to be inherited by all other holons
-    interface Holon extends Agent {
-        StringSeq getState();   
-        void startLogging();
+    // For people who prefer using Agents
+    interface Agent extends Holon {
     };
     
     
@@ -73,22 +79,20 @@ module hms {
        bool getExclusiveAccess();
        bool releaseExclusiveAccess();
     };
+
    interface DeviceAdapterAccessCtrled extends DeviceAdapter,SimpleAccessControl { 
    };
     
     
-    sequence<double> Vector;
-    sequence<Vector> Matrix;
-    sequence<Vector> VectorSeq;
-
-    // A few testing interfaces
     
     interface GenericEventInterface {
-        ["ami"] void newEvent(string name, StringSeq data, ByteSeq data2 );
+        ["ami"] void newEvent(string name, StrStrMap arguments, ByteSeq data );
         ["ami"] void putMessage(Message s);
     };
 
-    interface SleepHolon {
+    // A few testing interfaces
+
+    interface SleepHolon { //testing and demo
         bool sleep(double time);
     };
    

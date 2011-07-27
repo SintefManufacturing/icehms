@@ -172,12 +172,13 @@ class AgentManager(Thread):
 
     def _shutdownAgent(self, agent):
         agent.stop() #might allready be called but that is fine
-        self.logger.ilog( "Waiting for agent %s to stop ..." % agent.name  )
-        if agent.isAlive():
-            agent.join(2) 
-        agent.cleanup() # remove personal topics for example
+        if isinstance(agent, Thread):
+            self.logger.ilog( "Waiting for agent %s to stop ..." % agent.name  )
+            if agent.isAlive():
+                agent.join(2) 
+        agent.cleanup() # let agent cleanup itself
 
-        if agent.isAlive():
+        if isinstance(agent, Thread) and agent.isAlive():
             self.logger.ilog( "Failed to stop main thread for agent: ", agent.name , level=1)
         else:
             self.logger.ilog( "agent %s stopped" % agent.name , level=1 )

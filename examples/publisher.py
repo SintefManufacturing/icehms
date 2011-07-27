@@ -16,7 +16,7 @@ class Server(Holon):
         counter = 0
         while not self._stop:
             counter +=1
-            pub.newEvent("counter", [str(counter)], pack("=i", counter) )
+            pub.newEvent("counter", arguments=dict(counter=str(counter)), data=pack("=i", counter) )
             time.sleep(0.5)
     
     def getState(self, current):
