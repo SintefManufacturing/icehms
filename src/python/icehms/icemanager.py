@@ -18,7 +18,7 @@ class IceManager(object):
         """
         No adapterId argument means no adapter is created
         it can currently only handle one adapter, but we may have
-        to add support for several adapter....maybe
+        to add support for several adapters....maybe
         """
         self.logger = Logger(self, "", logLevel)
 

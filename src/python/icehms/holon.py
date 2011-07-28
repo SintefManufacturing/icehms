@@ -67,7 +67,7 @@ class LightHolon(hms.Holon):
 
     def shutdown(self, ctx=None):
         """
-        shutdown a holon, deregister from icegrid and icestorm and stop thread if one is running
+        shutdown a holon, deregister from icegrid and icestorm and call stop() and cleanup on holon instances
         I read somewhere this should notbe available in a MAS, holons should only shutdown themselves
         """
         try:
