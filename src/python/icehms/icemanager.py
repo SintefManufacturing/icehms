@@ -149,7 +149,6 @@ class IceManager(object):
     def automatedCast(self, prx):
         """
         get ice type from ice, parse string and cast to specific type !
-        FIXME: exec can probably be replace by using __dict__ on module
         """
         prx = prx.ice_timeout(300) 
         debugPrx = prx
@@ -162,13 +161,12 @@ class IceManager(object):
             self.logger.ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
             return prx
         icetype = prx.ice_id() 
-        icetype = icetype.replace("::", "", 1)
-        icetype = icetype.replace("::", ".")
-        try:
-            tmp = "prx = icehms." + icetype + "Prx.checkedCast(prx)"
-            exec tmp 
-        except NameError:
-            self.logger.ilog( "Error executing:  ", tmp, level=2)
+        icetype = icetype.split("::")
+        tmp = icehms
+        for t in icetype[1:-1]:
+            tmp = tmp.__dict__[t]
+        tmp = tmp.__dict__[icetype[-1] + "Prx"]
+        prx = tmp.checkedCast(prx)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 

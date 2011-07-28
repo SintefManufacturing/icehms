@@ -7,14 +7,14 @@ import Ice
 
 #Find The installation root and setup some paths 
 intree = False
-try:
+if os.environ.has_key("ICEHMS_ROOT"):
     root = os.environ["ICEHMS_ROOT"]
-except KeyError, why:
-    # First see if we are in source tree, if not check if we are installed
+else:
+    #First see if we are in source tree, if not check if we are installed
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
-    #print "root is ", root
-    if os.path.isdir(os.path.join(root, "icecfg")):
+    print "root is ", root
+    if os.path.isdir(os.path.join(root, "icefg")) and os.path.isdir(os.path.join(root, "slices")):
         print "Looks like we are in source tree"
         intree = True
     else:
