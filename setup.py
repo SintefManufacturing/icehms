@@ -5,12 +5,16 @@ from distutils.command.install_data import install_data
 import glob
 import os
 
-VERSION = "0.8.1"
+from bzrlib.branch import Branch
+
+branch = Branch.open(".")
+
+VERSION = "0.8" + "-bzr" + str(branch.revno())
 
 setup (name = "icehms", 
         version = VERSION,
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
-        author = "Oivier R-D",
+        author = "Olivier R-D",
         url = 'http://sourceforge.net/projects/coldhms/',
         packages = ["icehms"],
         package_dir = {'icehms': 'src/python/icehms'},

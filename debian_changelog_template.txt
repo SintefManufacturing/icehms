@@ -1,0 +1,7 @@
+icehms (VERSION) unstable; urgency=low
+
+  * No changelog yet
+  * FIXME: add bzr log
+
+
+ -- Olivier R-D <olivier@dummyaddress.com>  DATE 
