@@ -9,22 +9,24 @@ function check_deb {
         exit 1
     fi
 }
-#we need stdeb
-check_deb python-stdeb
+
 check_deb build-essential
 
 #get version from setup.py file
 VERSION=`cat setup.py | grep "VERSION =" | sed s/'VERSION = '// | sed s/\"//g   ` 
-rm -r deb_dist
-python setup.py --command-packages=stdeb.command sdist_dsc
-echo -e '#!/bin/sh \npython /usr/bin/icehms_postinstall.py' > deb_dist/icehms-$VERSION/debian/icehms.postinst
-cd deb_dist/icehms-$VERSION/
-dpkg-buildpackage -rfakeroot -uc -us
-cd .. 
+VERSION="$VERSION-`bzr version-info --check-clean --custom --template='{revno}'`"
+#hack debian changelog
+cat debian_changelog_template.txt | sed   -e "s/VERSION/$VERSION/g" | sed   -e "s/DATE/`date --rfc-2822`/g" > debian/changelog
+
+#rm -r deb_dist
+#python setup.py --command-packages=stdeb.command sdist_dsc
+#echo -e '#!/bin/sh \npython /usr/bin/icehms_postinstall.py' > deb_dist/icehms-$VERSION/debian/icehms.postinst
+#cd deb_dist/icehms-$VERSION/
+dpkg-buildpackage -rfakeroot -uc -us -b
 echo -e "\n Install package ?(y/n)\n"
 read ANS
 if [ X"$ANS" = "Xy" ]; then 
-    sudo dpkg -i icehms_${VERSION}-1_all.deb
+    sudo dpkg -i ../icehms_${VERSION}_all.deb
 else
     echo "OK, not installing"
 fi
