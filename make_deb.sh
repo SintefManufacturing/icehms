@@ -12,21 +12,17 @@ function check_deb {
 
 check_deb build-essential
 
-#get version from setup.py file
-VERSION=`cat setup.py | grep "VERSION =" | sed s/'VERSION = '// | sed s/\"//g   ` 
-VERSION="$VERSION-`bzr version-info --check-clean --custom --template='{revno}'`"
+BZRVERSION="bzr`bzr version-info --check-clean --custom --template='{revno}'`"
 #hack debian changelog
-cat debian_changelog_template.txt | sed   -e "s/VERSION/$VERSION/g" | sed   -e "s/DATE/`date --rfc-2822`/g" > debian/changelog
+cat debian_changelog_template.txt | sed   -e "s/VERSION/08-$BZRVERSION/g" | sed   -e "s/DATE/`date --rfc-2822`/g" > debian/changelog
 
-#rm -r deb_dist
-#python setup.py --command-packages=stdeb.command sdist_dsc
-#echo -e '#!/bin/sh \npython /usr/bin/icehms_postinstall.py' > deb_dist/icehms-$VERSION/debian/icehms.postinst
-#cd deb_dist/icehms-$VERSION/
 dpkg-buildpackage -rfakeroot -uc -us -b
-echo -e "\n Install package ?(y/n)\n"
+
+DEB=`ls -t1 ../*.deb | head -n1`
+echo -e "\n Install package $DEB?(y/n)\n"
 read ANS
 if [ X"$ANS" = "Xy" ]; then 
-    sudo dpkg -i ../icehms_${VERSION}_all.deb
+    sudo dpkg -i $DEB
 else
     echo "OK, not installing"
 fi
