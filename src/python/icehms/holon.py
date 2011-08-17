@@ -1,7 +1,8 @@
 """
-This file define the main holon class
-It also define LightHolon and BaseHolon for specific uses
-and utility objects like Message and mailbox
+This file define the main holon classes
+BaseHolon implement the minim methods necessary for communication with other holons
+LightHolons adds helper methods to handle message, topics and events
+Holon adds a main thread to LightHolon
 """
 
 
@@ -20,9 +21,9 @@ from icehms.logger import Logger
 
 
 
-class LightHolon(hms.Holon):
+class BaseHolon(hms.Holon):
     """
-    very basic holon only implementing registration to ice
+    Base holon only implementing registration to ice
     and some default methods called by AgentManager
     """
     def __init__(self, name=None, logLevel=3):
@@ -159,13 +160,12 @@ class LegacyMethods:
 
 
 
-class BaseHolon(LightHolon, hms.GenericEventInterface, LegacyMethods):
-    """Base Class for non active Holons 
-    to be inherited by all holons
-    implements mainly helper methods like logging interface to topics and the Ice registry
+class LightHolon(BaseHolon, hms.GenericEventInterface, LegacyMethods):
+    """Base Class for non active Holons or holons setting up their own threads
+    implements helper methods like to handle topics, messages and events 
     """
     def __init__(self, name=None, logLevel=3):
-        LightHolon.__init__(self, name, logLevel)
+        BaseHolon.__init__(self, name, logLevel)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
         self.mailbox = MessageQueue()
@@ -260,13 +260,13 @@ class BaseHolon(LightHolon, hms.GenericEventInterface, LegacyMethods):
         self._ilog("Received message: " + msg.body, level=9)
         self.mailbox.append(msg)
 
-class Holon(BaseHolon, Thread):
+class Holon(LightHolon, Thread):
     """
-    Holon is the same as BaseHolon but starts a thread automatically
+    Holon is the same as LightHolon but starts a thread automatically
     """
     def __init__(self, name=None, logLevel=3):
         Thread.__init__(self)
-        BaseHolon.__init__(self, name, logLevel)
+        LightHolon.__init__(self, name, logLevel)
         self._stop = False
         self._lock = Lock()
 

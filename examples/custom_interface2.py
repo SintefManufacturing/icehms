@@ -12,6 +12,9 @@ class TT(hms.myproject.CustomHolon, BaseHolon):
     def customMethod(self, current):
         return time() 
 
+    def run(self):
+        print "I am running !!!!"
+
 
 
 if __name__ == "__main__":

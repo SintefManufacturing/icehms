@@ -13,7 +13,6 @@ else:
     #First see if we are in source tree, if not check if we are installed
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
-    print "root is ", root
     if os.path.isdir(os.path.join(root, "icefg")) and os.path.isdir(os.path.join(root, "slices")):
         print "Looks like we are in source tree"
         intree = True
@@ -26,6 +25,8 @@ else:
         else:
             print "Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable"
             sys.exit(1)
+
+print "root is ", root
 
 sysSlicesPath = os.path.join(root, "slices") # system slice files
 icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration ice
