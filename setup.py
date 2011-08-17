@@ -5,11 +5,9 @@ from distutils.command.install_data import install_data
 import glob
 import os
 
-from bzrlib.branch import Branch
+from icehmsversion import VERSION
 
-branch = Branch.open(".")
 
-VERSION = "0.8" + "-bzr" + str(branch.revno())
 
 setup (name = "icehms", 
         version = VERSION,
