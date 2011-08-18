@@ -24,6 +24,7 @@ module hms {
         string address;
         string header;
         string body;
+        string sender;
         double createTime;
         StrStrMap arguments;
         //The following members are legacy:

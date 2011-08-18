@@ -26,7 +26,7 @@ class BaseHolon(hms.Holon):
     Base holon only implementing registration to ice
     and some default methods called by AgentManager
     """
-    def __init__(self, name=None, logLevel=3):
+    def __init__(self, name=None, logLevel=2):
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
         self.name = name
@@ -89,6 +89,9 @@ class BaseHolon(hms.Holon):
         """
         format everything to string before logging
         """
+        #first set default log value...if someone knows a simpler way...
+        if not kwargs.has_key("logLevel") and not kwargs.has_key("logLevel"):
+            kwargs["logLevel"] = 6
         return self.logger.ilog(*args, **kwargs)
 
     def setLogLevel(self, level):
@@ -164,7 +167,7 @@ class LightHolon(BaseHolon, hms.GenericEventInterface, LegacyMethods):
     """Base Class for non active Holons or holons setting up their own threads
     implements helper methods like to handle topics, messages and events 
     """
-    def __init__(self, name=None, logLevel=3):
+    def __init__(self, name=None, logLevel=2):
         BaseHolon.__init__(self, name, logLevel)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
@@ -264,7 +267,7 @@ class Holon(LightHolon, Thread):
     """
     Holon is the same as LightHolon but starts a thread automatically
     """
-    def __init__(self, name=None, logLevel=3):
+    def __init__(self, name=None, logLevel=2):
         Thread.__init__(self)
         LightHolon.__init__(self, name, logLevel)
         self._stop = False
