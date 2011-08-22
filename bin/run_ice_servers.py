@@ -17,13 +17,13 @@ if os.name == "nt":
 if not os.path.isdir(icehms.nodeData):
     try:
         os.makedirs(icehms.nodeData)
-    except os.IOError, why:
+    except (OSError, IOError), why:
         print "Could not create directory for node data, create it and set write permissions :", icehms.nodeData 
         sys.exit(1)
 if not os.path.isdir(icehms.registryData):
     try:
         os.makedirs(icehms.registryData)
-    except os.IOError, why:
+    except (OSError, IOError), why:
         print "Could not create directory for registry data, create it and set write permissions :", icehms.registryData 
         sys.exit(1)
 

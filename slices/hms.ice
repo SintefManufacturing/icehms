@@ -41,7 +41,8 @@ module hms {
         bool isRunning();
         StringSeq getPublishedTopics();
         ["ami"] void putMessage(Message s);
-        //StringSeq getState();   
+        //legacy
+        StringSeq getState();   
         void printMsgQueue();
     };
     
