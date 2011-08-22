@@ -1,3 +1,9 @@
+"""
+setup necessary variables to run icehms
+"""
+
+
+
 import os
 import sys
 import re
@@ -10,41 +16,42 @@ intree = False
 if os.environ.has_key("ICEHMS_ROOT"):
     root = os.environ["ICEHMS_ROOT"]
 else:
-    #First see if we are in source tree, if not check if we are installed
+    #See if we are started form sourcetree
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
     if os.path.isdir(os.path.join(root, "icefg")) and os.path.isdir(os.path.join(root, "slices")):
         print "Looks like we are in source tree"
         intree = True
     else:
-        #see if we are installed
-        root = os.path.join(sys.prefix, "share", "icehms")
-        if os.path.isdir(root):
-            # we are installed, this is good
-            pass
+        tmp = os.path.join(sys.prefix, "share", "icehms")
+        if os.path.isdir(tmp): # look like icehms has been installed ealier, try that
+            root = tmp
         else:
             print "Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable"
             sys.exit(1)
 
-print "root is ", root
+print "icehms root is ", root
 
 sysSlicesPath = os.path.join(root, "slices") # system slice files
 icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration ice
 iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration icestorm
 
 #setup ice database path
-if intree:
-    nodeData = os.path.join(root, "db", "node") # node registry
-    registryData = os.path.join(root, "db", "registry") #registry database path
+
+if os.environ.has_key("ICEHMS_DB"):
+    db_dir = os.environ["ICEHMS_DB"]
 else:
-    #The code here must be the same as setup.py
-    if os.name == "nt":
-        #FIXME: should not require C drive !!
-        db_dir = "c:\icehms_db"
+    if intree:
+        nodeData = os.path.join(root, "db", "node") # node registry
+        registryData = os.path.join(root, "db", "registry") #registry database path
     else:
-        db_dir = os.path.join(os.path.expanduser("~"), ".icehms/db") # This is not a config so do not use .config
-    nodeData = os.path.join(db_dir, "node")
-    registryData = os.path.join(db_dir, "registry")
+        if os.name == "nt":
+            appdata = os.environ["APPDATA"]
+            db_dir = os.path.join(appdata, "icehms", "db")
+        else:
+            db_dir = os.path.join(os.path.expanduser("~"), ".icehms", "db") # This is not a config so do not use .config
+nodeData = os.path.join(db_dir, "node")
+registryData = os.path.join(db_dir, "registry")
 
 #setup ice registry address 
 if os.environ.has_key("ICEHMS_REGISTRY"):
