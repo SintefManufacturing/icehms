@@ -1,10 +1,10 @@
 try:
     from bzrlib.branch import Branch
 except ImportError:
-    rev = "Unknown"
-    nick = "icehms"
+    bzrstring = ""
 else:
     branch = Branch.open(".")
     rev = str(branch.revno())
     nick = branch.nick
-VERSION = "0.8.3" + "-bzr-" + nick + "-rev" + rev
+    bzrstring = "-bzr-" + nick + "-rev" + rev
+VERSION = "0.8.4" + bzrstring
