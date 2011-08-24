@@ -18,7 +18,7 @@ class AgentManager(Thread):
     create an IceManager if necessary
     also takes care of catching signals 
     """
-    def __init__(self, adapterId=None, catchSignals=True, daemon=False, icemgr=None, logLevel=3):
+    def __init__(self, adapterId=None, catchSignals=True, daemon=False, icemgr=None, logLevel=3, defaultTimeout=500):
         """
         adapterID will be the Ice name of the adapter
         catchSginal will catch ctrl-C, this should only be done once per process.
@@ -35,7 +35,7 @@ class AgentManager(Thread):
         self._lock = Lock()
         self._agents = []
         if not icemgr:
-            self.icemgr = icehms.IceManager(adapterId=adapterId, logLevel=logLevel)
+            self.icemgr = icehms.IceManager(adapterId=adapterId, logLevel=logLevel, defaultTimeout=defaultTimeout)
         else:
             self.icemgr = icemgr
         self._stop = False
@@ -184,43 +184,16 @@ class AgentManager(Thread):
             self.logger.ilog( "agent %s stopped" % agent.name , level=1 )
         self._removeAgent(agent)
 
-"""
-    def moveHolon(self, prx, holonState):
-        This method attemps to relocate a holon to the current agentmanager
-        This must be supported by the holon through implementation of specific methods and 
-        correct logic.
-        The current implementation is python specific and may feil in most cases
-        (only support generic holons !!)
-        prxclass = prx.getClass()
-        holon = None
-        cmd = "holon = icehms." + prxclass + "()"
-        exec(cmd)
-        if holon:
-            if holon.restoreState(holonState):
-                self.addHolon(holon)
-                return True
-        return False
- 
-"""
 
-def startHolonStandalone(holon, registerToGrid=True, logLevel=None, parseCmdLine=True):
+def startHolonStandalone(holon, registerToGrid=True, logLevel=None, defaultTimeout=500):
     """
     Helper function to start one agent or holon
     """
-    """
-    if parseCmdLine:
-        parser = OptionParser()
-        parser.add_option("-v","--verbose", action="store", type="int", dest="logLevel")
-    
-        (options, args) = parser.parse_args()
-        if options.logLevel != None:
-            logLevel = options.logLevel
-    """
     if logLevel != None:
         holon.setLogLevel(logLevel)
-        manager = AgentManager(adapterId=holon.name+"_adapter", logLevel=logLevel)
+        manager = AgentManager(adapterId=holon.name+"_adapter", logLevel=logLevel, defaultTimeout=defaultTimeout)
     else:
-        manager = AgentManager(adapterId=holon.name+"_adapter")
+        manager = AgentManager(adapterId=holon.name+"_adapter", defaultTimeout=defaultTimeout)
     manager.addAgent(holon, registerToGrid)
     manager.waitForShutdown()
 
