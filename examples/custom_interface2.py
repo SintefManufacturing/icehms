@@ -4,12 +4,15 @@ import sys
 from icehms import LightHolon, BaseHolon, Holon, startHolonStandalone
 
 import hms.myproject
+import mymodule
 
-class TT(hms.myproject.CustomHolon, BaseHolon):
-    def __init__(self):
-        BaseHolon.__init__(self)
+#class TT(hms.myproject.CustomHolon, BaseHolon):
+class TT(mymodule.KHolon, LightHolon):
+    def __init__(self, name):
+        LightHolon.__init__(self, name)
 
     def customMethod(self, current):
+        print "method called"
         return time() 
 
     def run(self):
@@ -18,7 +21,7 @@ class TT(hms.myproject.CustomHolon, BaseHolon):
 
 
 if __name__ == "__main__":
-    holon = TT()
+    holon = TT("CustomHolon")
     holon.setLogLevel(10)
     startHolonStandalone(holon, logLevel=10)
  

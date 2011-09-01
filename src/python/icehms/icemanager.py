@@ -148,24 +148,29 @@ class IceManager(object):
 
     def automatedCast(self, prx):
         """
-        get ice type from ice, parse string and cast to specific type !
+        get ice type from ice, parse string and cast to specific type
+        This contains a lot of python magic!
         """
         prx = prx.ice_timeout(300) 
         debugPrx = prx
         try:
             prx.ice_ping()
         except Ice.Exception, why:
-            self.logger.ilog("Proxy could not be ping, maybe proxy is dead, maybe clean database", why, prx, level=2)
+            self.logger.ilog("Proxy could not be ping, proxy is dead or database need cleaning", why, prx, level=2)
             return prx # prx is dead but maybe wants to investigate it 
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
             self.logger.ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
             return prx
         icetype = prx.ice_id() 
         icetype = icetype.split("::")
-        tmp = icehms
-        for t in icetype[1:-1]:
-            tmp = tmp.__dict__[t]
-        tmp = tmp.__dict__[icetype[-1] + "Prx"]
+        try:
+            tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
+            for t in icetype[2:-1]:
+                tmp = tmp.__dict__[t]
+            tmp = tmp.__dict__[icetype[-1] + "Prx"]
+        except (ImportError, KeyError), ex:
+            self.logger.ilog( "Import of slice module % s failed for object %s" % ( icetype[1], icetype), ex, level=2)
+            raise
         prx = tmp.checkedCast(prx)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx

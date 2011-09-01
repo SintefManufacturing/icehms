@@ -7,6 +7,7 @@ mgr.initIce()
 try:
     objs = mgr.admin.getAllObjectInfos("*")
     print "Holons are :"
+    print "Holons are defined as object registered under ::hms:: namespace"
     for obj in objs:
         #print obj
         #print dir(obj)

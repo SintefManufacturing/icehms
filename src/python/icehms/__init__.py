@@ -16,7 +16,7 @@ intree = False
 if os.environ.has_key("ICEHMS_ROOT"):
     root = os.environ["ICEHMS_ROOT"]
 else:
-    #See if we are started form sourcetree
+    #See if we are started from sourcetree
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
     if os.path.isdir(os.path.join(root, "icefg")) and os.path.isdir(os.path.join(root, "slices")):

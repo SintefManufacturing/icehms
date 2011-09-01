@@ -5,13 +5,13 @@ import Ice
 from icehms import Holon, startHolonStandalone
 
 class TestHolon(Holon):
-    def __init__(self):
-        Holon.__init__(self)
+    def __init__(self, name):
+        Holon.__init__(self, name)
     def run(self):
         self._log("I am "+ self.name)
         sleep(0.2) # wait for verything to initialize 
         while not self._stop:
-            listprx = self._icemgr.findHolons("::hms::myproject::CustomHolon")
+            listprx = self._icemgr.findHolons("::mymodule::KHolon")
             if listprx:
                 for prx in listprx:
                     try:
@@ -23,7 +23,7 @@ class TestHolon(Holon):
 
 if __name__ == "__main__":
 
-    holon = TestHolon()
+    holon = TestHolon("MyServerHolon")
     holon.setLogLevel(10)
     #holon.enableLogToFile()
     #holon.disableLogToStdout()
