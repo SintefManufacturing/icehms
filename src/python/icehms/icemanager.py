@@ -46,13 +46,19 @@ class IceManager(object):
         self._adminPasswd = "bar"
 
 
-    def initIce(self):
+    def initIce(self, properties=None):
         """ Initiliaze Ice and keep proxy to many interesting ice objects
+        properties is and IceProperties object which can be used to set Ice properties (see doc)
+        properties = Ice.createProperties(sys.argv) 
+        for example:
+            prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")
+        Note: some properties are required by icehms and are arbitrarily set in this method
         """
         if self.initialized:
             return
 
-        prop = Ice.createProperties(sys.argv) 
+        if not prop:
+            prop = Ice.createProperties(sys.argv) 
 
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
