@@ -57,32 +57,32 @@ class IceManager(object):
         if self.initialized:
             return
 
-        if not prop:
-            prop = Ice.createProperties(sys.argv) 
+        if not properties:
+            properties = Ice.createProperties(sys.argv) 
 
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
-            prop.setProperty("hms.AdapterId", self._adapterId)
+            properties.setProperty("hms.AdapterId", self._adapterId)
             myIP = self._getIPToIceGrid()
             if myIP:
                 myIP = " -h " + myIP
-            prop.setProperty("hms.Endpoints", "tcp " + myIP + ":udp " + myIP)
-        prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.IceRegistryServer)
-        prop.setProperty("Ice.ThreadPool.Server.Size", "5")
-        prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")
-        prop.setProperty("Ice.ThreadPool.Client.Size", "5")
-        prop.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
+            properties.setProperty("hms.Endpoints", "tcp " + myIP + ":udp " + myIP)
+        properties.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.IceRegistryServer)
+        properties.setProperty("Ice.ThreadPool.Server.Size", "5")
+        properties.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")
+        properties.setProperty("Ice.ThreadPool.Client.Size", "5")
+        properties.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
         if self._publishedEndpoints:
             self.logger.ilog( "setting published endpoints: ", self._publishedEndpoints)
-            prop.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
+            properties.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
         if self._endpoints:
             self.logger.ilog( "setting endpoints: ", self._endpoints)
-            prop.setProperty("hms.Endpoints", self._endpoints)
+            properties.setProperty("hms.Endpoints", self._endpoints)
 
         
         #All properties set, now initialize Ice and get communicator object
         iceid = Ice.InitializationData()
-        iceid.properties = prop
+        iceid.properties = properties
         self.ic = Ice.initialize(sys.argv, iceid)
         if self._adapterId:
             #create the adapter object
