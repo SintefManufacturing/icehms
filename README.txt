@@ -17,7 +17,7 @@ icehms is holonic framework based on "The Internet Communication Engine"(Ice)
 
 It requires an ice and python installation 
 
-This a prototype and many things may not work
+This is a prototype and many things may not work
 
 
 #if icehms is installed in an unsuall place,  this may be necessary
@@ -27,9 +27,14 @@ This a prototype and many things may not work
 #export ICEHMS_REGISTRY="tcp -p 12000 -h tlpc484.sintef.no"
 export ICEHMS_REGISTRY="tcp -p 12000 -h localhost"
 
-#if using python and icehms is not installed we need to tell python where the python files are
+# you may also need to setup PYTHONPATH 
 #export PYTHONPATH=$ICEHMS_ROOT/python/:$PYTHONPATH
 
-# tell icehms where to load optional ice slices file
+# slices files defining the interface of your objects may be installed in different places
+# first they can be installed system width
+# then you can have them in the local directory
+# or you can have user slice files in ~/.icehms/slices/
+# or you can tell icehms where to load optional ice slices file
 #export ICEHMS_SLICES="$HOME/MyProject/MySlices/;$HOME/MyProject2/Slices"
 #export ICEHMS_SLICES="$HOME/initcode/slices"
+

@@ -11,7 +11,7 @@ export ICEHMS_REGISTRY="tcp -p 12000 -h toto.mydomain.com"
 run_ice_servers.py
 
 #setup topic server (only for first installtion)
-register_hms_services.py
+hms_run_servers.py
 
 
 
