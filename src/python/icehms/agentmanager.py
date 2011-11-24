@@ -75,7 +75,7 @@ class AgentManager(Thread):
         agent.proxy = self.icemgr.automatedCast(agent.proxy)
         agent.setAgentManager(self)
         if registerToGrid:
-            self.icemgr.registerToIceGrid(agent.proxy)
+            self.icemgr.registerToIceGrid(agent)
             agent.registeredToGrid = True
         with self._lock:
             # keep list of agents for clean shutdown

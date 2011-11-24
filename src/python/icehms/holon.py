@@ -26,7 +26,7 @@ class BaseHolon(hms.Holon):
     Base holon only implementing registration to ice
     and some default methods called by AgentManager
     """
-    def __init__(self, name=None, logLevel=2):
+    def __init__(self, name=None, hmstype=None, logLevel=2):
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
         self.name = name
@@ -35,6 +35,9 @@ class BaseHolon(hms.Holon):
         self.registeredToGrid = False
         self._agentMgr = None
         self.proxy = None
+        if not hmstype:
+            hmstype = self.ice_id()
+        self.hmstype = hmstype
 
     def getName(self, ctx=None): # we may override method from Thread but I guess it is fine
         return self.name
@@ -167,8 +170,8 @@ class LightHolon(BaseHolon, hms.GenericEventInterface, LegacyMethods):
     """Base Class for non active Holons or holons setting up their own threads
     implements helper methods like to handle topics, messages and events 
     """
-    def __init__(self, name=None, logLevel=2):
-        BaseHolon.__init__(self, name, logLevel)
+    def __init__(self, name=None, hmstype=None, logLevel=2):
+        BaseHolon.__init__(self, name, hmstype, logLevel)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
         self.mailbox = MessageQueue()
@@ -267,9 +270,9 @@ class Holon(LightHolon, Thread):
     """
     Holon is the same as LightHolon but starts a thread automatically
     """
-    def __init__(self, name=None, logLevel=2):
+    def __init__(self, name=None, hmstype=None, logLevel=2):
         Thread.__init__(self)
-        LightHolon.__init__(self, name, logLevel)
+        LightHolon.__init__(self, name, hmstype, logLevel)
         self._stop = False
         self._lock = Lock()
 
