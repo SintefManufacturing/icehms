@@ -284,7 +284,7 @@ class IceManager(object):
         return  prxobj.uncheckedCast(publisher)
 
     def getEventPublisher(self, topicName):
-        return self.getPublisher(topicName, hms.GenericEventInterfacePrx)
+        return self.getPublisher(topicName, hms.GenericEventInterfacePrx, server=self.eventMgr)
 
     
     def subscribeTopic(self, topicName, prx, server=None):
