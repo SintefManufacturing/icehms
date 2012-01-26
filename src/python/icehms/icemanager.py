@@ -7,6 +7,7 @@ import IceStorm
 
 import icehms 
 from icehms.logger import Logger
+from icehms import hms
 
 
 class IceManager(object):
@@ -281,6 +282,10 @@ class IceManager(object):
         publisher = topic.getPublisher() # get twoways publisher for topic
         self.logger.ilog("Got publisher for ", topicName)
         return  prxobj.uncheckedCast(publisher)
+
+    def getEventPublisher(self, topicName):
+        return self.getPublisher(topicName, hms.GenericEventInterfacePrx)
+
     
     def subscribeTopic(self, topicName, prx, server=None):
         """
