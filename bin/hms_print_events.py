@@ -7,6 +7,7 @@ from icehms import IceManager, Holon, startHolonStandalone
 class Client(Holon):
     def __init__(self, tn):
         Holon.__init__(self )
+        print "Monitoring: ", tn
         self._tn = tn
 
     def run(self):
