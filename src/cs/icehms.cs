@@ -1,7 +1,7 @@
 using System;
 //using hms; cleaner to says hms everytime
 
-namespace vc2ice
+namespace icehms
 {
    public class IceApp
    {
