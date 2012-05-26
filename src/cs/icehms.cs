@@ -16,8 +16,10 @@ namespace icehms
            //initialize Ice
            Ice.Properties prop = Ice.Util.createProperties();
            prop.setProperty("hms.AdapterId", "VC2ICE");
-           prop.setProperty("hms.Endpoints", "tcp -h SINTEFPC1671.sintef.no:udp -h sintefpc1671.sintef.no ");
-           prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -p 12000 -h utopia.sintef.no");
+           //prop.setProperty("hms.Endpoints", "tcp -h SINTEFPC1671.sintef.no:udp -h sintefpc1671.sintef.no ");
+           //prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -p 12000 -h utopia.sintef.no");
+           prop.setProperty("hms.Endpoints", "tcp -h SINTEFPC1671.sintef.no:udp -h localhost ");
+           prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -p 12000 -h localhost");
            prop.setProperty("Ice.ThreadPool.Server.Size", "5");
            prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000");
            prop.setProperty("Ice.ThreadPool.Client.Size", "5");
