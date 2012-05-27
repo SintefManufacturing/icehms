@@ -59,9 +59,9 @@ namespace icehms
            {
                Console.WriteLine("If we fail here it is probably because the Icebox objects are not registered");
            }
-           catch (Ice.NoEndpointException)
+           catch (Exception e)
            {
-               Console.WriteLine("IceGrid Server not found!!!!!");
+               Console.WriteLine("IceGrid Server not found!!!!!: " + e);
            }
        }
 
@@ -83,6 +83,7 @@ namespace icehms
             return IPAddress.Parse(test).ToString() ;
 
        }
+
        public void cleanup()
        {
            if (m_communicator != null)
