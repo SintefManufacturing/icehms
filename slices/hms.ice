@@ -38,12 +38,12 @@ module hms {
         //void start(); //Muts be disabled with ice3.4...why ?
         //void stop();
         string getName();
-        bool isRunning();
-        StringSeq getPublishedTopics();
+        //bool isRunning();
+        //StringSeq getPublishedTopics();
         ["ami"] void putMessage(Message s);
         //legacy
-        StringSeq getState();   
-        void printMsgQueue();
+        //StringSeq getState();   
+        //void printMsgQueue();
     };
     
     // For people who prefer using Agents
