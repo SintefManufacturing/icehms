@@ -9,6 +9,7 @@ using System.Collections.Generic;
 
 namespace icehms
 {
+
     public class Holon: hms.HolonDisp_
     {
         public string Name;
@@ -53,24 +54,26 @@ namespace icehms
         IceGrid.AdminSessionPrx _Session;
         IceGrid.RegistryPrx _Registry;
         Ice.ObjectAdapter _Adapter;
+        string Name;
 
 
-       public IceApp(string host, int port)
+       public IceApp(string adapterName, string host, int port)
        {
            IceGridHost = host;
            IceGridPort = port;
+           Name = adapterName;
            string myIP = findLocalIPAddress();
-            log("My IPAddress is: " + myIP);
+           log("My IPAddress is: " + myIP);
+
            //initialize Ice
            Ice.Properties prop = Ice.Util.createProperties();
-           prop.setProperty("hms.AdapterId", "VC2ICE");
+           prop.setProperty("hms.AdapterId", adapterName);
            prop.setProperty("hms.Endpoints", "tcp -h " + myIP +":udp -h " + myIP);
            prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -p " + IceGridPort + " -h " + IceGridHost);
            prop.setProperty("Ice.ThreadPool.Server.Size", "5");
            prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000");
            prop.setProperty("Ice.ThreadPool.Client.Size", "5");
            prop.setProperty("Ice.ThreadPool.Client.SizeMax", "100000");
-
 
            Ice.InitializationData iceidata = new Ice.InitializationData();
            iceidata.properties = prop;
@@ -83,9 +86,8 @@ namespace icehms
            catch (Exception ex)
            {
                log("Network error, check configuration: " + ex);
-               log("Endpint: " + prop.getProperty("hms.Endpoints"));
-               log("Localtopr: " + prop.getProperty("Ice.Default.Locator"));
-               System.Threading.Thread.Sleep(3000);
+               log("Endpoint(should be local machine): " + prop.getProperty("hms.Endpoints"));
+               log("Locator (should be IceGrid Server): " + prop.getProperty("Ice.Default.Locator"));
                throw (ex); // we are dead anyway
            }
            //Now are we ready to communicate with others
@@ -117,11 +119,24 @@ namespace icehms
            catch (Exception e)
            {
                log("IceGrid Server not found!!!!!: " + e);
+               throw (e);//without yellow page system, there is no need to start
            }
 
-        //properties set, now initialize Ice and get comm
 
+       }
 
+       public void cleanup()
+       {
+           //alway call this, Ice needs to be closed cleanly
+           if (Communicator != null)
+           {
+               Communicator.destroy();
+           }
+       }
+
+       public void log(string message)
+       {
+           Console.WriteLine("IceHMS: " + message);
        }
 
        private string findLocalIPAddress()
@@ -145,14 +160,7 @@ namespace icehms
             return IPAddress.Parse(test).ToString() ;
        }
 
-       public void cleanup()
-       {
-           //alway call this, Ice needs to be closed cleanly
-           if (Communicator != null)
-           {
-               Communicator.destroy();
-           }
-       }
+
 
        private IceGrid.AdminPrx updateIceGridAdmin()
        {
@@ -192,7 +200,6 @@ namespace icehms
            // It is very important to deregister objects before closing!!
            // Otherwise ghost links are created
            IceGrid.AdminPrx admin = getIceGridAdmin();
-           log("toto");
            try
            {
                admin.addObjectWithType(holon.Proxy, holon.ice_id());
@@ -206,6 +213,7 @@ namespace icehms
        public void deregister(Holon holon)
        {
             //remove from IceGrid and from local adapter
+           //this must be called before closing!!
             Ice.Identity iceid = holon.Proxy.ice_getIdentity();
             IceGrid.AdminPrx admin = getIceGridAdmin();
             try
@@ -219,10 +227,6 @@ namespace icehms
             _Adapter.remove(iceid);
        }
 
-       public void log(string message)
-       {
-           Console.WriteLine("IceHMS: " + message);
-       }
 
         public void subscribeEvent(Holon holon, string topicName)
         {
