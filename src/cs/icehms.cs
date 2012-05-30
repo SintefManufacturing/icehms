@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Generic;
 //using hms; cleaner to says hms everytime
 /*
  * IceHMS is small wrapper around ice to setup a multi-agent like system
@@ -22,7 +23,11 @@ namespace icehms
         }
         public override void putMessage(hms.Message message, Ice.Current current)
         {
-            Console.WriteLine("We got a new message: " + message);
+            log("We got a new message: " + message);
+        }
+        public void log(string message)
+        {
+            Console.WriteLine("IceHMS: " + Name + ": " + message);
         }
     }
 
@@ -50,7 +55,7 @@ namespace icehms
        {
            IceGridHost = host;
            IceGridPort = port;
-            Console.WriteLine("My IPAddress is: " + findLocalIPAddress());
+            log("My IPAddress is: " + findLocalIPAddress());
            //initialize Ice
            Ice.Properties prop = Ice.Util.createProperties();
            prop.setProperty("hms.AdapterId", "VC2ICE");
@@ -75,13 +80,13 @@ namespace icehms
                Query = IceGrid.QueryPrxHelper.checkedCast(Communicator.stringToProxy("IceGrid/Query"));
                if (Query == null)
                {
-                   Console.WriteLine("invalid ICeGrid proxy");
+                   log("invalid ICeGrid proxy");
                }
                // proxy to icestorm to publish events
                EventMgr = IceStorm.TopicManagerPrxHelper.checkedCast(Communicator.stringToProxy("EventServer/TopicManager"));
                if (EventMgr == null)
                {
-                   Console.WriteLine("invalid IceStorm proxy");
+                   log("invalid IceStorm proxy");
                }
                //these 2 objects are only needed to get the IceGrid admin object in order to register
                _Registry = IceGrid.RegistryPrxHelper.uncheckedCast(Communicator.stringToProxy("IceGrid/Registry"));
@@ -90,11 +95,11 @@ namespace icehms
            }
            catch (Ice.NotRegisteredException)
            {
-               Console.WriteLine("If we fail here it is probably because the Icebox objects are not registered");
+               log("If we fail here it is probably because the Icebox objects are not registered");
            }
            catch (Exception e)
            {
-               Console.WriteLine("IceGrid Server not found!!!!!: " + e);
+               log("IceGrid Server not found!!!!!: " + e);
            }
 
         //properties set, now initialize Ice and get comm
@@ -115,7 +120,7 @@ namespace icehms
             catch (Exception e) 
             {
                 // If we get here we have network problem, so returning something is probably stupide
-                Console.WriteLine("Error determining IP address, returning 127.0.0.1: " + e);
+                log("Error determining IP address, returning 127.0.0.1: " + e);
                 return "127.0.0.1";
             }
             System.Net.IPAddress address = ((System.Net.IPEndPoint)udpClient.Client.LocalEndPoint).Address;
@@ -167,8 +172,46 @@ namespace icehms
            }
        }
 
-       public hms.GenericEventInterfacePrx getEventPublisher(string topicName)
+       public void deregister(Holon holon)
        {
+            //remove from IceGrid and from local adapter
+            Ice.Identity iceid = holon.Proxy.ice_getIdentity();
+            IceGrid.AdminPrx admin = getIceGridAdmin();
+            try
+            {
+                admin.removeObject(iceid);
+            }
+            catch (Exception ex)
+            {
+                log("Could not deregister holon from IceGrid: " + ex);
+            }
+            _Adapter.remove(iceid);
+       }
+
+       public void log(string message)
+       {
+           Console.WriteLine("IceHMS: " + message);
+       }
+
+        public void subscribeEvent(Holon holon, string topicName)
+        {
+            IceStorm.TopicPrx topic = getTopic(topicName);
+        Dictionary<string, string> qos = new Dictionary<string, string>();
+        qos["reliability"] = ""; //#"" and "ordered" are the only possibilities see doc
+        qos["retryCount"] = "-1"; // #-1 means to never remove a dead subscriber from list 
+        try
+        {
+            topic.subscribeAndGetPublisher(qos, holon.Proxy);
+        }
+        catch (IceStorm.AlreadySubscribed)
+        {
+            log( "Allready subscribed to topic, that is ok" );
+        }
+        log(holon.Proxy + " subscribed to " + topicName );
+        }
+
+        public IceStorm.TopicPrx getTopic(string topicName)
+        {
            // Retrieve the topic
            IceStorm.TopicPrx topic;
            try
@@ -187,10 +230,18 @@ namespace icehms
                    topic = EventMgr.retrieve(topicName);
                }
            }
+           return topic;
+
+        }
+
+       public hms.GenericEventInterfacePrx getEventPublisher(string topicName)
+       {
            // Get the topic's publisher object, using towways
+           IceStorm.TopicPrx topic = getTopic(topicName);
            Ice.ObjectPrx publisher = topic.getPublisher();
            return hms.GenericEventInterfacePrxHelper.uncheckedCast(publisher);
        }
+
        public Ice.ObjectPrx[] findHolon(string type) //wraper arond findAllObjectByType for consistency with python icehms
        {
            return Query.findAllObjectsByType(type);
