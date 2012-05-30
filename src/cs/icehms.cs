@@ -13,18 +13,22 @@ namespace icehms
     {
         public string Name;
         public Ice.ObjectPrx Proxy;
-        public Holon(string name): base()
+
+        public Holon(string name)
         {
             Name = name;
         }
+
         public override string getName(Ice.Current current)
         {
             return Name;
         }
+
         public override void putMessage(hms.Message message, Ice.Current current)
         {
             log("We got a new message: " + message);
         }
+
         public void log(string message)
         {
             Console.WriteLine("IceHMS: " + Name + ": " + message);
@@ -152,7 +156,7 @@ namespace icehms
             return _Admin;
       }
 
-       public void register(ref Holon holon)
+       public void register(Holon holon)
        {
             // register an object to local Ice adapter and yellowpage service (IceGrid)
             Ice.Identity iceid = Communicator.stringToIdentity(holon.Name);
