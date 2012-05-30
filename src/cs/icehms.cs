@@ -59,22 +59,35 @@ namespace icehms
        {
            IceGridHost = host;
            IceGridPort = port;
-            log("My IPAddress is: " + findLocalIPAddress());
+           string myIP = findLocalIPAddress();
+            log("My IPAddress is: " + myIP);
            //initialize Ice
            Ice.Properties prop = Ice.Util.createProperties();
            prop.setProperty("hms.AdapterId", "VC2ICE");
-           prop.setProperty("hms.Endpoints", "tcp -h " + IceGridHost +":udp -h " + IceGridHost);
+           prop.setProperty("hms.Endpoints", "tcp -h " + myIP +":udp -h " + myIP);
            prop.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -p " + IceGridPort + " -h " + IceGridHost);
            prop.setProperty("Ice.ThreadPool.Server.Size", "5");
            prop.setProperty("Ice.ThreadPool.Server.SizeMax", "100000");
            prop.setProperty("Ice.ThreadPool.Client.Size", "5");
            prop.setProperty("Ice.ThreadPool.Client.SizeMax", "100000");
 
+
            Ice.InitializationData iceidata = new Ice.InitializationData();
            iceidata.properties = prop;
            Communicator = Ice.Util.initialize(iceidata); // could add sys.argv
-           _Adapter = Communicator.createObjectAdapter("hms");
-           _Adapter.activate(); 
+           try
+           {
+               _Adapter = Communicator.createObjectAdapter("hms");
+               _Adapter.activate();
+           }
+           catch (Exception ex)
+           {
+               log("Network error, check configuration: " + ex);
+               log("Endpint: " + prop.getProperty("hms.Endpoints"));
+               log("Localtopr: " + prop.getProperty("Ice.Default.Locator"));
+               System.Threading.Thread.Sleep(3000);
+               throw (ex); // we are dead anyway
+           }
            //Now are we ready to communicate with others
            //getting usefull proxies
 
@@ -94,7 +107,7 @@ namespace icehms
                }
                //these 2 objects are only needed to get the IceGrid admin object in order to register
                _Registry = IceGrid.RegistryPrxHelper.uncheckedCast(Communicator.stringToProxy("IceGrid/Registry"));
-               _Session = _Registry.createAdminSession("foo", "bar"); //authentication is disable so whatever works
+               updateIceGridAdmin();
 
            }
            catch (Ice.NotRegisteredException)
@@ -141,19 +154,32 @@ namespace icehms
            }
        }
 
+       private IceGrid.AdminPrx updateIceGridAdmin()
+       {
+           _Session = _Registry.createAdminSession("foo", "bar"); //authentication is disable so whatever works
+           _Admin = _Session.getAdmin();
+           return _Admin;
+       }
+
        private IceGrid.AdminPrx getIceGridAdmin()
        {
-            // the session goes in timeout so check it
-            try
-            {
-                _Session.ice_ping();
-            }
-            catch (Ice.Exception) //Session and admin objects have timeouts, maybe they should be closed after used
-            {
-                _Session = _Registry.createAdminSession("foo", "bar"); //authentication is disable so whatever works
-                _Admin = _Session.getAdmin();
-            }
-            return _Admin;
+           if (_Session == null || _Admin ==null)
+           {
+               updateIceGridAdmin();
+           }
+           else
+           {
+               // the session goes in timeout so check it
+               try
+               {
+                   _Session.ice_ping();
+               }
+               catch (Ice.Exception) //Session and admin objects have timeouts, maybe they should be closed after used
+               {
+                   updateIceGridAdmin();
+               }
+           }
+           return _Admin;
       }
 
        public void register(Holon holon)
@@ -166,6 +192,7 @@ namespace icehms
            // It is very important to deregister objects before closing!!
            // Otherwise ghost links are created
            IceGrid.AdminPrx admin = getIceGridAdmin();
+           log("toto");
            try
            {
                admin.addObjectWithType(holon.Proxy, holon.ice_id());

@@ -10,13 +10,14 @@ class Test {
         IceApp app = null;
         try
         {
-            app = new IceApp("localhost", 12000);
+            //app = new IceApp("localhost", 12000);
+            app = new IceApp("utopia.sintef.no", 12000);
             Holon holon = new Holon("MyTestHolon");
             Console.WriteLine(holon.Name + " starting");
             app.register(holon);
             app.subscribeEvent(holon, "MyTopic");
             Console.WriteLine ("Sleeping");
-            Thread.Sleep(10);
+            Thread.Sleep(10000);
             Console.WriteLine ("Cleanup");
             app.deregister(holon);
         }
