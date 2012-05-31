@@ -7,4 +7,4 @@ else:
     rev = str(branch.revno())
     nick = branch.nick
     bzrstring = "-bzr-" + nick + "-rev" + rev
-VERSION = "0.8.8" + bzrstring
+VERSION = "0.9.0" + bzrstring
