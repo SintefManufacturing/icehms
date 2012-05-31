@@ -13,11 +13,21 @@ namespace icehms
     public class Holon: hms.HolonDisp_
     {
         public string Name;
-        public Ice.ObjectPrx Proxy;
+        public Ice.ObjectPrx Proxy; // an Ice proxy to myself
+        public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
 
-        public Holon(string name)
+        public Holon(icehms.IceApp app, string name)
         {
             Name = name;
+            IceApp = app;
+            app.register(this);
+        }
+
+
+
+        public virtual void shutdown()
+        {
+            IceApp.deregister(this);
         }
 
         public override string getName(Ice.Current current)
@@ -125,7 +135,7 @@ namespace icehms
 
        }
 
-       public void cleanup()
+       public void shutdown()
        {
            //alway call this, Ice needs to be closed cleanly
            if (Communicator != null)
@@ -194,8 +204,17 @@ namespace icehms
        {
             // register an object to local Ice adapter and yellowpage service (IceGrid)
             Ice.Identity iceid = Communicator.stringToIdentity(holon.Name);
-            Ice.ObjectPrx proxy = _Adapter.add((Ice.Object)holon, iceid);
-            holon.Proxy = proxy;
+            try
+            {
+                Ice.ObjectPrx proxy = _Adapter.add((Ice.Object)holon, iceid);
+                holon.Proxy = proxy;
+            }
+            catch (Ice.AlreadyRegisteredException ex)
+            {
+                log("The name ArgumentOutOfRangeException this holon is allready used");
+                //maybe I could try to change name but there is probably something wrong in modell
+                throw (ex);
+            }
 
            // It is very important to deregister objects before closing!!
            // Otherwise ghost links are created

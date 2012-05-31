@@ -8,13 +8,13 @@ class Test {
         Console.WriteLine ("Starting");
 
         IceApp app = null;
+        Holon holon = null;
         try
         {
             //app = new IceApp("localhost", 12000);
             app = new IceApp("MyTestAdapter", "utopia.sintef.no", 12000);
-            Holon holon = new Holon("MyTestHolon");
+            holon = new Holon(app, "MyTestHolon");
             Console.WriteLine(holon.Name + " starting");
-            app.register(holon);
             app.subscribeEvent(holon, "MyTopic");
             hms.GenericEventInterfacePrx pub = app.getEventPublisher("MyTopic");
             Thread.Sleep(1000);
@@ -27,13 +27,17 @@ class Test {
             Console.WriteLine ("Sleeping");
             Thread.Sleep(10000);
             Console.WriteLine ("Cleanup");
-            app.deregister(holon);
+            
         }
         finally
         {
+            if (holon != null )
+            {
+                holon.shutdown();
+            }
             if ( app != null ) 
             {
-                app.cleanup();
+                app.shutdown();
             }
         }
     }
