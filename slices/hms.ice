@@ -97,6 +97,15 @@ module hms {
     interface SleepHolon { //testing and demo
         bool sleep(double time);
     };
+
+	enum RobotCoordinateSystem { World, Base, Effector, Tool };
+
+	interface RobotMotionCommand extends Holon {
+		["ami"] void movel(DoubleSeq pose, RobotCoordinateSystem cref);
+		["ami"] DoubleSeq getl(RobotCoordinateSystem cref);
+		["ami"] void movej(DoubleSeq pose);
+		["ami"] DoubleSeq getj();
+	}  ;
    
 };
 

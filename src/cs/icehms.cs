@@ -1,8 +1,8 @@
 using System;
 using System.Net;
-using System.Net.Sockets;
+using System.Net.Sockets;  //This is only used to find our current IP address
 using System.Collections.Generic;
-//using hms; cleaner to says hms everytime
+
 /*
  * IceHMS is small wrapper around ice to setup a multi-agent like system
 */
@@ -12,25 +12,26 @@ namespace icehms
 
     public class Holon: hms.HolonDisp_
     {
-        public string Name;
+        public string Name;      // The holon name avertised on the network. It mus be unique
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
         public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
 
         public Holon(icehms.IceApp app, string name)
         {
+            //The name must be unique!!
             Name = name;
             IceApp = app;
             app.register(this);
         }
 
 
-
         public virtual void shutdown()
         {
+            //This must be called before closing application!!
             IceApp.deregister(this);
         }
 
-        public override string getName(Ice.Current current)
+        public override string getName(Ice.Current current=null)
         {
             return Name;
         }
