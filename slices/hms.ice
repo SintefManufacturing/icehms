@@ -35,15 +35,8 @@ module hms {
 
      //To be inherited by holon objects
     interface Holon {
-        //void start(); //Muts be disabled with ice3.4...why ?
-        //void stop();
         string getName();
-        //bool isRunning();
-        //StringSeq getPublishedTopics();
         ["ami"] void putMessage(Message s);
-        //legacy
-        //StringSeq getState();   
-        //void printMsgQueue();
     };
     
     // For people who prefer using Agents
@@ -101,9 +94,9 @@ module hms {
 	enum RobotCoordinateSystem { World, Base, Effector, Tool };
 
 	interface RobotMotionCommand extends Holon {
-		["ami"] void movel(DoubleSeq pose, RobotCoordinateSystem cref);
+		["ami"] void movel(DoubleSeq pose, double speed, double acc, RobotCoordinateSystem cref);
 		["ami"] DoubleSeq getl(RobotCoordinateSystem cref);
-		["ami"] void movej(DoubleSeq pose);
+		["ami"] void movej(DoubleSeq pose, double speed, double acc);
 		["ami"] DoubleSeq getj();
 	}  ;
    
