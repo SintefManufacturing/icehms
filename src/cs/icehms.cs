@@ -10,18 +10,36 @@ using System.Collections.Generic;
 namespace icehms
 {
 
-    public class Holon: hms.HolonDisp_
+    public class Holon : hms.HolonOperations_
     {
         public string Name;      // The holon name avertised on the network. It mus be unique
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
         public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
+        private hms.HolonTie_ Servant;
+        
 
-        public Holon(icehms.IceApp app, string name)
+
+        public Holon(icehms.IceApp app, string name, bool activate)
         {
             //The name must be unique!!
             Name = name;
             IceApp = app;
-            app.register(this);
+            if (activate)
+            {
+                Servant = new hms.HolonTie_(this);
+                register();
+            }
+        }
+
+        protected void register()
+        {
+            log("registreing: " + getServant().ice_id());
+            Proxy = IceApp.register(Name, getServant());
+        }
+
+        public virtual Ice.Object getServant()
+        {
+            return Servant;
         }
 
 
@@ -31,12 +49,12 @@ namespace icehms
             IceApp.deregister(this);
         }
 
-        public override string getName(Ice.Current current=null)
+        public string getName(Ice.Current current=null)
         {
             return Name;
         }
 
-        public override void putMessage(hms.Message message, Ice.Current current)
+        public void putMessage(hms.Message message, Ice.Current current)
         {
             log("We got a new message: " + message);
         }
@@ -201,14 +219,14 @@ namespace icehms
            return _Admin;
       }
 
-       public void register(Holon holon)
+       public Ice.ObjectPrx register(string Name, Ice.Object servant)
        {
             // register an object to local Ice adapter and yellowpage service (IceGrid)
-            Ice.Identity iceid = Communicator.stringToIdentity(holon.Name);
+            Ice.Identity iceid = Communicator.stringToIdentity(Name);
+            Ice.ObjectPrx proxy;
             try
             {
-                Ice.ObjectPrx proxy = _Adapter.add((Ice.Object)holon, iceid);
-                holon.Proxy = proxy;
+                proxy = _Adapter.add(servant, iceid);
             }
             catch (Ice.AlreadyRegisteredException ex)
             {
@@ -222,12 +240,13 @@ namespace icehms
            IceGrid.AdminPrx admin = getIceGridAdmin();
            try
            {
-               admin.addObjectWithType(holon.Proxy, holon.ice_id());
+               admin.addObjectWithType(proxy, servant.ice_id());
            }
            catch (IceGrid.ObjectExistsException)
            {
-               admin.updateObject(holon.Proxy);
+               admin.updateObject(proxy);
            }
+           return proxy;
        }
 
        public void deregister(Holon holon)
