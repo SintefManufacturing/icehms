@@ -10,36 +10,53 @@ using System.Collections.Generic;
 namespace icehms
 {
 
+    public class Robot : icehms.Holon, hms.RobotMotionCommandOperations_
+    { // THis is just an example class inheriting holon and implementing another interface
+        public Robot(IceApp app, string name) : base(app, name, false)
+        {
+            register((Ice.Object) new hms.RobotMotionCommandTie_(this));
+        }
+        public virtual double[] getl(hms.RobotCoordinateSystem c, Ice.Current current){
+            return new double[6];
+        }
+        public virtual double[] getj(Ice.Current current){
+            return new double[6];
+        }
+        public virtual void movel(double[] pose, double a, double v, hms.RobotCoordinateSystem c, Ice.Current current)
+        {
+        }
+        public virtual void movej(double[] pose, double a, double v, Ice.Current current)
+        {
+        }
+    }
+    
+
+
+
     public class Holon : hms.HolonOperations_
     {
         public string Name;      // The holon name avertised on the network. It mus be unique
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
         public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
-        private hms.HolonTie_ Servant;
+        protected Ice.Object Servant;
         
 
-
-        public Holon(icehms.IceApp app, string name, bool activate)
+        public Holon(icehms.IceApp app, string name, bool activate=true)
         {
             //The name must be unique!!
             Name = name;
             IceApp = app;
             if (activate)
             {
-                Servant = new hms.HolonTie_(this);
-                register();
+                register((Ice.Object) new hms.HolonTie_(this));
             }
         }
 
-        protected void register()
+        protected void register(Ice.Object servant)
         {
-            log("registreing: " + getServant().ice_id());
-            Proxy = IceApp.register(Name, getServant());
-        }
-
-        public virtual Ice.Object getServant()
-        {
-            return Servant;
+            Servant = servant;
+            log("registreing: " + Servant.ice_id());
+            Proxy = IceApp.register(Name, Servant);
         }
 
 
@@ -74,16 +91,16 @@ namespace icehms
         * One class per process
         * It can be shared between threads. Class is thread safe
         */
-        IceGrid.QueryPrx Query;
-        IceStorm.TopicManagerPrx EventMgr;
-        Ice.Communicator Communicator;
+        public IceGrid.QueryPrx Query;
+        public IceStorm.TopicManagerPrx EventMgr;
+        public Ice.Communicator Communicator;
         string IceGridHost;
         int IceGridPort;
         IceGrid.AdminPrx _Admin;
         IceGrid.AdminSessionPrx _Session;
         IceGrid.RegistryPrx _Registry;
         Ice.ObjectAdapter _Adapter;
-        string Name;
+        public string Name;
 
 
        public IceApp(string adapterName, string host, int port)
