@@ -95,9 +95,9 @@ module hms {
 
 	interface RobotMotionCommand extends Holon {
 		["ami"] void movel(DoubleSeq pose, double speed, double acc, RobotCoordinateSystem cref);
-		["ami"] DoubleSeq getl(RobotCoordinateSystem cref);
+		DoubleSeq getl(RobotCoordinateSystem cref);
 		["ami"] void movej(DoubleSeq pose, double speed, double acc);
-		["ami"] DoubleSeq getj();
+		DoubleSeq getj();
 	}  ;
    
 };
