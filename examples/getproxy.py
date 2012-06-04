@@ -3,6 +3,8 @@ import sys
 import atexit
 from icehms import IceManager
 from time import sleep
+import icehms
+
 
 def __del__():
     global mgr

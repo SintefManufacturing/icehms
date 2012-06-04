@@ -8,8 +8,7 @@ module hms {
     sequence<float> FloatSeq; 
     sequence<double> DoubleSeq; 
     sequence<int> IntSeq; 
-    sequence<byte> ByteSeq; // defaults to a python string while other sequences defaults to list !!
-    //["python:seq:tuple"] sequence<int> IntTuple; // if we want ice to return tuple and list
+    sequence<byte> ByteSeq; 
     dictionary<string, string> StrStrMap;
 
     sequence<double> Vector;
@@ -17,8 +16,6 @@ module hms {
     sequence<Vector> VectorSeq;
 
 
-
-	
     // to support messages
     struct Message {
         string address;
@@ -32,6 +29,7 @@ module hms {
         string processingTime;
         StringSeq parameters;
     };
+
 
      //To be inherited by holon objects
     interface Holon {
@@ -78,7 +76,7 @@ module hms {
    interface DeviceAdapterAccessCtrled extends DeviceAdapter,SimpleAccessControl { 
    };
     
-    
+   
     
     interface GenericEventInterface {
         ["ami"] void newEvent(string name, StrStrMap arguments, ByteSeq data );
@@ -91,11 +89,11 @@ module hms {
         bool sleep(double time);
     };
 
-	enum RobotCoordinateSystem { World, Base, Effector, Tool };
+	enum CSYS { World, Base, Effector, Tool }; //Very robot orientet
 
 	interface RobotMotionCommand extends Holon {
-		["ami"] void movel(DoubleSeq pose, double speed, double acc, RobotCoordinateSystem cref);
-		DoubleSeq getl(RobotCoordinateSystem cref);
+		["ami"] void movel(DoubleSeq pose, double speed, double acc, CSYS cref);
+		DoubleSeq getl(CSYS cref);
 		["ami"] void movej(DoubleSeq pose, double speed, double acc);
 		DoubleSeq getj();
 	}  ;
