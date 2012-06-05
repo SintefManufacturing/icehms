@@ -11,8 +11,7 @@ class Test {
         Holon holon = null;
         try
         {
-            //app = new IceApp("localhost", 12000);
-            app = new IceApp("MyTestAdapter", "utopia.sintef.no", 12000);
+            app = new IceApp("MyTestAdapter", "localhost", 12000);
             holon = new Holon(app, "MyTestHolon");
             Console.WriteLine(holon.Name + " starting");
             app.subscribeEvent(holon, "MyTopic");
