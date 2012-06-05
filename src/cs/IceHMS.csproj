@@ -77,7 +77,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="CompileSlice" Inputs="../../slices/hms.ice" Outputs="hms.cs">
-    <Exec Command="slice2cs --tie ../../slices/hms.ice hms.cs" />
+    <Exec Command="slice2cs --tie ../../slices/hms.ice" />
   </Target>
   <Target Name="AfterClean">
     <Delete Files="hms.cs" />

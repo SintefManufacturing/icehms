@@ -16,13 +16,13 @@ namespace icehms
         {
             register((Ice.Object) new hms.RobotMotionCommandTie_(this));
         }
-        public virtual double[] getl(hms.RobotCoordinateSystem c, Ice.Current current){
+        public virtual double[] getl(hms.CSYS c, Ice.Current current){
             return new double[6];
         }
         public virtual double[] getj(Ice.Current current){
             return new double[6];
         }
-        public virtual void movel(double[] pose, double a, double v, hms.RobotCoordinateSystem c, Ice.Current current)
+        public virtual void movel(double[] pose, double a, double v, hms.CSYS c, Ice.Current current)
         {
         }
         public virtual void movej(double[] pose, double a, double v, Ice.Current current)
