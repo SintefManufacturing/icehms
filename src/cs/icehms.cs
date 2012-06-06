@@ -22,11 +22,15 @@ namespace icehms
         public virtual double[] getj(Ice.Current current){
             return new double[6];
         }
-        public virtual void movel(double[] pose, double a, double v, hms.CSYS c, Ice.Current current)
+        public void movel(double[] pose, double a, double v, hms.CSYS c, Ice.Current current)
         {
         }
-        public virtual void movej(double[] pose, double a, double v, Ice.Current current)
+        public void movej(double[] pose, double a, double v, Ice.Current current)
         {
+        }
+        public bool isMoving(Ice.Current current)
+        {
+            return false;
         }
     }
     
@@ -38,7 +42,7 @@ namespace icehms
         public string Name;      // The holon name avertised on the network. It mus be unique
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
         public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
-        protected Ice.Object Servant;
+        private Ice.Object Servant;
         
 
         public Holon(icehms.IceApp app, string name, bool activate=true)
@@ -71,12 +75,12 @@ namespace icehms
             return Name;
         }
 
-        public void putMessage(hms.Message message, Ice.Current current)
+        public virtual void putMessage(hms.Message message, Ice.Current current)
         {
             log("We got a new message: " + message);
         }
 
-        public void log(string message)
+        public virtual void log(string message)
         {
             Console.WriteLine("IceHMS: " + Name + ": " + message);
         }
@@ -174,6 +178,7 @@ namespace icehms
        public void shutdown()
        {
            //alway call this, Ice needs to be closed cleanly
+           log("IceApp " + Name + " shutdown");
            if (Communicator != null)
            {
                Communicator.destroy();
@@ -270,6 +275,7 @@ namespace icehms
        {
             //remove from IceGrid and from local adapter
            //this must be called before closing!!
+           log("Deregistring holon: " + holon.getName());
             Ice.Identity iceid = holon.Proxy.ice_getIdentity();
             IceGrid.AdminPrx admin = getIceGridAdmin();
             try

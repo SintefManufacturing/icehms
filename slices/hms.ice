@@ -96,7 +96,7 @@ module hms {
 		DoubleSeq getl(CSYS cref);
 		["ami"] void movej(DoubleSeq pose, double speed, double acc);
 		DoubleSeq getj();
-		Boolean isMoving();
+		bool isMoving();
 	}  ;
    
 };
