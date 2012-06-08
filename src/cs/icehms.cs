@@ -105,6 +105,7 @@ namespace icehms
         IceGrid.RegistryPrx _Registry;
         Ice.ObjectAdapter _Adapter;
         public string Name;
+        private List<Ice.Identity> _ServantIds;
 
 
        public IceApp(string adapterName, string host, int port)
@@ -112,6 +113,7 @@ namespace icehms
            IceGridHost = host;
            IceGridPort = port;
            Name = adapterName;
+           _ServantIds = new List<Ice.Identity>(); //keep track of servants for emergency cleanup
            string myIP = findLocalIPAddress();
            log("My IPAddress is: " + myIP);
 
@@ -179,6 +181,10 @@ namespace icehms
        {
            //alway call this, Ice needs to be closed cleanly
            log("IceApp " + Name + " shutdown");
+           foreach ( Ice.Identity iceid in _ServantIds) // that least should be empty, but deregister them avoid corrupting db
+           {
+               _deregister(iceid);
+           }
            if (Communicator != null)
            {
                Communicator.destroy();
@@ -277,6 +283,11 @@ namespace icehms
            //this must be called before closing!!
            log("Deregistring holon: " + holon.getName());
             Ice.Identity iceid = holon.Proxy.ice_getIdentity();
+            _deregister(iceid);
+       }
+
+        public void _deregister(Ice.Identity iceid)
+            {
             IceGrid.AdminPrx admin = getIceGridAdmin();
             try
             {
