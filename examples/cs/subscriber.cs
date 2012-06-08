@@ -14,7 +14,7 @@ class Subscriber : Holon
 
     public override void putMessage(hms.Message msg, Ice.Current current)
     {
-        log("Got a message from publisher: " + msg);
+        log("Got a message from publisher: " + msg + msg.arguments["counter"]);
 
     }
 }
@@ -23,7 +23,6 @@ class Subscriber : Holon
 class Test {
     static void Main() {
         Console.WriteLine ("Starting");
-
         IceApp app = null;
         Subscriber sub = null;
         try
@@ -31,11 +30,10 @@ class Test {
             app = new IceApp("MyTestAdapter", "localhost", 12000);
             sub = new Subscriber(app, "MyTestHolon");
             Thread.Sleep(100000);
-            
         }
-        catch
+        catch (Exception ex)
         {
-            Console.WriteLine("Catcing");
+            Console.WriteLine("Catching" + ex);
         }
         finally
         {

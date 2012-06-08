@@ -12,6 +12,7 @@ class Server(Holon):
 
     def run(self):
         #pub = self._getPublisher("MyTopic", hms.GenericEventInterfacePrx)
+        log("publishing to MyTopic")
         pub = self._getEventPublisher("MyTopic")
         counter = 0
         while not self._stop:

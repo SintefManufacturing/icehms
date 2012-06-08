@@ -108,7 +108,7 @@ namespace icehms
         private List<Ice.Identity> _ServantIds;
 
 
-       public IceApp(string adapterName, string host, int port)
+       public IceApp(string adapterName, string host, int port, bool catchSignals=true)
        {
            IceGridHost = host;
            IceGridPort = port;
@@ -173,9 +173,25 @@ namespace icehms
                log("IceGrid Server not found!!!!!: " + e);
                throw (e);//without yellow page system, there is no need to start
            }
-
+           if ( catchSignals ) {
+                setupSignals();
+           }
 
        }
+
+       public void setupSignals()
+       {
+           //ok it does not really catch signals in the current version
+            Console.TreatControlCAsInput = false;
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(consoleHandle);
+            //args.Cancel = true;
+       }
+
+        private void consoleHandle(object sender, ConsoleCancelEventArgs args)
+        {
+            log("Emergency shutdown");
+            shutdown();
+        }
 
        public void shutdown()
        {
@@ -183,6 +199,7 @@ namespace icehms
            log("IceApp " + Name + " shutdown");
            foreach ( Ice.Identity iceid in _ServantIds) // that least should be empty, but deregister them avoid corrupting db
            {
+               log("deregistering: " + iceid);
                _deregister(iceid);
            }
            if (Communicator != null)
@@ -274,6 +291,7 @@ namespace icehms
            {
                admin.updateObject(proxy);
            }
+           _ServantIds.Add(iceid);
            return proxy;
        }
 
@@ -284,6 +302,7 @@ namespace icehms
            log("Deregistring holon: " + holon.getName());
             Ice.Identity iceid = holon.Proxy.ice_getIdentity();
             _deregister(iceid);
+           _ServantIds.Remove(iceid);
        }
 
         public void _deregister(Ice.Identity iceid)

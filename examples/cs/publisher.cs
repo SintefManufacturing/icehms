@@ -17,10 +17,11 @@ class Test {
                 count++;
                 hms.Message msg = new hms.Message() ;
                 msg.arguments = new System.Collections.Generic.Dictionary<string, string>();
-                msg.arguments.Add("Counter", count.ToString());
+                msg.arguments.Add("counter", count.ToString());
                 msg.arguments.Add("arg1", "totoisback");
                 msg.arguments.Add("arg2", "somethingnew");
                 pub.putMessage(msg);
+                Console.WriteLine("Message sent to MyTopic");
             }
             
         }
@@ -29,9 +30,7 @@ class Test {
             if ( app != null ) 
             {
                 app.shutdown();
-                Console.WriteLine("Stop 1");
             }
-                Console.WriteLine("Stop 2");
         }
     }
 }
