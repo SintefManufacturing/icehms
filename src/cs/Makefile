@@ -1,30 +1,19 @@
-# **********************************************************************
-#
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
-#
-# **********************************************************************
 
-top_srcdir	= ../..
+MCS=dmcs
+SLICEDIR=../../slices/
 
-TARGET		= test.exe
+all: icehms.dll
 
-SRCS		= icehms.cs
+icehms.dll: icehms.cs hms.cs
+	$(MCS) -debug -define:DEBUG -target:library -out:$@ -pkg:Ice-3.4,IceGrid-3.4,IceStorm-3.4 $+
 
-SDIR		= ../../slices/
-
-SLICE_SRCS	= $(SDIR)/hms.ice
-
-GDIR		= generated
-
-include $(top_srcdir)/config/Make.rules.cs
-
-MCSFLAGS	:= $(MCSFLAGS) -target:exe
-
-$(TARGET): $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice-3.4) $(subst /,$(DSEP),$^)
+hms.cs: $(SLICEDIR)/hms.ice
+	slice2cs --tie $<
 
 
-include .depend
+clean:
+	rm -f hms.cs
+	rm -f icehms.dll
+
+.PHONY: all clean
+

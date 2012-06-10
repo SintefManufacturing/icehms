@@ -10,11 +10,11 @@ using System.Collections.Generic;
 namespace icehms
 {
 
-    public class Robot : icehms.Holon, hms.RobotMotionCommandOperations_
+    public class Robot : icehms.Holon, hms.GenericRobotOperations_
     { // THis is just an example class inheriting holon and implementing another interface
         public Robot(IceApp app, string name) : base(app, name, false)
         {
-            register((Ice.Object) new hms.RobotMotionCommandTie_(this));
+            register((Ice.Object) new hms.GenericRobotTie_(this));
         }
         public virtual double[] getl(hms.CSYS c, Ice.Current current){
             return new double[6];
@@ -28,10 +28,20 @@ namespace icehms
         public void movej(double[] pose, double a, double v, Ice.Current current)
         {
         }
-        public bool isMoving(Ice.Current current)
+        public bool isProgramRunning(Ice.Current current)
         {
             return false;
         }
+
+        public void setDigitalOut(int nb, bool val, Ice.Current current){}
+        public void setAnalogOut(int nb, bool val, Ice.Current current){}
+        public bool getDigitalInput(int nb, Ice.Current current){return false;}
+        public bool getAnalogInput(int nb, Ice.Current current){return false;}
+        public void setTool(int tool, Ice.Current current){}
+        public void setTCP(Double[] tcp, Ice.Current current){} 
+        public void grasp(Ice.Current current){} // commodity method 
+        public void release(Ice.Current current){} 
+
     }
     
 
