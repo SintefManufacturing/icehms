@@ -3,7 +3,7 @@
 
 
 module hms {
-    // special types to be send though ice
+    // commodity types 
     sequence<string> StringSeq; 
     sequence<float> FloatSeq; 
     sequence<double> DoubleSeq; 
@@ -24,7 +24,7 @@ module hms {
         string sender;
         double createTime;
         StrStrMap arguments;
-        //The following members are legacy:
+        //legacy members:
         string creationTime;
         string processingTime;
         StringSeq parameters;
@@ -89,15 +89,23 @@ module hms {
         bool sleep(double time);
     };
 
-	enum CSYS { World, Base, Effector, Tool }; //Very robot orientet
+	enum CSYS { World, Base, Effector, Tool }; //Very robot oriented
 
-	interface RobotMotionCommand extends Holon {
+	interface GenericRobot extends Holon {
 		["ami"] void movel(DoubleSeq pose, double speed, double acc, CSYS cref);
 		DoubleSeq getl(CSYS cref);
 		["ami"] void movej(DoubleSeq pose, double speed, double acc);
 		DoubleSeq getj();
-		bool isMoving();
-	}  ;
+		bool isProgramRunning();
+        void setDigitalOut(int nb, bool val);
+        void setAnalogOut(int nb, bool val);
+        bool getDigitalInput(int nb);
+        bool getAnalogInput(int nb);
+        void setTool(int tool);
+        void setTCP(); 
+        void grasp(); // commodity method 
+        void release(); // commodity method 
+	};
    
 };
 
