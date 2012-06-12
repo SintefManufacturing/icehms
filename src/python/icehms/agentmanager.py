@@ -147,7 +147,7 @@ class AgentManager(Thread):
 
     def run(self):
         try:
-            self.icemgr.initIce()
+            self.icemgr.init()
         except Ice.Exception, why:
             self._initializationFailed = True
             self.logger.ilog( why , level=1)

@@ -48,6 +48,10 @@ class IceManager(object):
 
 
     def initIce(self, properties=None):
+        self.logger.log("deprecated method initIce called, use init")
+        self.init(properties)
+
+    def init(self, properties=None):
         """ Initiliaze Ice and keep proxy to many interesting ice objects
         properties is and IceProperties object which can be used to set Ice properties (see doc)
         properties = Ice.createProperties(sys.argv) 
@@ -168,17 +172,26 @@ class IceManager(object):
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
             self.logger.ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
             return prx
-        icetype = prx.ice_id() 
-        icetype = icetype.split("::")
-        try:
-            tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
-            for t in icetype[2:-1]:
-                tmp = tmp.__dict__[t]
-            tmp = tmp.__dict__[icetype[-1] + "Prx"]
-        except (ImportError, KeyError), ex:
-            self.logger.ilog( "Import of slice module % s failed for object %s" % ( icetype[1], icetype), ex, level=2)
-            raise
-        prx = tmp.checkedCast(prx)
+        ids = prx.ice_ids()
+        tmp = None
+        ids.reverse()
+        for icetype in ids:
+            icetype = icetype.split("::")
+            try:
+                tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
+            except (ImportError), ex:
+                self.logger.ilog( "Import of slice module % s failed for object %s" % ( icetype[1], icetype), ex, level=2)
+                continue
+            try:
+                for t in icetype[2:-1]:
+                    tmp = tmp.__dict__[t]
+                tmp = tmp.__dict__[icetype[-1] + "Prx"]
+            except (KeyError), ex:
+                self.logger.ilog( "Ice type % s not found for object %s" % ( icetype, prx), ex, level=2)
+            else:
+                break
+        if tmp:
+            prx = tmp.checkedCast(prx)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 
@@ -231,7 +244,7 @@ class IceManager(object):
         return self.findHolons(icetype)
     def findHolonsByType(self, icetype):
         return self.findHolons(icetype)
-    def findHolons(self, icetype):
+    def findHolons_quick(self, icetype):
         """ simple wrapper around findAllObjectsByType from ice
         but cast proxies to lowest level inherited object before returng list
         type is a string like "::hms::agv::Localizer"
@@ -248,6 +261,22 @@ class IceManager(object):
                 else:
                     newlist.append(prx)
         return newlist
+
+    def findHolons(self, icetype="::hms::Holon"):
+        """
+        more expensive version of findHolons
+        returns all object which inherit the given type
+        """
+        objs = self.admin.getAllObjectInfos("*")
+        holons = []
+        for obj in objs:
+            try:
+                if obj.proxy.ice_isA(icetype):
+                    holons.append(self.automatedCast(obj.proxy))
+            except Exception, why:
+                self.logger.ilog(obj.proxy, " seems dead: ", why)
+        return holons
+
     
     def getTopic(self, topicName, create=True, server=None):
         """
