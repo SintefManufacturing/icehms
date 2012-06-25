@@ -12,7 +12,7 @@ namespace icehms
 
     public class Robot : icehms.Holon, hms.GenericRobotOperations_
     { // THis is just an example class inheriting holon and implementing another interface
-        public Robot(IceApp app, string name) : base(app, name, false)
+        public Robot(IceApp app, string name) : base(app, name)
         {
             register((Ice.Object) new hms.GenericRobotTie_(this));
         }
@@ -55,19 +55,18 @@ namespace icehms
         private Ice.Object Servant;
         
 
-        public Holon(icehms.IceApp app, string name, bool activate=true)
+        public Holon(icehms.IceApp app, string name)
         {
             //The name must be unique!!
             Name = name;
             IceApp = app;
-            if (activate)
-            {
-                register((Ice.Object) new hms.HolonTie_(this));
-            }
         }
 
-        protected void register(Ice.Object servant)
+        protected void register(Ice.Object tieservant=null)
         {
+            if (tieservant == null ) {
+                tieservant = new hms.HolonTie_(this);
+            }
             Servant = servant;
             log("registreing: " + Servant.ice_id());
             Proxy = IceApp.register(Name, Servant);
