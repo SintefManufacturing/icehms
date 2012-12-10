@@ -25,7 +25,8 @@ This is a prototype and many things may not work
 
 # Define where the registry server is, the default is locahost 12000
 #export ICEHMS_REGISTRY="tcp -p 12000 -h tlpc484.sintef.no"
-export ICEHMS_REGISTRY="tcp -p 12000 -h localhost"
+export ICEHMS_REGISTRY=p -p 12000 -h localhost"
+#alternative you may do ut prigrammatically after importing icehms in python: icehms.IceRegistrServer = "tcp -p 12000 -h localhost"
 
 # you may also need to setup PYTHONPATH 
 #export PYTHONPATH=$ICEHMS_ROOT/python/:$PYTHONPATH

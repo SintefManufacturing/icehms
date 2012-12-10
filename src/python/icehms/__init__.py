@@ -57,7 +57,6 @@ registryData = os.path.join(db_dir, "registry")
 if os.environ.has_key("ICEHMS_REGISTRY"):
     IceRegistryServer = os.environ["ICEHMS_REGISTRY"]
 else:
-    print "ICEHMS_REGISTRY environment variable not set, using localhost:12000"
     IceRegistryServer = 'tcp -p 12000 ' #we let Ice chose the network interface
 
 

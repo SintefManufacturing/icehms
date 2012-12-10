@@ -62,12 +62,9 @@ namespace icehms
             IceApp = app;
         }
 
-        protected void register(Ice.Object tieservant=null)
+        protected void register( vClass tieservant=hms.HolonTie_)
         {
-            if (tieservant == null ) {
-                tieservant = new hms.HolonTie_(this);
-            }
-            Servant = servant;
+            Servant = new tieservant(this);
             log("registreing: " + Servant.ice_id());
             Proxy = IceApp.register(Name, Servant);
         }
