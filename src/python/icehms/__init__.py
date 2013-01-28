@@ -30,7 +30,7 @@ else:
             print "Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable"
             sys.exit(1)
 
-print "icehms root is ", root
+#print "icehms root is ", root
 
 sysSlicesPath = os.path.join(root, "slices") # system slice files
 icecfgpath = os.path.join(root, "icecfg", "icegrid.cfg" ) #configuration ice
@@ -109,7 +109,8 @@ for path in slicedirs:
 
 import hms # only to be able to write "from icehms import hms"
 
-from holon import * # from icehms import holon, Message
+from holon import _Holon, _LightHolon  
+from holon import *
 from agentmanager import * # from icehms import agentmanager
 from icemanager import * # from icehms import icemanager
 

@@ -13,7 +13,7 @@ class Logger(object):
     """
     def __init__(self, parent, identifier, logLevel):
         self.parent = parent
-        self.identifier = identifier
+        self.identifier = str(identifier)
         self._logLevel = logLevel
         self._logPub = None
         self._logFile = None

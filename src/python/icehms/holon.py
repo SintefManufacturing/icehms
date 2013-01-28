@@ -21,7 +21,7 @@ from icehms.logger import Logger
 
 
 
-class BaseHolon(hms.Holon):
+class _BaseHolon(object):
     """
     Base holon only implementing registration to ice
     and some default methods called by AgentManager
@@ -171,13 +171,12 @@ class LegacyMethods:
 
 
 
-
-class LightHolon(BaseHolon, hms.GenericEventInterface, LegacyMethods):
+class _LightHolon(_BaseHolon, LegacyMethods):
     """Base Class for non active Holons or holons setting up their own threads
     implements helper methods like to handle topics, messages and events 
     """
     def __init__(self, name=None, hmstype=None, logLevel=2):
-        BaseHolon.__init__(self, name, hmstype, logLevel)
+        _BaseHolon.__init__(self, name, hmstype, logLevel)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
         self.mailbox = MessageQueue()
@@ -272,13 +271,13 @@ class LightHolon(BaseHolon, hms.GenericEventInterface, LegacyMethods):
         self._ilog("Received message: " + msg.body, level=9)
         self.mailbox.append(msg)
 
-class Holon(LightHolon, Thread):
+class _Holon(_LightHolon, Thread):
     """
     Holon is the same as LightHolon but starts a thread automatically
     """
     def __init__(self, name=None, hmstype=None, logLevel=2):
         Thread.__init__(self)
-        LightHolon.__init__(self, name, hmstype, logLevel)
+        _LightHolon.__init__(self, name, hmstype, logLevel)
         self._stop = False
         self._lock = Lock()
 
@@ -321,15 +320,25 @@ class Holon(LightHolon, Thread):
 
 
 
+class BaseHolon(hms.Holon, _BaseHolon):
+    def __init__(self, *args, **kw):
+        _BaseHolon.__init__(self, args, **kw)
+
+class LightHolon(hms.Holon, hms.GenericEventInterface, _LightHolon):
+    def __init__(self, *args, **kw):
+        _LightHolon.__init__(self, *args, **kw)
+
+class Holon(hms.Holon, hms.GenericEventInterface, _Holon):
+    def __init__(self, *args, **kw):
+        _Holon.__init__(self, *args, **kw)
 
 
-class Agent(hms.Agent, Holon):
+class Agent(hms.Agent, hms.Holon, _Holon):
     """
     Legacy
     """
-
     def __init__(self, *args, **kw):
-        Holon.__init__(self, *args, **kw)
+        _Holon.__init__(self, *args, **kw)
 
 class Message(hms.Message):
     """

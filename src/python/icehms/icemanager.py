@@ -173,9 +173,11 @@ class IceManager(object):
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
             self.logger.ilog( "Could not cast an obj to an agent, this is not normal", prx, debugPrx, level=2)
             return prx
-        ids = prx.ice_ids()
+        #ids = prx.ice_ids()
         tmp = None
-        ids.reverse()
+        #ids.reverse()
+        #print("ids are: ", ids)
+        ids = [prx.ice_id()]
         for icetype in ids:
             icetype = icetype.split("::")
             try:
@@ -286,7 +288,6 @@ class IceManager(object):
         """
         if not server:
             server = self.topicMgr
-
         try:
             topic = server.retrieve(topicName)
         except Ice.Exception: #sometime we crash with strange error message so better catch everything

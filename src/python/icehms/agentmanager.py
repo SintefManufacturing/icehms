@@ -52,7 +52,7 @@ class AgentManager(Thread):
         if daemon:
             self.setDaemon(1)
 
-        self.logger.log("Starting", level=2)
+        self.logger.log("Starting", level=4)
 
         self.start()
 
