@@ -92,9 +92,10 @@ module hms {
 	enum CSYS { World, Base, Effector, Tool }; //Very robot oriented
 
 	interface GenericRobot extends Holon {
-		["ami"] void movel(DoubleSeq pose, double speed, double acc, CSYS cref);
-		DoubleSeq getl(CSYS cref);
-		["ami"] void movej(DoubleSeq pose, double speed, double acc);
+        void setCSYS(CSYS cref);
+		["ami"] void movel(DoubleSeq pose, double acc, double vel);
+		DoubleSeq getl();
+		["ami"] void movej(DoubleSeq pose, double acc, double vel);
 		DoubleSeq getj();
 		bool isProgramRunning();
         void setDigitalOut(int nb, bool val);
