@@ -3,7 +3,6 @@ import signal
 from threading import Lock, Thread
 import sys 
 from time import sleep
-#from optparse import OptionParser
 
 
 import Ice 
@@ -28,7 +27,6 @@ class AgentManager(Thread):
 
         if not adapterId:
             adapterId = Ice.generateUUID()
-
 
         self.logger = Logger(self, str(adapterId) + "::" + self.getName() , logLevel)
         self._shutdownEvent = False
@@ -60,11 +58,11 @@ class AgentManager(Thread):
             if self._initializationFailed:
                 self.logger.log( "Could not connect to Ice, is IceGrid running ? Exiting ...", level=1)
                 sys.exit(1)
-            sleep(0.1)
+            sleep(0.01)
 
 
     def addAgent(self, agent, registerToGrid=False, daemon=False):
-        """ Register an agen after the adapter has started
+        """ Register an agent after the adapter has started
         """
         iceid = self.icemgr.ic.stringToIdentity(agent.name) #generate ID
         try:

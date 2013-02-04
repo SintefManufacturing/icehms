@@ -110,65 +110,6 @@ class _BaseHolon(object):
         return self.__str__()
 
 
-class LegacyMethods:
-    """
-    All legacy methods are moved in this class to reduce amount of visble code in Holon
-    """
-    # pylint: disable-msg=E1101
-    def subscribeTopic(self, topicName):
-        self._log("Call to deprecated method Holon.subscribeTopic, use Holon._subscribeTopic", 2)
-        return self._subscribeTopic(topicName)
-
-    def getPublisher(self, topicName, prxobj, permanentTopic=True):
-        self._log("Call to deprecated method Holon.getPublisher, use Holon._getPublisher", 2)
-        return self._getPublisher(topicName, prxobj, permanentTopic)
-
-    def unsubscribeTopic(self, name):
-        self._log("Call to deprecated method Holon.unsubscribeTopic, use Holon._unsubscribeTopic", 2)
-        return self._unsubscribeTopic(name)
-  
-    def isRunning(self, current=None):
-        """
-        Return True if thread runnnig
-        Since some agents do not need threads, it might return False even if everythig is fine
-        """
-        return self.isAlive()
-
-    def log(self, *args):
-        """
-        keep backward compatibility
-        """
-        self._log("Call to deprecated method self.log, please use self._log")
-        return self._log(*args)
-
-
-    def getProxy(self, name):
-        self._log( "Call to deprecated method Holon.getProxy", 2)
-        self._log( "Use IceManager.getProxy", 2)
-        return self._icemgr.getHolon(name)
- 
-    def findAllObjectsByType(self, icetype):
-        self._log( "Call to deprecated method Holon.findAllObjectsByType", 2)
-        self._log( "Use IceManager.findHolons", 2)
-        return self._icemgr.findHolons(icetype)
-    
-    def getProxyBlocking(self, name):
-        self._log( "Call to deprecated method Holon.getProxyBlocking", 2)
-        self._log( "Use Holon._getProxyBlocking", 2)
-        return self._getProxyBlocking(name)
-
-
-    def getState(self, current=None):
-        """ default implementation of a getState
-        should be re-imlemented in all clients
-        """
-        self._log("Call to default state method is deprecated, please fix caller")
-        ans = []
-        for msg in self.mailbox.copy():
-            ans.append(msg.body)
-        return ans
-
-
 
 
 class _LightHolon(_BaseHolon, LegacyMethods):

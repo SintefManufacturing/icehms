@@ -47,10 +47,6 @@ class IceManager(object):
         self._adminPasswd = "bar"
 
 
-    def initIce(self, properties=None):
-        self.logger.log("deprecated method initIce called, use init")
-        self.init(properties)
-
     def init(self, properties=None):
         """ Initiliaze Ice and keep proxy to many interesting ice objects
         properties is and IceProperties object which can be used to set Ice properties (see doc)
@@ -129,12 +125,10 @@ class IceManager(object):
                 ip = serv[idx + 1]
         if not ip : 
             return "" 
-        s.connect((ip, 0))#opening a dummy socket to port 0 on icegrid server
+        s.connect((ip, 0))#opening a dummy socket on the icegrid server machine
         ip = s.getsockname()[0]
         self.logger.ilog( "Deduced local IP address is: ", s.getsockname()[0])
         return s.getsockname()[0]
-
-
 
     def __getattr__(self, key):
         """
@@ -156,12 +150,11 @@ class IceManager(object):
         else:
             raise AttributeError(key)
 
-
-
     def automatedCast(self, prx):
         """
         get ice type from ice, parse string and cast to specific type
-        This contains a lot of python magic!
+        This is very usefull to avoid having to cast correctly every proxy we get from Ice
+        This contains a lot of python magic and when something breaks ince IceHMS it is usually here...
         """
         prx = prx.ice_timeout(300) 
         debugPrx = prx
@@ -225,7 +218,6 @@ class IceManager(object):
         else:
             self.logger.ilog( "Holon %s de-registered" % iceid.name )
 
-
     def getProxy(self, name):
         return self.getHolon(name)
 
@@ -279,7 +271,6 @@ class IceManager(object):
             except Exception, why:
                 self.logger.ilog(obj.proxy, " seems dead: ", why)
         return holons
-
     
     def getTopic(self, topicName, create=True, server=None):
         """
@@ -317,7 +308,6 @@ class IceManager(object):
     def getEventPublisher(self, topicName):
         return self.getPublisher(topicName, hms.GenericEventInterfacePrx, server=self.eventMgr)
 
-    
     def subscribeTopic(self, topicName, prx, server=None):
         """
         subscribe prx to a topic
@@ -334,10 +324,8 @@ class IceManager(object):
         self.logger.ilog( "subscribed", prx, " to topic ", topicName )
         return topic
 
-
     def shutdown(self):
         self.destroy()
-
     def destroy(self):
         if self.ic:
             self.ic.destroy()
