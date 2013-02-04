@@ -30,7 +30,7 @@ class _BaseHolon(object):
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
         self.name = name
-        self.logger = logging.Logger(self.__class__.__name__ + "::" + self.name)
+        self._logger = logging.getLogger(self.__class__.__name__ + "::" + self.name)
         if len(logging.root.handlers) == 0: #dirty hack
             logging.basicConfig()
         self._icemgr = None
@@ -61,13 +61,13 @@ class _BaseHolon(object):
         """ 
         Call by Agent manager after registering
         """
-        self.logger.info("Starting" )
+        self._logger.info("Starting" )
                 
     def stop(self, current=None):
         """ 
         Call by agent manager before deregistering
         """
-        self.logger.info("stop called ")
+        self._logger.info("stop called ")
 
 
     def shutdown(self, ctx=None):
@@ -78,7 +78,7 @@ class _BaseHolon(object):
         try:
             self._agentMgr.removeAgent(self)
         except Ice.Exception, why:
-            self.logger.warn(why)
+            self._logger.warn(why)
 
     def getClassName(self, ctx=None):
         return self.__class__.__name__
@@ -148,7 +148,7 @@ class _LightHolon(_BaseHolon):
         """
         Received event from GenericEventInterface
         """
-        self.logger.warn("Holon registered to topic, but newEvent method not overwritten")
+        self._logger.warn("Holon registered to topic, but newEvent method not overwritten")
 
 
     def _unsubscribeTopic(self, name):
@@ -172,7 +172,7 @@ class _LightHolon(_BaseHolon):
                 topic = self._icemgr.getTopic(k, server=v[0], create=False)
                 if topic:
                     #topic.destroy()
-                    self.logger.info("Topic destroying disabled since it can confuse clients")
+                    self._logger.info("Topic destroying disabled since it can confuse clients")
 
     def getPublishedTopics(self, current):
         """
@@ -187,7 +187,7 @@ class _LightHolon(_BaseHolon):
     
     def putMessage(self, msg, current=None):
         #is going to be called by other process/or threads so must be protected
-        self.logger.debug("Received message: " + msg.body)
+        self._logger.debug("Received message: " + msg.body)
         self.mailbox.append(msg)
 
 class _Holon(_LightHolon, Thread):
@@ -210,7 +210,7 @@ class _Holon(_LightHolon, Thread):
         """
         Attempt to stop processing thread
         """
-        self.logger.info("stop called ")
+        self._logger.info("stop called ")
         self._stop = True
 
     def _getProxyBlocking(self, address):
@@ -222,14 +222,14 @@ class _Holon(_LightHolon, Thread):
         block until we connect
         return none if interrupted by self._stop
         """
-        self.logger.info( "Trying to connect  to " + address)
+        self._logger.info( "Trying to connect  to " + address)
         prx = None    
         while not prx:
             prx = self._icemgr.getProxy(address)
             sleep(0.1)
             if self._stop:
                 return None
-        self.logger.info( "Got connection to %s", address)
+        self._logger.info( "Got connection to %s", address)
         return prx
 
     def run(self):

@@ -22,7 +22,7 @@ class IceManager(object):
         it can currently only handle one adapter, but we may have
         to add support for several adapters....maybe
         """
-        self.logger = logging.Logger(self.__class__.__name__)
+        self._logger = logging.getLogger(self.__class__.__name__)
         if len(logging.root.handlers) == 0: #dirty hack
             logging.basicConfig()
         self._defaultTimeout = defaultTimeout
@@ -62,7 +62,8 @@ class IceManager(object):
 
         if not properties:
             properties = Ice.createProperties(sys.argv) 
-        self.logger.critical("Using ice registry located at: %s ",  icehms.IceRegistryServer )
+        #self._logger.critical("Using ice registry located at: %s ",  icehms.IceRegistryServer )
+        print("IceHMS::IceManager: Using ice registry located at: {} ".format(icehms.IceRegistryServer) )
 
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
@@ -77,10 +78,10 @@ class IceManager(object):
         properties.setProperty("Ice.ThreadPool.Client.Size", "5")
         properties.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
         if self._publishedEndpoints:
-            self.logger.info( "setting published endpoints %s: ", self._publishedEndpoints)
+            self._logger.info( "setting published endpoints %s: ", self._publishedEndpoints)
             properties.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
         if self._endpoints:
-            self.logger.info( "setting endpoints:  %s", self._endpoints)
+            self._logger.info( "setting endpoints:  %s", self._endpoints)
             properties.setProperty("hms.Endpoints", self._endpoints)
 
         
@@ -129,7 +130,7 @@ class IceManager(object):
             return "" 
         s.connect((ip, 0))#opening a dummy socket on the icegrid server machine
         ip = s.getsockname()[0]
-        self.logger.info( "Deduced local IP address is: %s", s.getsockname()[0])
+        self._logger.info( "Deduced local IP address is: %s", s.getsockname()[0])
         return s.getsockname()[0]
 
     def __getattr__(self, key):
@@ -163,10 +164,10 @@ class IceManager(object):
         try:
             prx.ice_ping()
         except Ice.Exception, why:
-            self.logger.warn("Proxy could not be ping, proxy is dead or database need cleaning %s, %s", why, prx)
+            self._logger.warn("Proxy could not be ping, proxy is dead or database need cleaning %s, %s", why, prx)
             return prx # prx is dead but maybe wants to investigate it 
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
-            self.logger.warn( "Could not cast an obj to an agent, this is not normal %s, %s", prx, debugPrx)
+            self._logger.warn( "Could not cast an obj to an agent, this is not normal %s, %s", prx, debugPrx)
             return prx
         #ids = prx.ice_ids()
         tmp = None
@@ -178,14 +179,14 @@ class IceManager(object):
             try:
                 tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
             except (ImportError), ex:
-                self.logger.warn( "Import of slice module % s failed for object %s, %s", icetype[1], icetype, ex)
+                self._logger.warn( "Import of slice module % s failed for object %s, %s", icetype[1], icetype, ex)
                 continue
             try:
                 for t in icetype[2:-1]:
                     tmp = tmp.__dict__[t]
                 tmp = tmp.__dict__[icetype[-1] + "Prx"]
             except (KeyError), ex:
-                self.logger.warn( "Ice type % s not found for object %s, %s" ,  icetype, prx, ex)
+                self._logger.warn( "Ice type % s not found for object %s, %s" ,  icetype, prx, ex)
             else:
                 break
         if tmp:
@@ -203,7 +204,7 @@ class IceManager(object):
             self.admin.updateObject(agent.proxy)
             return False
         except Ice.Exception, why:
-            self.logger.error( "Could not register holon to grid: %s", why)
+            self._logger.error( "Could not register holon to grid: %s", why)
             return False
 
     def deregisterToIceGrid(self, iceid):
@@ -214,11 +215,11 @@ class IceManager(object):
         try:
             self.admin.removeObject(iceid)
         except IceGrid.ObjectNotRegisteredException, why:
-            self.logger.warn( "Holon was not registered in database" )
+            self._logger.warn( "Holon was not registered in database" )
         except Ice.ObjectNotExistException, why:
-            self.logger.warn( "Could not de-register holon, admin obejct is dead !!!! report !!, %s", why )
+            self._logger.warn( "Could not de-register holon, admin obejct is dead !!!! report !!, %s", why )
         else:
-            self.logger.info( "Holon %s de-registered" % iceid.name )
+            self._logger.info( "Holon %s de-registered" % iceid.name )
 
     def getProxy(self, name):
         return self.getHolon(name)
@@ -234,7 +235,7 @@ class IceManager(object):
             if prx:
                 prx = self.automatedCast(prx)
                 if prx:
-                    self.logger.info( "got proxy for %s", prx)
+                    self._logger.info( "got proxy for %s", prx)
         return prx
 
     def findAllObjectsByType(self, icetype):
@@ -271,7 +272,7 @@ class IceManager(object):
                 if obj.proxy.ice_isA(icetype):
                     holons.append(self.automatedCast(obj.proxy))
             except Exception, why:
-                self.logger.warn("%s seems dead: %s", obj.proxy, why)
+                self._logger.warn("%s seems dead: %s", obj.proxy, why)
         return holons
     
     def getTopic(self, topicName, create=True, server=None):
@@ -304,7 +305,7 @@ class IceManager(object):
         """
         topic = self.getTopic(topicName, server=server)
         publisher = topic.getPublisher() # get twoways publisher for topic
-        self.logger.info("Got publisher for %s", topicName)
+        self._logger.info("Got publisher for %s", topicName)
         return  prxobj.uncheckedCast(publisher)
 
     def getEventPublisher(self, topicName):
@@ -322,8 +323,8 @@ class IceManager(object):
         try:
             topic.subscribeAndGetPublisher(qos, prx) 
         except IceStorm.AlreadySubscribed:
-            self.logger.info( "Allready subscribed to topic" )
-        self.logger.info( "subscribed %s to topic %s", prx, topicName )
+            self._logger.info( "Allready subscribed to topic" )
+        self._logger.info( "subscribed %s to topic %s", prx, topicName )
         return topic
 
     def shutdown(self):
