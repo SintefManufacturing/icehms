@@ -11,12 +11,12 @@ from threading import Thread, Lock
 from copy import copy
 from time import sleep, time
 import uuid
+import logging
 
 import Ice 
 
 
 from icehms import hms
-from icehms.logger import Logger
 
 
 
@@ -26,11 +26,13 @@ class _BaseHolon(object):
     Base holon only implementing registration to ice
     and some default methods called by AgentManager
     """
-    def __init__(self, name=None, hmstype=None, logLevel=2):
+    def __init__(self, name=None, hmstype=None):
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
         self.name = name
-        self.logger = Logger(self, self.name, logLevel)
+        self.logger = logging.Logger(self.__class__.__name__ + "::" + self.name)
+        if len(logging.root.handlers) == 0: #dirty hack
+            logging.basicConfig()
         self._icemgr = None
         self.registeredToGrid = False
         self._agentMgr = None
@@ -39,7 +41,7 @@ class _BaseHolon(object):
             hmstype = self.ice_id()
         self.hmstype = hmstype
 
-    def getName(self, ctx=None): # we may override method from Thread but I guess it is fine
+    def getName(self, ctx=None): 
         return self.name
 
     def setAgentManager(self, mgr): 
@@ -49,7 +51,6 @@ class _BaseHolon(object):
         """
         self._agentMgr = mgr
         self._icemgr = mgr.icemgr
-        self.logger.icemgr = self._icemgr
 
     def cleanup(self):
         """
@@ -60,13 +61,13 @@ class _BaseHolon(object):
         """ 
         Call by Agent manager after registering
         """
-        self._log("Starting" )
+        self.logger.info("Starting" )
                 
     def stop(self, current=None):
         """ 
         Call by agent manager before deregistering
         """
-        self._ilog("stop called ")
+        self.logger.info("stop called ")
 
 
     def shutdown(self, ctx=None):
@@ -77,31 +78,10 @@ class _BaseHolon(object):
         try:
             self._agentMgr.removeAgent(self)
         except Ice.Exception, why:
-            self._ilog(why)
+            self.logger.warn(why)
 
     def getClassName(self, ctx=None):
         return self.__class__.__name__
-
-    def _log(self, msg, level=6):
-        """
-        Log to enabled log channels
-        """
-        return self.logger.log(msg, level)
-
-    def _ilog(self, *args, **kwargs):
-        """
-        format everything to string before logging
-        """
-        #first set default log value...if someone knows a simpler way...
-        if not kwargs.has_key("logLevel") and not kwargs.has_key("logLevel"):
-            kwargs["logLevel"] = 6
-        return self.logger.ilog(*args, **kwargs)
-
-    def setLogLevel(self, level):
-        """
-        maybe should be deprecated, use Agent.logger.setLogLevel
-        """
-        self.logger.setLogLevel(level)
 
     def __str__(self):
         return "[Holon: %s] " % (self.name)
@@ -112,12 +92,12 @@ class _BaseHolon(object):
 
 
 
-class _LightHolon(_BaseHolon, LegacyMethods):
+class _LightHolon(_BaseHolon):
     """Base Class for non active Holons or holons setting up their own threads
     implements helper methods like to handle topics, messages and events 
     """
-    def __init__(self, name=None, hmstype=None, logLevel=2):
-        _BaseHolon.__init__(self, name, hmstype, logLevel)
+    def __init__(self, name=None, hmstype=None):
+        _BaseHolon.__init__(self, name, hmstype)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
         self.mailbox = MessageQueue()
@@ -168,7 +148,7 @@ class _LightHolon(_BaseHolon, LegacyMethods):
         """
         Received event from GenericEventInterface
         """
-        self._log(2, "Holon registered to topic, but newEvent method not overwritten")
+        self.logger.warn("Holon registered to topic, but newEvent method not overwritten")
 
 
     def _unsubscribeTopic(self, name):
@@ -192,9 +172,7 @@ class _LightHolon(_BaseHolon, LegacyMethods):
                 topic = self._icemgr.getTopic(k, server=v[0], create=False)
                 if topic:
                     #topic.destroy()
-                    self._ilog("Topic destroying disabled since it can confuse clients")
-        self.logger.cleanup()
-       
+                    self.logger.info("Topic destroying disabled since it can confuse clients")
 
     def getPublishedTopics(self, current):
         """
@@ -209,16 +187,16 @@ class _LightHolon(_BaseHolon, LegacyMethods):
     
     def putMessage(self, msg, current=None):
         #is going to be called by other process/or threads so must be protected
-        self._ilog("Received message: " + msg.body, level=9)
+        self.logger.debug("Received message: " + msg.body)
         self.mailbox.append(msg)
 
 class _Holon(_LightHolon, Thread):
     """
     Holon is the same as LightHolon but starts a thread automatically
     """
-    def __init__(self, name=None, hmstype=None, logLevel=2):
+    def __init__(self, name=None, hmstype=None):
         Thread.__init__(self)
-        _LightHolon.__init__(self, name, hmstype, logLevel)
+        _LightHolon.__init__(self, name, hmstype)
         self._stop = False
         self._lock = Lock()
 
@@ -232,7 +210,7 @@ class _Holon(_LightHolon, Thread):
         """
         Attempt to stop processing thread
         """
-        self._ilog("stop called ")
+        self.logger.info("stop called ")
         self._stop = True
 
     def _getProxyBlocking(self, address):
@@ -244,14 +222,14 @@ class _Holon(_LightHolon, Thread):
         block until we connect
         return none if interrupted by self._stop
         """
-        self._ilog( "Trying to connect  to " + address)
+        self.logger.info( "Trying to connect  to " + address)
         prx = None    
         while not prx:
             prx = self._icemgr.getProxy(address)
             sleep(0.1)
             if self._stop:
                 return None
-        self._ilog( "Got connection to ", address)
+        self.logger.info( "Got connection to %s", address)
         return prx
 
     def run(self):

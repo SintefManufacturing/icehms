@@ -1,10 +1,1 @@
-try:
-    from bzrlib.branch import Branch
-except ImportError:
-    bzrstring = ""
-else:
-    branch = Branch.open(".")
-    rev = str(branch.revno())
-    nick = branch.nick
-    bzrstring = "-bzr-" + nick + "-rev" + rev
-VERSION = "0.9.0" + bzrstring
+VERSION = "1.0alpha" 
