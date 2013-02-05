@@ -5,9 +5,8 @@ LightHolons adds helper methods to handle message, topics and events
 Holon adds a main thread to LightHolon
 """
 
-
-
 from threading import Thread, Lock
+import collections
 from copy import copy
 from time import sleep, time
 import uuid
@@ -26,11 +25,12 @@ class _BaseHolon(object):
     Base holon only implementing registration to ice
     and some default methods called by AgentManager
     """
-    def __init__(self, name=None, hmstype=None):
+    def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         if not name:
             name = self.__class__.__name__ + "_" + str(uuid.uuid1())
         self.name = name
-        self._logger = logging.getLogger(self.__class__.__name__ + "::" + self.name)
+        self.logger = logging.getLogger(self.__class__.__name__ + ":" + self.name)
+        self.logger.setLevel(logLevel)
         if len(logging.root.handlers) == 0: #dirty hack
             logging.basicConfig()
         self._icemgr = None
@@ -61,13 +61,13 @@ class _BaseHolon(object):
         """ 
         Call by Agent manager after registering
         """
-        self._logger.info("Starting" )
+        self.logger.info("Starting" )
                 
     def stop(self, current=None):
         """ 
         Call by agent manager before deregistering
         """
-        self._logger.info("stop called ")
+        self.logger.info("stop called ")
 
 
     def shutdown(self, ctx=None):
@@ -78,7 +78,7 @@ class _BaseHolon(object):
         try:
             self._agentMgr.removeAgent(self)
         except Ice.Exception, why:
-            self._logger.warn(why)
+            self.logger.warn(why)
 
     def getClassName(self, ctx=None):
         return self.__class__.__name__
@@ -96,11 +96,11 @@ class _LightHolon(_BaseHolon):
     """Base Class for non active Holons or holons setting up their own threads
     implements helper methods like to handle topics, messages and events 
     """
-    def __init__(self, name=None, hmstype=None):
-        _BaseHolon.__init__(self, name, hmstype)
+    def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
+        _BaseHolon.__init__(self, name, hmstype, logLevel)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
-        self.mailbox = MessageQueue()
+        self.mailbox = collections.deque()
 
 
     def _subscribeEvent(self, topicName):
@@ -148,7 +148,7 @@ class _LightHolon(_BaseHolon):
         """
         Received event from GenericEventInterface
         """
-        self._logger.warn("Holon registered to topic, but newEvent method not overwritten")
+        self.logger.warn("Holon registered to topic, but newEvent method not overwritten")
 
 
     def _unsubscribeTopic(self, name):
@@ -172,7 +172,7 @@ class _LightHolon(_BaseHolon):
                 topic = self._icemgr.getTopic(k, server=v[0], create=False)
                 if topic:
                     #topic.destroy()
-                    self._logger.info("Topic destroying disabled since it can confuse clients")
+                    self.logger.info("Topic destroying disabled since it can confuse clients")
 
     def getPublishedTopics(self, current):
         """
@@ -180,23 +180,21 @@ class _LightHolon(_BaseHolon):
         """
         return self._publishedTopics.keys()
 
-    def printMsgQueue(self, ctx=None):
-        for msg in self.mailbox.copy():
-            print "%s" % msg.creationTime + ' receiving ' + msg.body
-
-    
     def putMessage(self, msg, current=None):
-        #is going to be called by other process/or threads so must be protected
-        self._logger.debug("Received message: " + msg.body)
-        self.mailbox.append(msg)
+        """
+        Called by other holons
+        """
+        print "kk"
+        self.logger.debug("Received message: " + msg.body)
+        self.mailbox.appendleft(msg)
 
 class _Holon(_LightHolon, Thread):
     """
     Holon is the same as LightHolon but starts a thread automatically
     """
-    def __init__(self, name=None, hmstype=None):
+    def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         Thread.__init__(self)
-        _LightHolon.__init__(self, name, hmstype)
+        _LightHolon.__init__(self, name, hmstype, logLevel)
         self._stop = False
         self._lock = Lock()
 
@@ -210,7 +208,7 @@ class _Holon(_LightHolon, Thread):
         """
         Attempt to stop processing thread
         """
-        self._logger.info("stop called ")
+        self.logger.info("stop called ")
         self._stop = True
 
     def _getProxyBlocking(self, address):
@@ -222,14 +220,14 @@ class _Holon(_LightHolon, Thread):
         block until we connect
         return none if interrupted by self._stop
         """
-        self._logger.info( "Trying to connect  to " + address)
+        self.logger.info( "Trying to connect  to " + address)
         prx = None    
         while not prx:
             prx = self._icemgr.getProxy(address)
             sleep(0.1)
             if self._stop:
                 return None
-        self._logger.info( "Got connection to %s", address)
+        self.logger.info( "Got connection to %s", address)
         return prx
 
     def run(self):
@@ -254,7 +252,7 @@ class Holon(hms.Holon, hms.GenericEventInterface, _Holon):
 
 class Agent(hms.Agent, hms.Holon, _Holon):
     """
-    Legacy
+    Some people prefere working with agents instead of Holons
     """
     def __init__(self, *args, **kw):
         _Holon.__init__(self, *args, **kw)
@@ -281,55 +279,6 @@ class Message(hms.Message):
             val = d
         return hms.Message.__setattr__(self, name, val)
 
-
-
-class MessageQueue(object):
-    def __init__(self):
-        self.lock = Lock()
-        self._list = []
-        
-    def append(self, msg):
-        self.lock.acquire()    
-        self._list.append(msg)
-        self.lock.release()
-
-    def remove(self, msg):
-        self.lock.acquire()
-        #print "LIST", self._list
-        #print msg
-        self._list.remove(msg)
-        self.lock.release()
-
-
-    def pop(self):
-        self.lock.acquire()
-        if len(self._list) > 0:
-            msg = self._list.pop(0)
-        else: 
-            msg = None
-        self.lock.release()
-        return msg
-
-    def copy(self):
-        """ return a copy of the current mailbox
-        usefull for, for example, iteration
-        """
-        self.lock.acquire()
-        #copy =  deepcopy(self._list)
-        #shallow copy should be enough since as long as we have 
-        # a link to the message python gc should not delete it
-        # and as long as we do not modify message in our mailbox
-        listcopy =  copy(self._list) 
-        self.lock.release()
-        return listcopy
-
-    def __getitem__(self, x):
-        """ to support mailbox[idx]"""
-        return self._list.__getitem__(x)
-    
-    def __repr__(self):
-        """ what is printed when printing the maibox  """
-        return self._list.__repr__()
 
 
 

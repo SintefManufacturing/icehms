@@ -4,7 +4,7 @@ import icehms
 import Ice
 
 mgr = icehms.IceManager()
-mgr.initIce()
+mgr.init()
 try:
     objs = mgr.admin.getAllObjectInfos("*")
     print "Holons are :"

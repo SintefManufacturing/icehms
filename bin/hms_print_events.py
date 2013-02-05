@@ -25,7 +25,7 @@ class Client(Holon):
 
 def print_topics():
     mgr = IceManager()
-    mgr.initIce()
+    mgr.init()
     try:
         topics = mgr.eventMgr.retrieveAll()
         print "Events Topics are: \n"

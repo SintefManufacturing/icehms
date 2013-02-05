@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import icehms
 mgr = icehms.IceManager()
-mgr.initIce()
+mgr.init()
 try:
  
     topics = mgr.topicMgr.retrieveAll()

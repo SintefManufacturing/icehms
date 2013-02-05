@@ -16,7 +16,7 @@ class AgentManager(Thread):
     create an IceManager if necessary
     also takes care of catching signals 
     """
-    def __init__(self, adapterId=None, catchSignals=True, daemon=False, icemgr=None, logLevel=3, defaultTimeout=500):
+    def __init__(self, adapterId=None, catchSignals=True, daemon=False, icemgr=None, logLevel=logging.WARNING, defaultTimeout=500):
         """
         adapterID will be the Ice name of the adapter
         catchSginal will catch ctrl-C, this should only be done once per process.
@@ -27,7 +27,8 @@ class AgentManager(Thread):
         if not adapterId:
             adapterId = Ice.generateUUID()
 
-        self._logger = logging.getLogger(self.__class__.__name__ + "::" + self.getName())
+        self.logger = logging.getLogger(self.__class__.__name__ + "::" + self.getName())
+        self.logger.setLevel(logLevel)
         if len(logging.root.handlers) == 0: #dirty hack
             logging.basicConfig(level=logging.DEBUG)
         self._shutdownEvent = False
@@ -51,13 +52,13 @@ class AgentManager(Thread):
         if daemon:
             self.setDaemon(1)
 
-        self._logger.info("Starting")
+        self.logger.info("Starting")
 
         self.start()
 
         while not self.icemgr.initialized: # we need to make sure ice is initalized before anyone calls us
             if self._initializationFailed:
-                self._logger.error( "Could not connect to Ice, is IceGrid running ? Exiting ...")
+                self.logger.error( "Could not connect to Ice, is IceGrid running ? Exiting ...")
                 sys.exit(1)
             sleep(0.01)
 
@@ -69,7 +70,7 @@ class AgentManager(Thread):
         try:
             agent.proxy = self.icemgr.adapter.add(agent, iceid) #register holon
         except Ice.AlreadyRegisteredException:
-            self._logger.warn( "Looks like you tried to register 2 times the same agent  : %s" % agent.name)
+            self.logger.warn( "Looks like you tried to register 2 times the same agent  : %s" % agent.name)
             return
         agent.proxy = self.icemgr.automatedCast(agent.proxy)
         agent.setAgentManager(self)
@@ -118,7 +119,7 @@ class AgentManager(Thread):
         Clean shutdown
         stop thread and deregister/destroy Ice objects
         """
-        self._logger.info( "Sending shutdown event" )
+        self.logger.info( "Sending shutdown event" )
         self._shutdownEvent = True
         if join:
             self.join()
@@ -127,21 +128,21 @@ class AgentManager(Thread):
         """
         Internal, called from agent mgr thread
         """
-        self._logger.info( "Closing agent manager" )
+        self.logger.info( "Closing agent manager" )
         with self._lock:
             #send stop signal to all holons 
             for agent in self._agents: 
-                self._logger.info( "sending stop to %s", agent.name )
+                self.logger.info( "sending stop to %s", agent.name )
                 agent.stop() 
             # wait for holons to stop, if one is broken , we are dead ..
             for agent in copy(self._agents): 
                 try:
                     self._shutdownAgent(agent)
                 except (AttributeError, Ice.Exception), why: #catch everything we must not fail
-                    self._logger.warn("Error shuting down agent %s, %s", agent.name, why )
-        self._logger.info( "Now closing Ice" )
+                    self.logger.warn("Error shuting down agent %s, %s", agent.name, why )
+        self.logger.info( "Now closing Ice" )
         self.icemgr.destroy()
-        self._logger.info( "Ice closed" )
+        self.logger.info( "Ice closed" )
 
 
     def run(self):
@@ -149,13 +150,13 @@ class AgentManager(Thread):
             self.icemgr.init()
         except Ice.Exception, why:
             self._initializationFailed = True
-            self._logger.error( why )
+            self.logger.error( why )
             self._shutdownEvent = True
 
         while True:
             if self._shutdownEvent:
                 self._shutdown()
-                self._logger.info("Finished !")
+                self.logger.info("Finished !")
                 return
             if self._agentsToRemove:
                 with self._agentsToRemoveLock:
@@ -163,30 +164,30 @@ class AgentManager(Thread):
                         try:
                             self._shutdownAgent(agent)
                         except Ice.Exception, why: #catch everything we must not fail
-                            self._logger.warn( "Error shuting down agent %s: %s", agent, why )
+                            self.logger.warn( "Error shuting down agent %s: %s", agent, why )
                         self._agentsToRemove.remove(agent)
             sleep(0.1)
 
     def _shutdownAgent(self, agent):
         agent.stop() #might allready be called but that is fine
         if isinstance(agent, Thread):
-            self._logger.info( "Waiting for agent %s to stop ..." % agent.name  )
+            self.logger.info( "Waiting for agent %s to stop ..." % agent.name  )
             if agent.isAlive():
                 agent.join(2) 
         agent.cleanup() # let agent cleanup itself
 
         if isinstance(agent, Thread) and agent.isAlive():
-            self._logger.warn( "Failed to stop main thread for agent: ", agent.name)
+            self.logger.warn( "Failed to stop main thread for agent: ", agent.name)
         else:
-            self._logger.info( "agent %s stopped" % agent.name )
+            self.logger.info( "agent %s stopped" % agent.name )
         self._removeAgent(agent)
 
 
-def startHolonStandalone(holon, registerToGrid=True, defaultTimeout=500):
+def startHolonStandalone(holon, registerToGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
     """
     Helper function to start one agent or holon
     """
-    manager = AgentManager(adapterId=holon.name+"_adapter", defaultTimeout=defaultTimeout)
+    manager = AgentManager(adapterId=holon.name+"_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel)
     manager.addAgent(holon, registerToGrid)
     manager.waitForShutdown()
 
