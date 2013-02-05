@@ -13,7 +13,7 @@ class CB(object):
 
 class TestHolon(Holon):
     def run(self):
-        self._log("I am "+ self.name)
+        self.logger.info("I am "+ self.name)
         sleep(0.2) # wait for verything to initialize 
         prx = self._getProxyBlocking(self.other)
         cb = CB()
@@ -21,22 +21,18 @@ class TestHolon(Holon):
             masync = Message(body="Async message from "+ self.name, arguments=dict(type="Async Message", name=self.name))
             msync = Message(body="Sync message from "+ self.name)
             try:
-                prx.putMessage_async(cb, masync)
+                #prx.putMessage_async(cb, masync) # send message async
+                self.logger.info("Sending message %s to %s", msync, prx)
                 prx.putMessage(msync)
-                self._ilog( "State of ",prx.ice_id(), " is ", prx.getState() )
             except Ice.Exception, why:
-                self._ilog("Exception running thread:", why)
+                self.logger.exception("Exception sending message to %s",  self.other)
             sleep(1)
 
 
 if __name__ == "__main__":
-
-    holon = TestHolon("Holon1")
-    holon.setLogLevel(10)
-    #holon.enableLogToFile()
-    #holon.enableLogToTopic() #Not possible must be call after registreing to ice
-    #holon.disableLogToStdout()
-    holon.other = ("Holon2")
-    startHolonStandalone(holon, logLevel=10)
+    import logging
+    holon = TestHolon("Holon1", logLevel=logging.INFO)
+    holon.other = "Holon2"
+    startHolonStandalone(holon)
  
 

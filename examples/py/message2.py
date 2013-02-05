@@ -3,19 +3,23 @@ import sys
 from icehms import startHolonStandalone, Holon
 
 class Client(Holon):
+    def __init__(self, *args, **kwargs):
+        Holon.__init__(self, *args, **kwargs)
+
     def run(self):
+        self.logger.info("Starting waiting for messages")
         while not self._stop:
-            msg = self.mailbox.pop()
-            if msg:
-                print "got message:", msg
-            sleep(0.1)
+            if len(self.mailbox) > 0:
+                msg = self.mailbox.pop()
+                self.logger.info( "got message %s:", msg)
+            else:
+                sleep(0.1)
 
 
 if __name__ == "__main__":
-    holon = Client("Holon2")
-    holon.setLogLevel(10)
-    holon.other = ("Holon1")
-    startHolonStandalone(holon, logLevel=10)
+    import logging
+    holon = Client("Holon2", logLevel=logging.DEBUG)
+    startHolonStandalone(holon, logLevel=logging.WARNING)
  
 
 
