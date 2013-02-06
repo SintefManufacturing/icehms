@@ -1,32 +1,32 @@
 from time import sleep
 import sys
+import logging
+
 import Ice
 
 from icehms import Holon, startHolonStandalone
 
 class TestHolon(Holon):
     def __init__(self, name):
-        Holon.__init__(self, name)
+        Holon.__init__(self, name, logLevel=logging.INFO)
     def run(self):
-        self._log("I am "+ self.name)
-        sleep(0.2) # wait for verything to initialize 
+        self.logger.info("I am "+ self.name)
         while not self._stop:
             listprx = self._icemgr.findHolons("::mymodule::KHolon")
             if listprx:
                 for prx in listprx:
                     try:
-                        self._ilog( "Calling ",prx.getName(), " customeMethodwhich returns ", prx.customMethod() )
-                    except Ice.Exception, why:
-                        self._ilog("Exception while querying proxy", why)
+                        self.logger.info( "Calling %s custom method which returns: %s", prx.getName(), prx.customMethod() )
+                    except Ice.Exception as why:
+                        self.logger.info("Exception while querying proxy: %s", why)
+            else:
+                self.logger.info("No KHolon found")
             sleep(1)
 
 
 if __name__ == "__main__":
 
     holon = TestHolon("MyServerHolon")
-    holon.setLogLevel(10)
-    #holon.enableLogToFile()
-    #holon.disableLogToStdout()
-    startHolonStandalone(holon, logLevel=10)
+    startHolonStandalone(holon)
  
 

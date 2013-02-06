@@ -1,6 +1,6 @@
 from time import sleep
 import sys
-from icehms import startHolonStandalone, Holon
+from icehms import startHolonStandalone, Holon, hms, Holon_
 
 class Client(Holon):
     def __init__(self, *args, **kwargs):
@@ -11,9 +11,11 @@ class Client(Holon):
         while not self._stop:
             if len(self.mailbox) > 0:
                 msg = self.mailbox.pop()
-                self.logger.info( "got message %s:", msg)
+                self.logger.info( "got message %s:", msg.body)
             else:
                 sleep(0.1)
+    #def putMessage(self, m, c):
+        #print "PPPP"
 
 
 if __name__ == "__main__":

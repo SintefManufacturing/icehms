@@ -1,17 +1,17 @@
 #!/usr/bin/python
 import sys
 from struct import unpack
+import logging
 
 from icehms import Holon, startHolonStandalone, hms
 
 #class Client(Holon, hms.GenericEventInterface):
 class Client(Holon):
     def __init__(self, tn):
-        Holon.__init__(self )
+        Holon.__init__(self, "MySubscriber", logLevel=logging.INFO )
         self._tn = tn
 
     def run(self):
-        self._log("Started")
         #self._subscribeTopic(self._tn)
         self._subscribeEvent(self._tn)
 
@@ -30,5 +30,4 @@ if __name__ == "__main__":
     else:
         topicname = "MyTopic"
     s = Client(topicname)
-    s.setLogLevel(10)
-    startHolonStandalone(s, logLevel=10)
+    startHolonStandalone(s)

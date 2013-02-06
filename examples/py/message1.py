@@ -6,10 +6,10 @@ from icehms import Holon, startHolonStandalone, Message
 
 class CB(object):
     def ice_response(self, _result=None, l=None):
-        print "response: ", _result, l
+        print("response: ", _result, l)
 
     def ice_exception(self, ex):
-        print "Exception:", ex
+        print("Exception:", ex)
 
 class TestHolon(Holon):
     def run(self):
@@ -22,10 +22,10 @@ class TestHolon(Holon):
             msync = Message(body="Sync message from "+ self.name)
             try:
                 #prx.putMessage_async(cb, masync) # send message async
-                self.logger.info("Sending message %s to %s", msync, prx)
+                self.logger.info("Sending message %s to %s", msync.body, prx)
                 prx.putMessage(msync)
-            except Ice.Exception, why:
-                self.logger.exception("Exception sending message to %s",  self.other)
+            except Ice.Exception as why:
+                self.logger.warn("Exception sending message to %s",  self.other)
             sleep(1)
 
 

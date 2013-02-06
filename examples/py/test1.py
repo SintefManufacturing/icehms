@@ -12,7 +12,7 @@ class TestHolon(Holon):
         while not self._stop:
             try:
                 self.logger.info( "Got info from %s%s ", prx.getName(), prx.ice_id())
-            except Ice.Exception, why:
+            except Ice.Exception as why:
                 self.logger.warn("Exception while querying proxy: %s", why)
             sleep(1)
 

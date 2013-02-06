@@ -3,16 +3,17 @@
 import time
 import sys
 from struct import pack, unpack
+import logging
 
 from icehms import Holon, startHolonStandalone, hms
 
 class Server(Holon):
     def __init__(self):
-        Holon.__init__(self, "Server")
+        Holon.__init__(self, "Server", logLevel=logging.INFO)
 
     def run(self):
         #pub = self._getPublisher("MyTopic", hms.GenericEventInterfacePrx)
-        log("publishing to MyTopic")
+        self.logger.info("publishing to MyTopic")
         pub = self._getEventPublisher("MyTopic")
         counter = 0
         while not self._stop:
@@ -27,5 +28,4 @@ class Server(Holon):
 
 if __name__ == "__main__":
     s = Server()
-    s.setLogLevel(10)
-    startHolonStandalone(s, logLevel=10)
+    startHolonStandalone(s)
