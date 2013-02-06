@@ -18,9 +18,7 @@ import Ice
 from icehms import hms
 
 
-
-
-class _BaseHolon(object):
+class BaseHolon_(object):
     """
     Base holon only implementing registration to ice
     and some default methods called by AgentManager
@@ -92,12 +90,12 @@ class _BaseHolon(object):
 
 
 
-class _LightHolon(_BaseHolon):
+class LightHolon_(BaseHolon_):
     """Base Class for non active Holons or holons setting up their own threads
     implements helper methods like to handle topics, messages and events 
     """
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
-        _BaseHolon.__init__(self, name, hmstype, logLevel)
+        BaseHolon_.__init__(self, name, hmstype, logLevel)
         self._publishedTopics = {} 
         self._subscribedTopics = {}
         self.mailbox = collections.deque()
@@ -184,17 +182,18 @@ class _LightHolon(_BaseHolon):
         """
         Called by other holons
         """
-        print "kk"
         self.logger.debug("Received message: " + msg.body)
         self.mailbox.appendleft(msg)
 
-class _Holon(_LightHolon, Thread):
+
+
+class Holon_(LightHolon_, Thread):
     """
     Holon is the same as LightHolon but starts a thread automatically
     """
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         Thread.__init__(self)
-        _LightHolon.__init__(self, name, hmstype, logLevel)
+        LightHolon_.__init__(self, name, hmstype, logLevel)
         self._stop = False
         self._lock = Lock()
 
@@ -237,25 +236,26 @@ class _Holon(_LightHolon, Thread):
 
 
 
-class BaseHolon(hms.Holon, _BaseHolon):
+class BaseHolon(BaseHolon_, hms.Holon):
     def __init__(self, *args, **kw):
-        _BaseHolon.__init__(self, args, **kw)
+        BaseHolon_.__init__(self, args, **kw)
 
-class LightHolon(hms.Holon, hms.GenericEventInterface, _LightHolon):
+class LightHolon(LightHolon_, hms.Holon, hms.GenericEventInterface):
     def __init__(self, *args, **kw):
-        _LightHolon.__init__(self, *args, **kw)
+        LightHolon_.__init__(self, *args, **kw)
 
-class Holon(hms.Holon, hms.GenericEventInterface, _Holon):
+class Holon(Holon_, hms.Holon, hms.GenericEventInterface):
     def __init__(self, *args, **kw):
-        _Holon.__init__(self, *args, **kw)
+        Holon_.__init__(self, *args, **kw)
 
 
-class Agent(hms.Agent, hms.Holon, _Holon):
+
+class Agent(hms.Agent, hms.Holon, Holon_):
     """
     Some people prefere working with agents instead of Holons
     """
     def __init__(self, *args, **kw):
-        _Holon.__init__(self, *args, **kw)
+        Holon_.__init__(self, *args, **kw)
 
 class Message(hms.Message):
     """

@@ -109,7 +109,6 @@ for path in slicedirs:
 
 import hms # only to be able to write "from icehms import hms"
 
-from holon import _Holon, _LightHolon  
 from holon import *
 from agentmanager import * # from icehms import agentmanager
 from icemanager import * # from icehms import icemanager
