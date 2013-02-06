@@ -75,8 +75,8 @@ class BaseHolon_(object):
         """
         try:
             self._agentMgr.removeAgent(self)
-        except Ice.Exception, why:
-            self.logger.warn(why)
+        except Ice.Exception as ex:
+            self.logger.warn(ex)
 
     def getClassName(self, ctx=None):
         return self.__class__.__name__
@@ -176,7 +176,7 @@ class LightHolon_(BaseHolon_):
         """
         Return a list of all topics published by one agent
         """
-        return self._publishedTopics.keys()
+        return list[self._publishedTopics.keys()]
 
     def putMessage(self, msg, current=None):
         """

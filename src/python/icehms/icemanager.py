@@ -64,7 +64,7 @@ class IceManager(object):
         if not properties:
             properties = Ice.createProperties(sys.argv) 
         #self.logger.critical("Using ice registry located at: %s ",  icehms.IceRegistryServer )
-        print("IceHMS::IceManager: Using ice registry located at: {} ".format(icehms.IceRegistryServer) )
+        print(("IceHMS::IceManager: Using ice registry located at: {} ".format(icehms.IceRegistryServer) ))
 
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
@@ -107,8 +107,8 @@ class IceManager(object):
             self.eventMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("EventServer/TopicManager"))
             self.realtimeMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("RealTimeServer/TopicManager"))
         except Ice.NotRegisteredException:
-            print "Exception : if we fail here it is proably because icestorm is not registered in node !!"
-            print "run register_services.sh in icehms"
+            print("Exception : if we fail here it is proably because icestorm is not registered in node !!")
+            print("run register_services.sh in icehms")
             self.ic.destroy()
             raise
 
@@ -164,7 +164,7 @@ class IceManager(object):
         debugPrx = prx
         try:
             prx.ice_ping()
-        except Ice.Exception, why:
+        except Ice.Exception as why:
             self.logger.warn("Proxy could not be ping, proxy is dead or database need cleaning %s, %s", why, prx)
             return prx # prx is dead but maybe wants to investigate it 
         if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
@@ -179,14 +179,14 @@ class IceManager(object):
             icetype = icetype.split("::")
             try:
                 tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
-            except (ImportError), ex:
+            except (ImportError) as ex:
                 self.logger.warn( "Import of slice module % s failed for object %s, %s", icetype[1], icetype, ex)
                 continue
             try:
                 for t in icetype[2:-1]:
                     tmp = tmp.__dict__[t]
                 tmp = tmp.__dict__[icetype[-1] + "Prx"]
-            except (KeyError), ex:
+            except (KeyError) as ex:
                 self.logger.warn( "Ice type % s not found for object %s, %s" ,  icetype, prx, ex)
             else:
                 break
@@ -201,10 +201,10 @@ class IceManager(object):
         try:
             self.admin.addObjectWithType(agent.proxy, agent.hmstype)
             return True
-        except (IceGrid.ObjectExistsException), why:
+        except (IceGrid.ObjectExistsException) as why:
             self.admin.updateObject(agent.proxy)
             return False
-        except Ice.Exception, why:
+        except Ice.Exception as why:
             self.logger.error( "Could not register holon to grid: %s", why)
             return False
 
@@ -215,9 +215,9 @@ class IceManager(object):
         """
         try:
             self.admin.removeObject(iceid)
-        except IceGrid.ObjectNotRegisteredException, why:
+        except IceGrid.ObjectNotRegisteredException as why:
             self.logger.warn( "Holon was not registered in database" )
-        except Ice.ObjectNotExistException, why:
+        except Ice.ObjectNotExistException as why:
             self.logger.warn( "Could not de-register holon, admin obejct is dead !!!! report !!, %s", why )
         else:
             self.logger.info( "Holon %s de-registered" % iceid.name )
@@ -272,7 +272,7 @@ class IceManager(object):
             try:
                 if obj.proxy.ice_isA(icetype):
                     holons.append(self.automatedCast(obj.proxy))
-            except Exception, why:
+            except Exception as why:
                 self.logger.warn("%s seems dead: %s", obj.proxy, why)
         return holons
     

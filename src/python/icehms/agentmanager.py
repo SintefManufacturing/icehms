@@ -138,7 +138,7 @@ class AgentManager(Thread):
             for agent in copy(self._agents): 
                 try:
                     self._shutdownAgent(agent)
-                except (AttributeError, Ice.Exception), why: #catch everything we must not fail
+                except (AttributeError, Ice.Exception) as why: #catch everything we must not fail
                     self.logger.warn("Error shuting down agent %s, %s", agent.name, why )
         self.logger.info( "Now closing Ice" )
         self.icemgr.destroy()
@@ -148,7 +148,7 @@ class AgentManager(Thread):
     def run(self):
         try:
             self.icemgr.init()
-        except Ice.Exception, why:
+        except Ice.Exception as why:
             self._initializationFailed = True
             self.logger.error( why )
             self._shutdownEvent = True
@@ -163,7 +163,7 @@ class AgentManager(Thread):
                     for agent in self._agentsToRemove:
                         try:
                             self._shutdownAgent(agent)
-                        except Ice.Exception, why: #catch everything we must not fail
+                        except Ice.Exception as why: #catch everything we must not fail
                             self.logger.warn( "Error shuting down agent %s: %s", agent, why )
                         self._agentsToRemove.remove(agent)
             sleep(0.1)

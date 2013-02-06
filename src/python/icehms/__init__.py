@@ -13,21 +13,21 @@ import Ice
 
 #Find The installation root and setup some paths 
 intree = False
-if os.environ.has_key("ICEHMS_ROOT"):
+if "ICEHMS_ROOT" in os.environ:
     root = os.environ["ICEHMS_ROOT"]
 else:
     #See if we are started from sourcetree
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
     if os.path.isdir(os.path.join(root, "icefg")) and os.path.isdir(os.path.join(root, "slices")):
-        print "Looks like we are in source tree"
+        print("Looks like we are in source tree")
         intree = True
     else:
         tmp = os.path.join(sys.prefix, "share", "icehms")
         if os.path.isdir(tmp): # look like icehms has been installed ealier, try that
             root = tmp
         else:
-            print "Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable"
+            print("Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable")
             sys.exit(1)
 
 #print "icehms root is ", root
@@ -38,7 +38,7 @@ iceboxpath = os.path.join(root, "icecfg", "icebox.xml" ) #configuration icestorm
 
 #setup ice database path
 
-if os.environ.has_key("ICEHMS_DB"):
+if "ICEHMS_DB" in os.environ:
     db_dir = os.environ["ICEHMS_DB"]
 else:
     if intree:
@@ -54,7 +54,7 @@ nodeData = os.path.join(db_dir, "node")
 registryData = os.path.join(db_dir, "registry")
 
 #setup ice registry address 
-if os.environ.has_key("ICEHMS_REGISTRY"):
+if "ICEHMS_REGISTRY" in os.environ:
     IceRegistryServer = os.environ["ICEHMS_REGISTRY"]
 else:
     IceRegistryServer = 'tcp -p 12000 ' #we let Ice chose the network interface
@@ -68,9 +68,9 @@ slicedirs.append(sysSlicesPath) #append system path
 
 #do we have user slices
 icehms_user = ""
-if os.environ.has_key("ICEHMS_USER"):
+if "ICEHMS_USER" in os.environ:
     icehms_user = os.environ["ICEHMS_USER"]
-elif  os.environ.has_key("HOME") and os.path.isdir(os.path.join(os.environ["HOME"], ".icehms")):
+elif  "HOME" in os.environ and os.path.isdir(os.path.join(os.environ["HOME"], ".icehms")):
     icehms_user = os.path.join(os.environ["HOME"], ".icehms")
 if icehms_user:
     userslices = os.path.join(icehms_user, "slices")
@@ -79,7 +79,7 @@ if icehms_user:
             slicedirs.append(os.path.join(icehms_user, d[0]))
 
 #now find application slices
-if os.environ.has_key("ICEHMS_SLICES"):
+if "ICEHMS_SLICES" in os.environ:
     icehms_slices = os.environ["ICEHMS_SLICES"]
     icehms_slices = icehms_slices.split(";")
     for path in icehms_slices:
@@ -98,8 +98,8 @@ for path in slicedirs:
             icefilepath = os.path.normpath(os.path.join(path, icefile))
             try:
                 Ice.loadSlice("", ["--all", "-I" + path, "-I" + sysSlicesPath, icefilepath])
-            except exceptions.RuntimeError, e:
-                print 'icehms.__init__.py: !!! Runtime Error !!!, on loading slice file:', icefile
+            except exceptions.RuntimeError as e:
+                print('icehms.__init__.py: !!! Runtime Error !!!, on loading slice file:', icefile)
         else:
             #print 'icehms.__init__.py: not loading non-slice file:', icefile
             pass
@@ -109,7 +109,7 @@ for path in slicedirs:
 
 import hms # only to be able to write "from icehms import hms"
 
-from holon import *
-from agentmanager import * # from icehms import agentmanager
-from icemanager import * # from icehms import icemanager
+from .holon import *
+from .agentmanager import * 
+from .icemanager import * 
 
