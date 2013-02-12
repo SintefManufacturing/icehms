@@ -5,10 +5,10 @@ import Ice
 
 mgr = icehms.IceManager()
 mgr.init()
+dead = []
+print "Alive holons are :"
 try:
     objs = mgr.admin.getAllObjectInfos("*")
-    print "Holons are :"
-    print "Holons are defined as object inherinting :hms::Holon"
     for obj in objs:
         #print obj
         #print dir(obj)
@@ -18,9 +18,13 @@ try:
             if obj.proxy.ice_isA("::hms::Holon"):
                 print obj.proxy
         except Exception, why:
-            print obj.proxy, " seems dead: ", why
+            dead.append(obj)
 finally:
     mgr.shutdown()
+
+print("\nThe following holons are registered but unreachable:")
+for obj in dead:
+    print(obj.proxy)
 
 
 

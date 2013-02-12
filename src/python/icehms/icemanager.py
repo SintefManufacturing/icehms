@@ -273,7 +273,7 @@ class IceManager(object):
                 if obj.proxy.ice_isA(icetype):
                     holons.append(self.automatedCast(obj.proxy))
             except Exception as why:
-                self.logger.warn("%s seems dead: %s", obj.proxy, why)
+                self.logger.warn("%s seems dead", obj.proxy)
         return holons
     
     def getTopic(self, topicName, create=True, server=None):
