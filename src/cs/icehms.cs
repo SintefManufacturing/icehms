@@ -12,17 +12,20 @@ namespace icehms
 
     public class Robot : icehms.Holon, hms.GenericRobotOperations_
     { // THis is just an example class inheriting holon and implementing another interface
-        public Robot(IceApp app, string name) : base(app, name)
+        public Robot(IceApp app, string name) : base(app, name, false)
         {
             register((Ice.Object) new hms.GenericRobotTie_(this));
         }
-        public virtual double[] getl(hms.CSYS c, Ice.Current current){
+
+        public virtual double[] getl( Ice.Current current){
             return new double[6];
+        }
+        public void setCSYS(hms.CSYS csys, Ice.Current cur=null){
         }
         public virtual double[] getj(Ice.Current current){
             return new double[6];
         }
-        public void movel(double[] pose, double a, double v, hms.CSYS c, Ice.Current current)
+        public void movel(double[] pose, double a, double v, Ice.Current current)
         {
         }
         public void movej(double[] pose, double a, double v, Ice.Current current)
@@ -43,7 +46,7 @@ namespace icehms
         public void release(Ice.Current current){} 
 
     }
-    
+                                             
 
 
 
@@ -52,27 +55,31 @@ namespace icehms
         public string Name;      // The holon name avertised on the network. It mus be unique
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
         public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
-        private Ice.Object Servant;
+        public Ice.Object Servant; 
         
 
-        public Holon(icehms.IceApp app, string name)
+        public Holon(icehms.IceApp app, string name, bool activate=true)
         {
             //The name must be unique!!
             Name = name;
             IceApp = app;
+            if (activate)
+            {
+                register((Ice.Object) new hms.HolonTie_(this));
+            }
         }
 
-        protected void register( vClass tieservant=hms.HolonTie_)
+        protected void register(Ice.Object servant, bool icegrid=true)
         {
-            Servant = new tieservant(this);
-            log("registreing: " + Servant.ice_id());
-            Proxy = IceApp.register(Name, Servant);
+            Servant = servant;
+            log("registering: " + Servant.ice_id());
+            Proxy = IceApp.register(Name, Servant, icegrid);
         }
-
 
         public virtual void shutdown()
         {
             //This must be called before closing application!!
+            log("shutdown!");
             IceApp.deregister(this);
         }
 
@@ -270,10 +277,12 @@ namespace icehms
            return _Admin;
       }
 
-       public Ice.ObjectPrx register(string Name, Ice.Object servant)
+       public Ice.ObjectPrx register(string Name, Ice.Object servant, bool icegrid=true )
        {
             // register an object to local Ice adapter and yellowpage service (IceGrid)
+           
             Ice.Identity iceid = Communicator.stringToIdentity(Name);
+            log("Registering: " + Name + " with ice_id: " + iceid.ToString());
             Ice.ObjectPrx proxy;
             try
             {
@@ -281,8 +290,8 @@ namespace icehms
             }
             catch (Ice.AlreadyRegisteredException ex)
             {
-                log("The name ArgumentOutOfRangeException this holon is allready used");
-                //maybe I could try to change name but there is probably something wrong in modell
+                log("The name of this holon: " + iceid.ToString() + " is allready used in local adapter");
+                //maybe I could try to change name but there is probably something wrong
                 throw (ex);
             }
 
@@ -375,9 +384,13 @@ namespace icehms
            return hms.GenericEventInterfacePrxHelper.uncheckedCast(publisher);
        }
 
-       public Ice.ObjectPrx[] findHolon(string type) //wraper arond findAllObjectByType for consistency with python icehms
+       public Ice.ObjectPrx[] findHolons(string type) //wraper arond findAllObjectByType for consistency with python icehms
        {
            return Query.findAllObjectsByType(type);
+       }
+       public Ice.ObjectPrx getHolon(string name)
+       {
+           return Query.findObjectById(Communicator.stringToIdentity(name));
        }
    }
 }
