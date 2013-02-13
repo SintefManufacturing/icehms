@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     lastdeb = subprocess.check_output("ls -t1 ../*.deb | head -n1", shell=True)
 
-    ans = input("\n\n Install Package %s? (N,y)" % lastdeb)
+    ans = raw_input("\n\n Install Package %s? (N,y)" % lastdeb)
     if ans in ("y", "Y"):
         print("sudo dpkg -i %s" % lastdeb)
         subprocess.check_call("sudo dpkg -i %s" % lastdeb, shell=True)

@@ -297,6 +297,10 @@ class IceManager(object):
                 raise
         return topic
 
+    def getAllEventTopics(self):
+        """ return a dict of existing topics on event server """
+        return self.eventMgr.retrieveAll()
+
     def getPublisher(self, topicName, prxobj, server=None):
         """
         get a publisher object for a topic
