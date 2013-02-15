@@ -94,6 +94,8 @@ module hms {
 	interface GenericRobot extends Holon {
         void setCSYS(CSYS cref);
 		["ami"] void movel(DoubleSeq pose, double acc, double vel);
+		["ami"] void translate(DoubleSeq pose, double acc, double vel);
+		["ami"] void orient(DoubleSeq pose, double acc, double vel);
 		DoubleSeq getl();
 		["ami"] void movej(DoubleSeq pose, double acc, double vel);
 		DoubleSeq getj();
