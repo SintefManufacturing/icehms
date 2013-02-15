@@ -1,0 +1,5 @@
+src/cs/bin
+src/cs/obj
+src/cs/hms.cs
+*.pyc
+*~
