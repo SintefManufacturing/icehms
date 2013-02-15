@@ -28,6 +28,12 @@ namespace icehms
         public void movel(double[] pose, double a, double v, Ice.Current current)
         {
         }
+        public void translate(double[] pose, double a, double v, Ice.Current current)
+        {
+        }
+        public void orient(double[] pose, double a, double v, Ice.Current current)
+        {
+        }
         public void movej(double[] pose, double a, double v, Ice.Current current)
         {
         }
@@ -72,7 +78,7 @@ namespace icehms
         protected void register(Ice.Object servant, bool icegrid=true)
         {
             Servant = servant;
-            log("registering: " + Servant.ice_id());
+            //log("registering: " + Servant.ice_id());
             Proxy = IceApp.register(Name, Servant, icegrid);
         }
 
@@ -212,7 +218,7 @@ namespace icehms
            log("IceApp " + Name + " shutdown");
            foreach ( Ice.Identity iceid in _ServantIds) // that least should be empty, but deregister them avoid corrupting db
            {
-               log("deregistering: " + iceid);
+               //log("deregistering: " + iceid);
                _deregister(iceid);
            }
            if (Communicator != null)
@@ -282,7 +288,7 @@ namespace icehms
             // register an object to local Ice adapter and yellowpage service (IceGrid)
            
             Ice.Identity iceid = Communicator.stringToIdentity(Name);
-            log("Registering: " + Name + " with ice_id: " + iceid.ToString());
+            log("Registering: " + Name );//+ " with ice_id: " + iceid.ToString());
             Ice.ObjectPrx proxy;
             try
             {
@@ -314,7 +320,7 @@ namespace icehms
        {
             //remove from IceGrid and from local adapter
            //this must be called before closing!!
-           log("Deregistring holon: " + holon.getName());
+           //log("Deregistring holon: " + holon.getName());
             Ice.Identity iceid = holon.Proxy.ice_getIdentity();
             _deregister(iceid);
            _ServantIds.Remove(iceid);

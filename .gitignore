@@ -3,3 +3,5 @@ src/cs/obj
 src/cs/hms.cs
 *.pyc
 *~
+dist
+build
