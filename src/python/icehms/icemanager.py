@@ -197,11 +197,16 @@ class IceManager(object):
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 
+    #def register(self, holon, icegrid=True):
+        #""" register holon to Ice adapter """
+
+
     def registerToIceGrid(self, agent):
         """ register Agent to iceregistry so that it can be found by type and ID
         """
         try:
             self.getAdmin().addObjectWithType(agent.proxy, agent.hmstype)
+            agent.registeredToGrid = True
             return True
         except (IceGrid.ObjectExistsException):
             self.getAdmin().updateObject(agent.proxy)
