@@ -4,10 +4,11 @@ import icehms
 
 if __name__ == "__main__":
     dead = []
+    alive = []
     mgr = icehms.IceManager()
-    print("Alive holons are :")
     try:
         mgr.init()
+        print("Alive holons are :")
         holons = mgr.findHolons()
         for holon in holons:
             try:
@@ -19,9 +20,10 @@ if __name__ == "__main__":
     finally:
         mgr.shutdown()
 
-print("\nThe following holons are registered but unreachable:")
-for obj in dead:
-    print(obj)
+if len(dead) > 0:
+    print("\nThe following holons are registered but unreachable:")
+    for obj in dead:
+        print(obj)
 
 
 

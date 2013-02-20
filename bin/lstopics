@@ -8,7 +8,6 @@ if __name__ == "__main__":
         print("\nTopics are: \n")
         for name, prx in topics.items():
             print(name)
-        print("")
         topics = mgr.eventMgr.retrieveAll()
         print("\nEvents Topics are: \n")
         for name, prx in topics.items():
