@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 import subprocess
 from icehmsversion import VERSION
 from email.Utils import formatdate

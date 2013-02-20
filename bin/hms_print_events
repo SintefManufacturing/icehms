@@ -7,30 +7,30 @@ from icehms import IceManager, Holon, startHolonStandalone
 class Client(Holon):
     def __init__(self, tn):
         Holon.__init__(self )
-        print "Monitoring: ", tn
+        print("Monitoring: ", tn)
         self._tn = tn
 
     def run(self):
         self._subscribeEvent(self._tn)
 
     def newEvent(self, name, stringList, bytesStr, ctx=None):
-        print "New Event: ", name, stringList, 
+        print("New Event: ", name, stringList, end=' ') 
         if bytesStr:
-            print " and binary data"
+            print(" and binary data")
         else:
-            print ""
+            print("")
 
     def putMessage(self, msg, ctx=None):
-        print "New Message: ", msg 
+        print("New Message: ", msg) 
 
 def print_topics():
     mgr = IceManager()
     mgr.init()
     try:
         topics = mgr.eventMgr.retrieveAll()
-        print "Events Topics are: \n"
+        print("Events Topics are: \n")
         for name, prx in topics.items():
-            print name
+            print(name)
     finally:
         mgr.shutdown()
 
@@ -39,8 +39,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         topicname = sys.argv[1]
     else:
-        print "Usage: ", sys.argv[0], " TopicName"
-        print ""
+        print("Usage: ", sys.argv[0], " TopicName")
+        print("")
         print_topics()
         sys.exit(0)
 

@@ -10,6 +10,8 @@ import IceStorm
 import icehms 
 from icehms import hms
 
+import cleaner
+
 
 class IceManager(object):
     """
@@ -100,8 +102,6 @@ class IceManager(object):
         #Those objects must be created after adapter has been activated
         self.query = IceGrid.QueryPrx.checkedCast(self.ic.stringToProxy("IceGrid/Query"))
         self.registry =  IceGrid.RegistryPrx.uncheckedCast(self.ic.stringToProxy("IceGrid/Registry"))
-        self._session = self.registry.createAdminSession(self._adminUser, self._adminPasswd)
-        self._admin  = self._session.getAdmin()
         try:
             self.topicMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("IceStorm/TopicManager"))
             self.eventMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("EventServer/TopicManager"))
@@ -133,26 +133,26 @@ class IceManager(object):
         ip = s.getsockname()[0]
         self.logger.info( "Deduced local IP address is: %s", s.getsockname()[0])
         return s.getsockname()[0]
+    
+    def _initAdmin(self):
+        self._session = self.registry.createAdminSession(self._adminUser, self._adminPasswd)
+        return self._session.getAdmin()
 
-    def __getattr__(self, key):
+
+    def getAdmin(self):
         """
         this method is implemented to work around timeout
         of admin session
         """
-        if key == 'session':
+        if not self._admin:
+            return self._initAdmin()
+        else:
             try:
                 self._session.ice_ping()
-            except Ice.Exception:
-                self._session = self.registry.createAdminSession(self._adminUser, self._adminPasswd)
-            return self._session
-        elif key == 'admin':
-            try:
                 self._admin.ice_ping()
             except Ice.Exception:
-                self._admin  = self.session.getAdmin()
+                return self._initAdmin()
             return self._admin
-        else:
-            raise AttributeError(key)
 
     def automatedCast(self, prx):
         """
@@ -199,10 +199,10 @@ class IceManager(object):
         """ register Agent to iceregistry so that it can be found by type and ID
         """
         try:
-            self.admin.addObjectWithType(agent.proxy, agent.hmstype)
+            self.getAdmin().addObjectWithType(agent.proxy, agent.hmstype)
             return True
         except (IceGrid.ObjectExistsException) as why:
-            self.admin.updateObject(agent.proxy)
+            self.getAdmin().updateObject(agent.proxy)
             return False
         except Ice.Exception as why:
             self.logger.error( "Could not register holon to grid: %s", why)
@@ -214,7 +214,7 @@ class IceManager(object):
         it is a good idea to deregister it using this method
         """
         try:
-            self.admin.removeObject(iceid)
+            self.getAdmin().removeObject(iceid)
         except IceGrid.ObjectNotRegisteredException as why:
             self.logger.warn( "Holon was not registered in database" )
         except Ice.ObjectNotExistException as why:
@@ -266,7 +266,7 @@ class IceManager(object):
         more expensive version of findHolons
         returns all object which inherit the given type
         """
-        objs = self.admin.getAllObjectInfos("*")
+        objs = self.getAdmin().getAllObjectInfos("*")
         holons = []
         for obj in objs:
             try:
@@ -347,6 +347,9 @@ class IceManager(object):
             return self.ic.isShutdown()
         else:
             return True
+
+    def getCleaner(self):
+        return cleaner.Cleaner(self)
 
 
 

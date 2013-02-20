@@ -1,12 +1,15 @@
-
-import icehms
+"""
+Class to remove object in Ice registry databases which can be safely removed
+"""
 import logging
+import Ice
+import re
 
 class Cleaner(object):
-    def __init__(self):
+    def __init__(self, icemgr, logLevel=logging.INFO):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.mgr = icehms.IceManager()
-        self.mgr.init()
+        self.logger.setLevel(logLevel)
+        self.mgr = icemgr 
 
     def clean_topics(self):
         self._clean_topics(self.mgr.eventMgr)
@@ -14,34 +17,34 @@ class Cleaner(object):
     
     def _clean_topics(self, mgr):
         topics = mgr.retrieveAll()
-        for topicName, prx in list(topics.items()):
+        for name, prx in list(topics.items()):
             try:
-                topic.destroy()
-                self.logger.warn(("topic %s destroyed" % topicName))
-            except Exception as ex:
-                self.logger.warn(("Could not destroy topic", topic))
+                prx.destroy()
+                self.logger.info("topic %s destroyed" % name)
+            except Exception:
+                self.logger.warn("Could not destroy topic %s", name)
 
     def clean_holons(self):
         holons = self.mgr.findHolons()
-        for obj in holons:
+        for prx in holons:
             try:
-                self.mgr.getAdmin().removeObject(obj.proxy.ice_getIdentity())
-            except Ice.Exception as why:
-                self.logger.warn("Could not de-register holon", obj.proxy, why)
+                self.mgr.getAdmin().removeObject(prx.ice_getIdentity())
+            except Ice.Exception :
+                self.logger.warn("Could not de-register holon %s: %s", prx)
             else:
-                self.logger.warn("Holon de-registered", obj.proxy)
+                self.logger.info("Holon %s de-registered", prx)
 
     def clean_adapters(self):
-        ids = self.mgr.getAdmin.getAllAdapterIds()
-        self.logger.warn("Found adapters: ", ids)
+        ids = self.mgr.getAdmin().getAllAdapterIds()
+        self.logger.debug("Found adapters: %s", ids)
         if not ids:
-            self.logger.warn("No dead adapter found in registry")
-        for id in ids:
-            if re.match(".*\.[Publish,TopicManager].*", id):
-                self.logger.warn(id, "%s seems to be part of an IceStorm server...skipping...")
+            self.logger.info("No dead adapter found in registry")
+        for Id in ids:
+            if re.match(".*\.[Publish,TopicManager].*", Id):
+                self.logger.debug("%s seems to be part of an IceStorm server...skipping...", Id)
             else:
-                self.logger.warn("Removing adapter: %s", id)
-                self.mgr.getAdmin().removeAdapter(id)
+                self.logger.info("Removing adapter: %s", Id)
+                self.mgr.getAdmin().removeAdapter(Id)
 
     def clean(self):
         self.clean_topics()
@@ -50,16 +53,14 @@ class Cleaner(object):
 
 
 
-
-
-    def shutdown(self):
-        self.mgr.shutdown()
-
 if __name__ == "__main__":
+    import icehms
     try:
-        c = Cleaner()
-        c.clean_topics()
+        imgr = icehms.IceManager()
+        imgr.init()
+        c = imgr.getCleaner()
+        c.clean()
     finally:
-        c.shutdown()
+        imgr.shutdown()
 
 

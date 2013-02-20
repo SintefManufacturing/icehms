@@ -17,14 +17,14 @@ if os.name == "nt":
 if not os.path.isdir(icehms.nodeData):
     try:
         os.makedirs(icehms.nodeData)
-    except (OSError, IOError), why:
-        print "Could not create directory for node data, create it and set write permissions :", icehms.nodeData 
+    except (OSError, IOError):
+        print("Could not create directory for node data, create it and set write permissions :", icehms.nodeData) 
         sys.exit(1)
 if not os.path.isdir(icehms.registryData):
     try:
         os.makedirs(icehms.registryData)
-    except (OSError, IOError), why:
-        print "Could not create directory for registry data, create it and set write permissions :", icehms.registryData 
+    except (OSError, IOError):
+        print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData) 
         sys.exit(1)
 
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         for idx, a in enumerate(sys.argv):
             if idx != 0: #argv[0] is program name
                 cmd += " " + a + " "
-    print cmd
+    print(cmd)
 
     try:
         icegrid = subprocess.Popen(cmd, shell=True)
@@ -66,16 +66,16 @@ if __name__ == "__main__":
                 h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
                 h.write(md5)
         else:
-            print "IceBox services are up to date"
+            print("IceBox services are up to date")
         print("Running IceGrid")
 
         icegrid.wait()
         #os.system(cmd)
     finally:
         if os.name == "nt":
-            raw_input("Press Enter to exit...")
+            input("Press Enter to exit...")
         try:
             icegrid.kill() # I may not kill it here
-        except Exception, why:
-            print why
+        except Exception as ex:
+            print(ex)
 

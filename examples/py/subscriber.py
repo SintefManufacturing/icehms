@@ -17,11 +17,11 @@ class Client(Holon):
 
     def newEvent(self, name, arguments, data, ctx=None):
         if ctx:
-            print ctx.con.toString() # print my own address and the one from icestorm
-        print "New Event: ", name, arguments, "binary data: ", unpack("=i", data)[0]
+            print(ctx.con.toString()) # print my own address and the one from icestorm
+        print("New Event: ", name, arguments, "binary data: ", unpack("=i", data)[0])
 
     def putMessage(self, msg, current=None):
-        print "Got message: ", msg
+        print("Got message: ", msg)
 
 
 if __name__ == "__main__":
