@@ -2,7 +2,7 @@ from time import sleep
 import sys
 
 from test1 import TestHolon
-from icehms import startHolonStandalone, AgentManager, IceManager
+from icehms import run_holon, AgentManager, IceManager
 
 
 

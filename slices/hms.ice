@@ -33,8 +33,8 @@ module hms {
 
      //To be inherited by holon objects
     interface Holon {
-        string getName();
-        ["ami"] void putMessage(Message s);
+        string get_name();
+        ["ami"] void put_message(Message s);
     };
     
     // For people who prefer using Agents
@@ -79,8 +79,8 @@ module hms {
    
     
     interface GenericEventInterface {
-        ["ami"] void newEvent(string name, StrStrMap arguments, ByteSeq data );
-        ["ami"] void putMessage(Message s);
+        ["ami"] void new_event(string name, StrStrMap arguments, ByteSeq data );
+        ["ami"] void put_message(Message s);
     };
 
     // A few testing interfaces
@@ -92,20 +92,20 @@ module hms {
 	enum CSYS { World, Base, Effector, Tool }; //Very robot oriented
 
 	interface GenericRobot extends Holon {
-        void setCSYS(CSYS cref);
+        void set_csys(CSYS cref);
 		["ami"] void movel(DoubleSeq pose, double acc, double vel);
 		["ami"] void translate(DoubleSeq pose, double acc, double vel);
 		["ami"] void orient(DoubleSeq pose, double acc, double vel);
 		DoubleSeq getl();
 		["ami"] void movej(DoubleSeq pose, double acc, double vel);
 		DoubleSeq getj();
-		bool isProgramRunning();
-        void setDigitalOut(int nb, bool val);
-        void setAnalogOut(int nb, bool val);
-        bool getDigitalInput(int nb);
-        bool getAnalogInput(int nb);
-        void setTool(int tool);
-        void setTCP(DoubleSeq tcp); 
+		bool is_program_running();
+        void set_digital_out(int nb, bool val);
+        void set_analog_out(int nb, bool val);
+        bool get_digital_input(int nb);
+        bool get_analogInput(int nb);
+        void set_tool(int tool);
+        void set_tcp(DoubleSeq tcp); 
         void grasp(); // commodity method 
         void release(); // commodity method 
 	};

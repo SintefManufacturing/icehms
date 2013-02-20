@@ -7,7 +7,6 @@ Holon adds a main thread to LightHolon
 
 from threading import Thread, Lock
 import collections
-from copy import copy
 from time import sleep, time
 import uuid
 import logging
@@ -39,10 +38,10 @@ class BaseHolon_(object):
             hmstype = self.ice_id()
         self.hmstype = hmstype
 
-    def getName(self, ctx=None): 
+    def get_name(self, ctx=None): 
         return self.name
 
-    def setAgentManager(self, mgr): 
+    def set_agent_manager(self, mgr): 
         """
         Set agent manager object for a holon. keeping a pointer enable us create other holons 
         also keep a pointer to icemgr
@@ -78,9 +77,6 @@ class BaseHolon_(object):
         except Ice.Exception as ex:
             self.logger.warn(ex)
 
-    def getClassName(self, ctx=None):
-        return self.__class__.__name__
-
     def __str__(self):
         return "[Holon: %s] " % (self.name)
 
@@ -101,29 +97,29 @@ class LightHolon_(BaseHolon_):
         self.mailbox = collections.deque()
 
 
-    def _subscribeEvent(self, topicName):
-        self._subscribeTopic(topicName, server=self._icemgr.eventMgr)
+    def _subscribe_event(self, topicName):
+        self._subscribe_topic(topicName, server=self._icemgr.eventMgr)
 
-    def _subscribeTopic(self, topicName, server=None):
+    def _subscribe_topic(self, topicName, server=None):
         """
         subscribe ourself to a topic using safest ice tramsmition protocol
         The holon needs to inherit the topic proxy and implemented the topic methods
         """
-        topic = self._icemgr.subscribeTopic(topicName, self.proxy.ice_twoway(), server=server)
+        topic = self._icemgr.subscribe_topic(topicName, self.proxy.ice_twoway(), server=server)
         self._subscribedTopics[topicName] = topic
         return topic
 
-    def _subscribeTopicUDP(self, topicName):
+    def _subscribe_topicUDP(self, topicName):
         """
         subscribe ourself to a topic, using UDP
         The holon needs to inherit the topic proxy and implemented the topic methods
         """
-        topic = self._icemgr.subscribeTopic(topicName, self.proxy.ice_datagram())
+        topic = self._icemgr.subscribe_topic(topicName, self.proxy.ice_datagram())
         self._subscribedTopics[topicName] = topic
         return topic
 
 
-    def _getPublisher(self, topicName, prxobj, permanentTopic=True, server=None):
+    def _get_publisher(self, topicName, prxobj, permanentTopic=True, server=None):
         """
         get a publisher object for a topic
         create it if it does not exist
@@ -132,24 +128,24 @@ class LightHolon_(BaseHolon_):
         otherwise it stays
         if server is None then default server is used
         """
-        pub = self._icemgr.getPublisher(topicName, prxobj, server=server)
+        pub = self._icemgr.get_publisher(topicName, prxobj, server=server)
         self._publishedTopics[topicName] = (server, permanentTopic)
         return  pub
 
-    def _getEventPublisher(self, topicName):
+    def _get_event_publisher(self, topicName):
         """
-        Wrapper over getPublisher, for generic event interface
+        Wrapper over get_publisher, for generic event interface
         """
-        return self._getPublisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=True, server=self._icemgr.eventMgr)
+        return self._get_publisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=True, server=self._icemgr.eventMgr)
 
-    def newEvent(self, name, arguments, icebytes):
+    def new_event(self, name, arguments, icebytes):
         """
         Received event from GenericEventInterface
         """
-        self.logger.warn("Holon registered to topic, but newEvent method not overwritten")
+        self.logger.warn("Holon registered to topic, but new_event method not overwritten")
 
 
-    def _unsubscribeTopic(self, name):
+    def _unsubscribe_topic(self, name):
         """
         As the name says. It is necessary to unsubscribe to topics before exiting to avoid exceptions
         and being able to re-subscribe without error next time
@@ -163,7 +159,7 @@ class LightHolon_(BaseHolon_):
         not catching exceptions since it is not very important
         """
         for topic in self._subscribedTopics.keys():
-            self._unsubscribeTopic(topic)
+            self._unsubscribe_topic(topic)
 
         for k, v in self._publishedTopics.items():
             if not v[1]:
@@ -172,13 +168,13 @@ class LightHolon_(BaseHolon_):
                     #topic.destroy()
                     self.logger.info("Topic destroying disabled since it can confuse clients")
 
-    def getPublishedTopics(self, current):
+    def get_published_topics(self, current):
         """
         Return a list of all topics published by one agent
         """
         return list[self._publishedTopics.keys()]
 
-    def putMessage(self, msg, current=None):
+    def put_message(self, msg, current=None):
         """
         Called by other holons
         """
@@ -210,10 +206,10 @@ class Holon_(LightHolon_, Thread):
         self.logger.info("stop called ")
         self._stop = True
 
-    def _getProxyBlocking(self, address):
-        return self._getHolonBlocking(address)
+    def _get_proxy_blocking(self, address):
+        return self._get_holon_blocking(address)
 
-    def _getHolonBlocking(self, address):
+    def _get_holon_blocking(self, address):
         """
         Attempt to connect a given holon ID
         block until we connect
@@ -222,7 +218,7 @@ class Holon_(LightHolon_, Thread):
         self.logger.info( "Trying to connect  to " + address)
         prx = None    
         while not prx:
-            prx = self._icemgr.getProxy(address)
+            prx = self._icemgr.get_proxy(address)
             sleep(0.1)
             if self._stop:
                 return None

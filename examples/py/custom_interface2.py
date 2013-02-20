@@ -1,7 +1,7 @@
 from time import  time
 import sys
 
-from icehms import LightHolon, BaseHolon, Holon, startHolonStandalone
+from icehms import LightHolon, BaseHolon, Holon, run_holon
 
 import hms.myproject
 import mymodule
@@ -22,7 +22,7 @@ class TT(LightHolon, mymodule.KHolon):
 
 if __name__ == "__main__":
     holon = TT("CustomHolon")
-    startHolonStandalone(holon)
+    run_holon(holon)
  
 
 

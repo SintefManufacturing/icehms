@@ -13,7 +13,7 @@ class TestHolon(Holon):
             print 1
             if self.other:
                 print 2
-                self._prx = self._getProxyBlocking(self.other)
+                self._prx = self._get_proxy_blocking(self.other)
                 break
             if self._stop:
                 return
@@ -32,7 +32,7 @@ class TestHolon(Holon):
 
     def getState(self, xta=None):
         if self._prx:
-            st = self._prx.getName()
+            st = self._prx.get_name()
             self._log(st)
             return [st]
         else:

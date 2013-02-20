@@ -3,7 +3,7 @@ import sys
 from struct import unpack
 import logging
 
-from icehms import Holon, startHolonStandalone, hms
+from icehms import Holon, run_holon, hms
 
 #class Client(Holon, hms.GenericEventInterface):
 class Client(Holon):
@@ -13,14 +13,14 @@ class Client(Holon):
 
     def run(self):
         #self._subscribeTopic(self._tn)
-        self._subscribeEvent(self._tn)
+        self._subscribe_event(self._tn)
 
-    def newEvent(self, name, arguments, data, ctx=None):
+    def new_event(self, name, arguments, data, ctx=None):
         if ctx:
             print(ctx.con.toString()) # print my own address and the one from icestorm
         print("New Event: ", name, arguments, "binary data: ", unpack("=i", data)[0])
 
-    def putMessage(self, msg, current=None):
+    def put_message(self, msg, current=None):
         print("Got message: ", msg)
 
 
@@ -30,4 +30,4 @@ if __name__ == "__main__":
     else:
         topicname = "MyTopic"
     s = Client(topicname)
-    startHolonStandalone(s)
+    run_holon(s)

@@ -41,7 +41,7 @@ class AgentManager(object):
             signal.signal(signal.SIGINT, self.shutdown)
             signal.signal(signal.SIGTERM, self.shutdown)
 
-    def addAgent(self, agent, registerToGrid=False, daemon=False):
+    def add_agent(self, agent, registerToGrid=False, daemon=False):
         """ Register an agent after the adapter has started
         """
         with self._lock:
@@ -51,35 +51,35 @@ class AgentManager(object):
             except Ice.AlreadyRegisteredException:
                 self.logger.warn( "Looks like you tried to register 2 times the same agent  : %s" % agent.name)
                 return
-            agent.proxy = self.icemgr.automatedCast(agent.proxy)
-            agent.setAgentManager(self)
+            agent.proxy = self.icemgr.automated_cast(agent.proxy)
+            agent.set_agent_manager(self)
             if registerToGrid:
-                self.icemgr.registerToIceGrid(agent)
+                self.icemgr.register_to_IceGrid(agent)
             self._agents.append(agent)
             if daemon:
                 agent.setDaemon(1)
             agent.start() #Start agent main thread
 
-    def addHolon(self, holon, daemon=False):
+    def add_holon(self, holon, daemon=False):
         """
-        same as addAgent but always register to IceGrid
+        same as add_agent but always register to IceGrid
         """
-        self.addAgent(holon, registerToGrid=True, daemon=daemon)
+        self.add_agent(holon, registerToGrid=True, daemon=daemon)
 
-    def removeAgent(self, agent):
+    def remove_agent(self, agent):
         """
         De-register and shutdown an agent. 
         """
         with self._lock:
             try:
-                self._removeAgent(agent)
+                self._remove_agent(agent)
             except Ice.Exception as why: #catch everything we must not fail
                 self.logger.warn( "Error shuting down agent %s: %s", agent, why )
 
-    def removeHolon(self, agent):
-        self.removeAgent(agent)
+    def remove_holon(self, agent):
+        self.remove_agent(agent)
 
-    def _removeAgent(self, agent):
+    def _remove_agent(self, agent):
         agent.stop() #might allready be called but that is fine
         if isinstance(agent, Thread):
             self.logger.info( "Waiting for agent %s to stop ..." % agent.name  )
@@ -92,15 +92,15 @@ class AgentManager(object):
             self.logger.info( "agent %s stopped" % agent.name )
         iceid = agent.proxy.ice_getIdentity()
         if agent.registeredToGrid:
-            self.icemgr.deregisterToIceGrid(iceid) 
+            self.icemgr.deregister_to_IceGrid(iceid) 
         self.icemgr.adapter.remove(iceid)
         self._agents.remove(agent)
 
-    def isShutdown(self): 
-        return self.icemgr.isShutdown()
+    def is_shutdown(self): 
+        return self.icemgr.is_shutdown()
 
-    def waitForShutdown(self):
-        return self.icemgr.waitForShutdown()
+    def wait_for_shutdown(self):
+        return self.icemgr.wait_for_shutdown()
 
     def shutdown(self, sig=None, frame=None):
         """
@@ -116,17 +116,20 @@ class AgentManager(object):
             # wait for holons to stop, if one is broken , we are dead ..
             for agent in copy(self._agents): 
                 try:
-                    self._removeAgent(agent)
+                    self._remove_agent(agent)
                 except (AttributeError, Ice.Exception) as why: #catch everything we must not fail
                     self.logger.warn("Error shuting down agent %s, %s", agent.name, why )
         self.icemgr.destroy()
 
 def startHolonStandalone(holon, registerToGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
+    run_holon(holon, registerToIceGrid, logLevel, defaultTimeout)
+
+def run_holon(holon, registerToGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
     """
     Helper function to start one agent or holon
     """
     manager = AgentManager(adapterId=holon.name+"_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel)
-    manager.addAgent(holon, registerToGrid)
-    manager.waitForShutdown()
+    manager.add_agent(holon, registerToGrid)
+    manager.wait_for_shutdown()
 
 

@@ -74,7 +74,7 @@ class IceManager(object):
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
             properties.setProperty("hms.AdapterId", self._adapterId)
-            myIP = self._getIPToIceGrid()
+            myIP = self._getIP_to_IceGrid()
             if myIP:
                 myIP = " -h " + myIP
             properties.setProperty("hms.Endpoints", "tcp " + myIP + ":udp " + myIP)
@@ -118,7 +118,7 @@ class IceManager(object):
         # if we are here initilization should have worked
         self.initialized = True
 
-    def _getIPToIceGrid(self):
+    def _getIP_to_IceGrid(self):
         """
         return IP address on interface where we found the IceGrid server
         This is tricky
@@ -141,7 +141,7 @@ class IceManager(object):
         self._session = self.registry.createAdminSession(self._adminUser, self._adminPasswd)
         return self._session.getAdmin()
 
-    def getAdmin(self):
+    def get_admin(self):
         """
         this method is implemented to work around timeout
         of admin session
@@ -156,7 +156,7 @@ class IceManager(object):
                 return self._initAdmin()
             return self._admin
 
-    def automatedCast(self, prx):
+    def automated_cast(self, prx):
         """
         get ice type from ice, parse string and cast to specific type
         This is very usefull to avoid having to cast correctly every proxy we get from Ice
@@ -201,27 +201,27 @@ class IceManager(object):
         #""" register holon to Ice adapter """
 
 
-    def registerToIceGrid(self, agent):
+    def register_to_IceGrid(self, agent):
         """ register Agent to iceregistry so that it can be found by type and ID
         """
         try:
-            self.getAdmin().addObjectWithType(agent.proxy, agent.hmstype)
+            self.get_admin().addObjectWithType(agent.proxy, agent.hmstype)
             agent.registeredToGrid = True
             return True
         except (IceGrid.ObjectExistsException):
-            self.getAdmin().updateObject(agent.proxy)
+            self.get_admin().updateObject(agent.proxy)
             return False
         except Ice.Exception as why:
             self.logger.error( "Could not register holon to grid: %s", why)
             return False
 
-    def deregisterToIceGrid(self, iceid):
+    def deregister_to_IceGrid(self, iceid):
         """
         deregister ice object to ice grid, if you have registered an object,
         it is a good idea to deregister it using this method
         """
         try:
-            self.getAdmin().removeObject(iceid)
+            self.get_admin().removeObject(iceid)
         except IceGrid.ObjectNotRegisteredException:
             self.logger.warn( "Holon was not registered in database" )
         except Ice.ObjectNotExistException as why:
@@ -229,10 +229,10 @@ class IceManager(object):
         else:
             self.logger.info( "Holon %s de-registered" % iceid.name )
 
-    def getProxy(self, name):
-        return self.getHolon(name)
+    def get_proxy(self, name):
+        return self.get_holon(name)
 
-    def getHolon(self, name):
+    def get_holon(self, name):
         """
         return a proxy object of an Ice Holon, knowing its name(==id)
         return None if not found
@@ -241,16 +241,16 @@ class IceManager(object):
         if self.query:
             prx = self.query.findObjectById(self.ic.stringToIdentity(name))
             if prx:
-                prx = self.automatedCast(prx)
+                prx = self.automated_cast(prx)
                 if prx:
                     self.logger.info( "got proxy for %s", prx)
         return prx
 
     def findAllObjectsByType(self, icetype):
-        return self.findHolons(icetype)
-    def findHolonsByType(self, icetype):
-        return self.findHolons(icetype)
-    def findHolons_quick(self, icetype):
+        return self.find_holons(icetype)
+    def find_holons_by_type(self, icetype):
+        return self.find_holons(icetype)
+    def find_holons_quick(self, icetype):
         """ simple wrapper around findAllObjectsByType from ice
         but cast proxies to lowest level inherited object before returng list
         type is a string like "::hms::agv::Localizer"
@@ -258,7 +258,7 @@ class IceManager(object):
         holons = self.query.findAllObjectsByType( icetype )
         newlist = []
         for holon in holons:
-            prx = self.automatedCast(holon)
+            prx = self.automated_cast(holon)
             if prx:
                 try:
                     prx.ice_ping()
@@ -268,22 +268,22 @@ class IceManager(object):
                     newlist.append(prx)
         return newlist
 
-    def findHolons(self, icetype="::hms::Holon"):
+    def find_holons(self, icetype="::hms::Holon"):
         """
-        more expensive version of findHolons
+        more expensive version of find_holons
         returns all object which inherit the given type
         """
-        objs = self.getAdmin().getAllObjectInfos("*")
+        objs = self.get_admin().getAllObjectInfos("*")
         holons = []
         for obj in objs:
             try:
                 if obj.proxy.ice_isA(icetype):
-                    holons.append(self.automatedCast(obj.proxy))
+                    holons.append(self.automated_cast(obj.proxy))
             except Exception:
                 self.logger.warn("%s seems dead", obj.proxy)
         return holons
     
-    def getTopic(self, topicName, create=True, server=None):
+    def get_topic(self, topicName, create=True, server=None):
         """
         return an ice topic object for name topicName
         if create is True(default) then create topic if it does not exist
@@ -304,31 +304,31 @@ class IceManager(object):
                 raise
         return topic
 
-    def getAllEventTopics(self):
+    def get_all_event_topics(self):
         """ return a dict of existing topics on event server """
         return self.eventMgr.retrieveAll()
 
-    def getPublisher(self, topicName, prxobj, server=None):
+    def get_publisher(self, topicName, prxobj, server=None):
         """
         get a publisher object for a topic
         create it if it does not exist
         prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
         if server is None, default server is used
         """
-        topic = self.getTopic(topicName, server=server)
-        publisher = topic.getPublisher() # get twoways publisher for topic
+        topic = self.get_topic(topicName, server=server)
+        publisher = topic.get_publisher() # get twoways publisher for topic
         self.logger.info("Got publisher for %s", topicName)
         return  prxobj.uncheckedCast(publisher)
 
-    def getEventPublisher(self, topicName):
-        return self.getPublisher(topicName, hms.GenericEventInterfacePrx, server=self.eventMgr)
+    def get_event_publisher(self, topicName):
+        return self.get_publisher(topicName, hms.GenericEventInterfacePrx, server=self.eventMgr)
 
-    def subscribeTopic(self, topicName, prx, server=None):
+    def subscribe_topic(self, topicName, prx, server=None):
         """
         subscribe prx to a topic
         The object pointed by the proxy needs to inherit the topic proxy and implemented the topic methods
         """
-        topic = self.getTopic(topicName, server=server)
+        topic = self.get_topic(topicName, server=server)
         qos = {}
         qos["reliability"] = "" #"" and "ordered" are the only possibilities see doc
         qos["retryCount"] = "-1" #-1 means to never remove a dead subscriber from list 
@@ -345,17 +345,17 @@ class IceManager(object):
         if self.ic:
             self.ic.destroy()
 
-    def waitForShutdown(self):
+    def wait_for_shutdown(self):
         if self.ic: # we might crash here, waitForShutdown crashes if we are allready down
             self.ic.waitForShutdown()
 
-    def isShutdown(self):
+    def is_shutdown(self):
         if self.ic:
             return self.ic.isShutdown()
         else:
             return True
 
-    def getCleaner(self):
+    def get_cleaner(self):
         return cleaner.Cleaner(self)
 
 

@@ -11,16 +11,16 @@ class Client(Holon):
         self._tn = tn
 
     def run(self):
-        self._subscribeEvent(self._tn)
+        self._subscribe_event(self._tn)
 
-    def newEvent(self, name, stringList, bytesStr, ctx=None):
+    def new_event(self, name, stringList, bytesStr, ctx=None):
         print("New Event: ", name, stringList, end=' ') 
         if bytesStr:
             print(" and binary data")
         else:
             print("")
 
-    def putMessage(self, msg, ctx=None):
+    def put_message(self, msg, ctx=None):
         print("New Message: ", msg) 
 
 def print_topics():

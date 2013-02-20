@@ -9,7 +9,7 @@ if __name__ == "__main__":
     try:
         mgr.init()
         print("Alive holons are :")
-        holons = mgr.findHolons()
+        holons = mgr.find_holons()
         for holon in holons:
             try:
                 holon.ice_ping()

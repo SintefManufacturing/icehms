@@ -1,6 +1,6 @@
 from time import sleep
 
-from icehms import Holon, startHolonStandalone
+from icehms import Holon, run_holon
 import hms
 
 class SleepHolon(hms.SleepHolon, Holon):
@@ -19,6 +19,6 @@ class SleepHolon(hms.SleepHolon, Holon):
 if __name__ == "__main__":
 
     holon = SleepHolon("SleepServer")
-    startHolonStandalone(holon)
+    run_holon(holon)
  
 

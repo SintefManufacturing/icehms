@@ -5,7 +5,7 @@ if __name__ == "__main__":
     try:
         imgr = icehms.IceManager()
         imgr.init()
-        c = imgr.getCleaner()
+        c = imgr.get_cleaner()
         c.clean()
     finally:
         imgr.shutdown()

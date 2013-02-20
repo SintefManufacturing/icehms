@@ -1,6 +1,6 @@
 from time import sleep
 import sys
-from icehms import startHolonStandalone, Holon, hms, Holon_
+from icehms import run_holon, Holon, hms, Holon_
 
 class Client(Holon):
     def __init__(self, *args, **kwargs):
@@ -14,14 +14,14 @@ class Client(Holon):
                 self.logger.info( "got message %s:", msg.body)
             else:
                 sleep(0.1)
-    #def putMessage(self, m, c):
+    #def put_message(self, m, c):
         #print "PPPP"
 
 
 if __name__ == "__main__":
     import logging
     holon = Client("Holon2", logLevel=logging.DEBUG)
-    startHolonStandalone(holon, logLevel=logging.WARNING)
+    run_holon(holon, logLevel=logging.WARNING)
  
 
 

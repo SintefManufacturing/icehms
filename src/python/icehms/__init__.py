@@ -97,7 +97,7 @@ for path in slicedirs:
             #print 'icehms.__init__.py: trying to load slice definition:', icefile
             icefilepath = os.path.normpath(os.path.join(path, icefile))
             try:
-                Ice.loadSlice("", ["--all", "-I" + path, "-I" + sysSlicesPath, icefilepath])
+                Ice.loadSlice("", ["--underscore", "--all", "-I" + path, "-I" + sysSlicesPath, icefilepath])
             except exceptions.RuntimeError as e:
                 print('icehms.__init__.py: !!! Runtime Error !!!, on loading slice file:', icefile)
         else:

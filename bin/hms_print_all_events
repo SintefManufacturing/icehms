@@ -10,7 +10,7 @@ class Client(Holon):
         print("Monitoring all events")
 
     def get_topics(self):
-        topics = self._icemgr.getAllEventTopics()
+        topics = self._icemgr.get_all_event_topics()
         print("Events Topics are: \n")
         top = []
         for name, prx in topics.items():
@@ -19,15 +19,15 @@ class Client(Holon):
 
     def subscribeToAll(self):
         for name in self.get_topics():
-            self._subscribeEvent(name)
+            self._subscribe_event(name)
 
     def run(self):
         self.subscribeToAll()
 
-    def newEvent(self, name, stringList, bytesStr, ctx=None):
+    def new_event(self, name, stringList, bytesStr, ctx=None):
         pass
 
-    def putMessage(self, msg, ctx=None):
+    def put_message(self, msg, ctx=None):
         print("New event from: ", msg.sender)
 
 
