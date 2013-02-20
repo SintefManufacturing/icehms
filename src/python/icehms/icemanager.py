@@ -1,4 +1,6 @@
-
+"""
+IceManager initializes Ice and implement all low level methods necessary to IceHMS
+"""
 import sys
 import socket # to get ip address
 import logging
@@ -61,12 +63,13 @@ class IceManager(object):
         Note: some properties are required by icehms and are arbitrarily set in this method
         """
         if self.initialized:
+            self.logger.warn("IceManager is allready initialized")
             return
 
         if not properties:
             properties = Ice.createProperties(sys.argv) 
         #self.logger.critical("Using ice registry located at: %s ",  icehms.IceRegistryServer )
-        print(("IceHMS::IceManager: Using ice registry located at: {} ".format(icehms.IceRegistryServer) ))
+        print("IceHMS::IceManager: Using ice registry located at: {} ".format(icehms.IceRegistryServer))
 
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
@@ -138,7 +141,6 @@ class IceManager(object):
         self._session = self.registry.createAdminSession(self._adminUser, self._adminPasswd)
         return self._session.getAdmin()
 
-
     def getAdmin(self):
         """
         this method is implemented to work around timeout
@@ -158,7 +160,7 @@ class IceManager(object):
         """
         get ice type from ice, parse string and cast to specific type
         This is very usefull to avoid having to cast correctly every proxy we get from Ice
-        This contains a lot of python magic and when something breaks ince IceHMS it is usually here...
+        This contains a lot of python magic and when something breaks in IceHMS it is usually here...
         """
         prx = prx.ice_timeout(300) 
         debugPrx = prx
@@ -201,7 +203,7 @@ class IceManager(object):
         try:
             self.getAdmin().addObjectWithType(agent.proxy, agent.hmstype)
             return True
-        except (IceGrid.ObjectExistsException) as why:
+        except (IceGrid.ObjectExistsException):
             self.getAdmin().updateObject(agent.proxy)
             return False
         except Ice.Exception as why:
@@ -215,7 +217,7 @@ class IceManager(object):
         """
         try:
             self.getAdmin().removeObject(iceid)
-        except IceGrid.ObjectNotRegisteredException as why:
+        except IceGrid.ObjectNotRegisteredException:
             self.logger.warn( "Holon was not registered in database" )
         except Ice.ObjectNotExistException as why:
             self.logger.warn( "Could not de-register holon, admin obejct is dead !!!! report !!, %s", why )
@@ -272,7 +274,7 @@ class IceManager(object):
             try:
                 if obj.proxy.ice_isA(icetype):
                     holons.append(self.automatedCast(obj.proxy))
-            except Exception as why:
+            except Exception:
                 self.logger.warn("%s seems dead", obj.proxy)
         return holons
     
