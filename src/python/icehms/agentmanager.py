@@ -73,14 +73,15 @@ class AgentManager(object):
         with self._lock:
             try:
                 self._remove_agent(agent)
-            except Ice.Exception as why: #catch everything we must not fail
-                self.logger.warn( "Error shuting down agent %s: %s", agent, why )
+            except Exception as ex: #catch everything we must not fail
+                self.logger.warn( "Error shuting down agent %s: %s", agent, ex )
 
     def remove_holon(self, agent):
         self.remove_agent(agent)
 
-    def _remove_agent(self, agent):
-        agent.stop() #might allready be called but that is fine
+    def _remove_agent(self, agent, stop=True):
+        if stop:
+            agent.stop() 
         if isinstance(agent, Thread):
             self.logger.info( "Waiting for agent %s to stop ..." % agent.name  )
             if agent.isAlive():
@@ -109,16 +110,14 @@ class AgentManager(object):
         """
         self.logger.info( "Shutdown" )
         with self._lock:
-            #send stop signal to all holons 
-            for agent in self._agents: 
+            for agent in self._agents: #send stop signal to all holons 
                 self.logger.info( "sending stop to %s", agent.name )
                 agent.stop() 
-            # wait for holons to stop, if one is broken , we are dead ..
-            for agent in copy(self._agents): 
+            for agent in copy(self._agents):# now really stop them 
                 try:
-                    self._remove_agent(agent)
-                except (AttributeError, Ice.Exception) as why: #catch everything we must not fail
-                    self.logger.warn("Error shuting down agent %s, %s", agent.name, why )
+                    self._remove_agent(agent, stop=False)
+                except Exception as ex: #catch everything we must not fail
+                    self.logger.warn("Error shuting down agent %s, %s", agent.name, ex )
         self.icemgr.destroy()
 
 def startHolonStandalone(holon, registerToGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
