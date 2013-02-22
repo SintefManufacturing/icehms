@@ -120,15 +120,12 @@ class AgentManager(object):
                     self.logger.warn("Error shuting down agent %s, %s", agent.name, ex )
         self.icemgr.destroy()
 
-def startHolonStandalone(holon, registerToGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
-    run_holon(holon, registerToIceGrid, logLevel, defaultTimeout)
-
-def run_holon(holon, registerToGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
+def run_holon(holon, registerToIceGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
     """
     Helper function to start one agent or holon
     """
     manager = AgentManager(adapterId=holon.name+"_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel)
-    manager.add_agent(holon, registerToGrid)
+    manager.add_agent(holon, registerToIceGrid)
     manager.wait_for_shutdown()
 
 

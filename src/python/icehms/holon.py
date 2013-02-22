@@ -53,6 +53,7 @@ class BaseHolon_(object):
         """
         Call by agent manager when deregistering
         """
+        pass
 
     def start(self, current=None):
         """ 
@@ -66,14 +67,13 @@ class BaseHolon_(object):
         """
         self.logger.info("stop called ")
 
-
     def shutdown(self, ctx=None):
         """
         shutdown a holon, deregister from icegrid and icestorm and call stop() and cleanup on holon instances
         I read somewhere this should notbe available in a MAS, holons should only shutdown themselves
         """
         try:
-            self._agentMgr.removeAgent(self)
+            self._agentMgr.remove_agent(self)
         except Ice.Exception as ex:
             self.logger.warn(ex)
 
@@ -88,7 +88,7 @@ class BaseHolon_(object):
 
 class LightHolon_(BaseHolon_):
     """Base Class for non active Holons or holons setting up their own threads
-    implements helper methods like to handle topics, messages and events 
+    implements helper methods to handle topics, messages and events 
     """
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         BaseHolon_.__init__(self, name, hmstype, logLevel)
@@ -118,7 +118,6 @@ class LightHolon_(BaseHolon_):
         self._subscribedTopics[topicName] = topic
         return topic
 
-
     def _get_publisher(self, topicName, prxobj, permanentTopic=True, server=None):
         """
         get a publisher object for a topic
@@ -143,7 +142,6 @@ class LightHolon_(BaseHolon_):
         Received event from GenericEventInterface
         """
         self.logger.warn("Holon registered to topic, but new_event method not overwritten")
-
 
     def _unsubscribe_topic(self, name):
         """
