@@ -13,7 +13,7 @@ class Client(Holon):
 
     def run(self):
         #self._subscribeTopic(self._tn)
-        self._subscribe(self._tn)
+        self._subscribe_topic(self._tn)
 
     def put_message(self, msg, current=None):
         print("Got message: ", msg)

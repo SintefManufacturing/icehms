@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
         holon = publisher.Server("TestPublisher", logLevel=logging.INFO)
         mgr.add_holon(holon)
-        holon = message2.Client("TestClient", logLevel=logging.INFO)
+        holon = subscriber.Client("TestClient", logLevel=logging.INFO)
         mgr.add_holon(holon)
 
 
