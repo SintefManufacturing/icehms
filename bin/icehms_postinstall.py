@@ -46,7 +46,7 @@ if __name__ == "__main__":
     if os.name == "nt":
         create_windows_menu()
     if os.name != "nt":
-        #ugly hack for debian, not idea, how to avoid it
+        #ugly hack for debian, no idea, how to avoid it
         os.system("update-python-modules icehms.public")
 
    
