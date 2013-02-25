@@ -88,7 +88,7 @@ class AgentManager(object):
                 agent.join(2) 
         agent.cleanup() # let agent cleanup itself
         if isinstance(agent, Thread) and agent.isAlive():
-            self.logger.warn( "Failed to stop main thread for agent: ", agent.name)
+            self.logger.warn( "Failed to stop main thread for agent: %s", agent.name)
         else:
             self.logger.info( "agent %s stopped" % agent.name )
         iceid = agent.proxy.ice_getIdentity()
