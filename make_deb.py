@@ -15,7 +15,9 @@ if __name__ == "__main__":
     subprocess.check_call("cat debian_changelog_template.txt | sed   -e 's/VERSION/%s/g' | sed   -e 's/DATE/%s/g' > debian/changelog" % (VERSION, formatdate()), shell=True)
 
     #now build package
-    subprocess.check_call("dpkg-buildpackage -rfakeroot -uc -us -b", shell=True)
+    #subprocess.check_call("dpkg-buildpackage -rfakeroot -uc -us -b", shell=True)
+    subprocess.check_call("fakeroot dh binary --with python2,python3", shell=True)
+    subprocess.check_call("dh clean", shell=True)
 
 
 
