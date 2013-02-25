@@ -1,2 +1,2 @@
-python setup.py bdist_wininst  --install-script bin\hms_postinstall.py
+python setup.py bdist_wininst  --install-script windows_postinstall.py
 pause

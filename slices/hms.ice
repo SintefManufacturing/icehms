@@ -72,7 +72,7 @@ module hms {
         void set_digital_out(int nb, bool val);
         void set_analog_out(int nb, bool val);
         bool get_digital_input(int nb);
-        bool get_analogInput(int nb);
+        bool get_analog_input(int nb);
         void set_tool(int tool);
         void set_tcp(DoubleSeq tcp); 
         void grasp(); // commodity method 

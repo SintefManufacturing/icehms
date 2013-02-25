@@ -71,11 +71,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true">
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_OutputDir="." ZerocIce_VerboseLevel="2" ZerocIce_IncludePath="C:\Users\olrd\Documents\GitHub\icehms\slices" ZerocIce_Prefix="True" ZerocIce_Tie="True" />
+      <UserProperties ZerocIce_Tie="True" ZerocIce_Prefix="True" ZerocIce_IncludePath="C:\Users\olrd\Documents\GitHub\icehms\slices" ZerocIce_VerboseLevel="2" ZerocIce_OutputDir="." ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="CompileSlice" Inputs="../../slices/hms.ice" Outputs="hms.cs">
-    <Exec Command="slice2cs --tie ../../slices/hms.ice" />
+    <Exec Command="slice2cs --tie --underscore ../../slices/hms.ice" />
   </Target>
   <Target Name="AfterClean">
     <Delete Files="hms.cs" />

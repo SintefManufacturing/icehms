@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 from distutils.command.install_data import install_data
 
 
@@ -18,7 +18,7 @@ setup (name = "icehms",
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",
         
-        scripts = ["bin/hms_print_events", "bin/hms_cleaner", "bin/lsholons", "bin/lstopics", "bin/hms_run_servers", "bin/icehms_postinstall.py", "bin/hms_print_all_events"],
+        scripts = ["bin/hms_print_events", "bin/hms_cleaner", "bin/lsholons", "bin/lstopics", "bin/hms_run_servers", "windows_postinstall.py", "bin/hms_print_all_events"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
                       ('doc/icehms', ["README.txt", "INSTALL.txt"]),
