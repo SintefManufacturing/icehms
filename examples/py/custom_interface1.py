@@ -7,8 +7,8 @@ import Ice
 from icehms import Holon, run_holon
 
 class TestHolon(Holon):
-    def __init__(self, name):
-        Holon.__init__(self, name, logLevel=logging.INFO)
+    def __init__(self, name, logLevel=logging.INFO):
+        Holon.__init__(self, name, logLevel=logLevel)
     def run(self):
         self.logger.info("I am "+ self.name)
         while not self._stop:

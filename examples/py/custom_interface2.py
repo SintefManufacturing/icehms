@@ -1,5 +1,6 @@
 from time import  time
 import sys
+import logging
 
 from icehms import LightHolon, BaseHolon, Holon, run_holon
 
@@ -8,11 +9,11 @@ import mymodule
 
 #class TT(hms.myproject.CustomHolon, BaseHolon):
 class TT(LightHolon, mymodule.KHolon):
-    def __init__(self, name):
-        LightHolon.__init__(self, name)
+    def __init__(self, name, logLevel):
+        LightHolon.__init__(self, name, logLevel=logLevel)
 
     def customMethod(self, current):
-        print("method called")
+        self.logger.info("Custom method called")
         return time() 
 
     def run(self):
