@@ -10,7 +10,6 @@ import IceGrid
 import IceStorm
 
 import icehms 
-from icehms import hms
 
 import cleaner
 
@@ -46,7 +45,7 @@ class IceManager(object):
         self.query = None
         self.ic = None
         self.topicMgr = None
-        self.eventMgr = None
+        self.messageTopicMgr = None
         self.realtimeMgr = None
         
         #authentication is disable so whatever works
@@ -107,7 +106,7 @@ class IceManager(object):
         self.registry =  IceGrid.RegistryPrx.uncheckedCast(self.ic.stringToProxy("IceGrid/Registry"))
         try:
             self.topicMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("IceStorm/TopicManager"))
-            self.eventMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("EventServer/TopicManager"))
+            self.messageTopicMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("EventServer/TopicManager"))
             self.realtimeMgr = IceStorm.TopicManagerPrx.checkedCast(self.ic.stringToProxy("RealTimeServer/TopicManager"))
         except Ice.NotRegisteredException:
             print("Exception : if we fail here it is proably because icestorm is not registered in node !!")
@@ -204,13 +203,15 @@ class IceManager(object):
     def register_to_IceGrid(self, agent):
         """ register Agent to iceregistry so that it can be found by type and ID
         """
+        self.logger.debug( "Registring: %s with type %s", agent, agent.hmstype)
         try:
             self.get_admin().addObjectWithType(agent.proxy, agent.hmstype)
             agent.registeredToGrid = True
             return True
         except (IceGrid.ObjectExistsException):
             self.get_admin().updateObject(agent.proxy)
-            return False
+            agent.registeredToGrid = True
+            return True
         except Ice.Exception as why:
             self.logger.error( "Could not register holon to grid: %s", why)
             return False
@@ -304,9 +305,13 @@ class IceManager(object):
                 raise
         return topic
 
-    def get_all_event_topics(self):
-        """ return a dict of existing topics on event server """
-        return self.eventMgr.retrieveAll()
+    def get_all_topics(self, server=None):
+        """ return a dict of existing topics on given topic server 
+        if None the default topic supporting messages is used
+        """
+        if server is None:
+            server = self.messageTopicMgr
+        return self.messageTopicMgr.retrieveAll()
 
     def get_publisher(self, topicName, prxobj, server=None):
         """
@@ -315,13 +320,11 @@ class IceManager(object):
         prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
         if server is None, default server is used
         """
+        self.logger.debug("getting publisher for %s with prx %s at server %s", topicName, prxobj, server)
         topic = self.get_topic(topicName, server=server)
-        publisher = topic.get_publisher() # get twoways publisher for topic
+        publisher = topic.getPublisher() # get twoways publisher for topic
         self.logger.info("Got publisher for %s", topicName)
         return  prxobj.uncheckedCast(publisher)
-
-    def get_event_publisher(self, topicName):
-        return self.get_publisher(topicName, hms.GenericEventInterfacePrx, server=self.eventMgr)
 
     def subscribe_topic(self, topicName, prx, server=None):
         """

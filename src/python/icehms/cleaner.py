@@ -12,7 +12,7 @@ class Cleaner(object):
         self.mgr = icemgr 
 
     def clean_topics(self):
-        self._clean_topics(self.mgr.eventMgr)
+        self._clean_topics(self.mgr.messageTopicMgr)
         self._clean_topics(self.mgr.topicMgr)
     
     def _clean_topics(self, mgr):
@@ -25,7 +25,7 @@ class Cleaner(object):
                 self.logger.warn("Could not destroy topic %s", name)
 
     def clean_holons(self):
-        holons = self.mgr.findHolons()
+        holons = self.mgr.find_holons()
         for prx in holons:
             try:
                 self.mgr.getAdmin().removeObject(prx.ice_getIdentity())
@@ -35,7 +35,7 @@ class Cleaner(object):
                 self.logger.info("Holon %s de-registered", prx)
 
     def clean_adapters(self):
-        ids = self.mgr.getAdmin().getAllAdapterIds()
+        ids = self.mgr.get_admin().getAllAdapterIds()
         self.logger.debug("Found adapters: %s", ids)
         if not ids:
             self.logger.info("No dead adapter found in registry")
@@ -44,7 +44,7 @@ class Cleaner(object):
                 self.logger.debug("%s seems to be part of an IceStorm server...skipping...", Id)
             else:
                 self.logger.info("Removing adapter: %s", Id)
-                self.mgr.getAdmin().removeAdapter(Id)
+                self.mgr.get_admin().removeAdapter(Id)
 
     def clean(self):
         self.clean_topics()

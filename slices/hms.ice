@@ -15,7 +15,6 @@ module hms {
     sequence<Vector> Matrix;
     sequence<Vector> VectorSeq;
 
-
     // to support messages
     struct Message {
         string address;
@@ -24,17 +23,16 @@ module hms {
         string sender;
         double createTime;
         StrStrMap arguments;
-        //legacy members:
-        string creationTime;
-        string processingTime;
-        StringSeq parameters;
     };
 
 
-     //To be inherited by holon objects
-    interface Holon {
-        string get_name();
+    interface MessageInterface {
         ["ami"] void put_message(Message s);
+    };
+
+     //To be inherited by holon objects
+    interface Holon extends MessageInterface{
+        string get_name();
     };
     
     // For people who prefer using Agents
@@ -58,36 +56,7 @@ module hms {
     interface SupervisorHolon extends Holon {
     };
 
-    
-    
-   interface DeviceAdapter extends Holon { 
-       string getDeviceName();
-       StrStrMap getDescriptor();
-   };
-
-   //Proposition Access control
-   interface SimpleAccessControl { 
-       double getAccessTimeout();
-       bool setAccessTimeout(); // should this be allowed ?
-       bool getExclusiveAccess();
-       bool releaseExclusiveAccess();
-    };
-
-   interface DeviceAdapterAccessCtrled extends DeviceAdapter,SimpleAccessControl { 
-   };
-    
-   
-    
-    interface GenericEventInterface {
-        ["ami"] void new_event(string name, StrStrMap arguments, ByteSeq data );
-        ["ami"] void put_message(Message s);
-    };
-
-    // A few testing interfaces
-
-    interface SleepHolon { //testing and demo
-        bool sleep(double time);
-    };
+    // a few testing interfaces 
 
 	enum CSYS { World, Base, Effector, Tool }; //Very robot oriented
 

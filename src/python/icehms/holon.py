@@ -1,7 +1,7 @@
 """
 This file define the main holon classes
 BaseHolon implement the minim methods necessary for communication with other holons
-LightHolons adds helper methods to handle message, topics and events
+LightHolons adds helper methods to handle topics and messages
 Holon adds a main thread to LightHolon
 """
 
@@ -88,7 +88,7 @@ class BaseHolon_(object):
 
 class LightHolon_(BaseHolon_):
     """Base Class for non active Holons or holons setting up their own threads
-    implements helper methods to handle topics, messages and events 
+    implements helper methods to handle topics and messages 
     """
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         BaseHolon_.__init__(self, name, hmstype, logLevel)
@@ -96,20 +96,19 @@ class LightHolon_(BaseHolon_):
         self._subscribedTopics = {}
         self.mailbox = collections.deque()
 
-
-    def _subscribe_event(self, topicName):
-        self._subscribe_topic(topicName, server=self._icemgr.eventMgr)
-
     def _subscribe_topic(self, topicName, server=None):
         """
         subscribe ourself to a topic using safest ice tramsmition protocol
         The holon needs to inherit the topic proxy and implemented the topic methods
+        if server is None, default server is used
         """
+        if server is None:
+            server = self._icemgr.messageTopicMgr
         topic = self._icemgr.subscribe_topic(topicName, self.proxy.ice_twoway(), server=server)
         self._subscribedTopics[topicName] = topic
         return topic
 
-    def _subscribe_topicUDP(self, topicName):
+    def _subscribe_topic_UDP(self, topicName):
         """
         subscribe ourself to a topic, using UDP
         The holon needs to inherit the topic proxy and implemented the topic methods
@@ -118,30 +117,20 @@ class LightHolon_(BaseHolon_):
         self._subscribedTopics[topicName] = topic
         return topic
 
-    def _get_publisher(self, topicName, prxobj, permanentTopic=True, server=None):
+    def _get_publisher(self, topicName=None, prxobj=hms.MessageInterfacePrx, server=None):
         """
         get a publisher object for a topic
         create it if it does not exist
-        prxobj is the ice interface obj for the desired topic. This is necessary since topics have an interface
-        if permanentTopic is False then we destroy it when we leave
-        otherwise it stays
-        if server is None then default server is used
+        by default this method creates a topic with the name of the holon, and one method put_message.
+        custom name, Ice interface and topic server can be used. See IceManager for more options
         """
+        if topicName is None:
+            topicName = self.get_name()
+        if server is None:
+            server = self._icemgr.messageTopicMgr
         pub = self._icemgr.get_publisher(topicName, prxobj, server=server)
-        self._publishedTopics[topicName] = (server, permanentTopic)
+        self._publishedTopics[topicName] = (server, True)
         return  pub
-
-    def _get_event_publisher(self, topicName):
-        """
-        Wrapper over get_publisher, for generic event interface
-        """
-        return self._get_publisher(topicName, hms.GenericEventInterfacePrx, permanentTopic=True, server=self._icemgr.eventMgr)
-
-    def new_event(self, name, arguments, icebytes):
-        """
-        Received event from GenericEventInterface
-        """
-        self.logger.warn("Holon registered to topic, but new_event method not overwritten")
 
     def _unsubscribe_topic(self, name):
         """
@@ -234,11 +223,11 @@ class BaseHolon(BaseHolon_, hms.Holon):
     def __init__(self, *args, **kw):
         BaseHolon_.__init__(self, args, **kw)
 
-class LightHolon(LightHolon_, hms.Holon, hms.GenericEventInterface):
+class LightHolon(LightHolon_, hms.Holon):
     def __init__(self, *args, **kw):
         LightHolon_.__init__(self, *args, **kw)
 
-class Holon(Holon_, hms.Holon, hms.GenericEventInterface):
+class Holon(Holon_, hms.Holon):
     def __init__(self, *args, **kw):
         Holon_.__init__(self, *args, **kw)
 

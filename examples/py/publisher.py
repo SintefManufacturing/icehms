@@ -5,20 +5,20 @@ import sys
 from struct import pack, unpack
 import logging
 
-from icehms import Holon, run_holon, hms
+from icehms import Holon, run_holon, hms, Message
 
 class Server(Holon):
-    def __init__(self):
-        Holon.__init__(self, "Server", logLevel=logging.INFO)
+    def __init__(self, name, logLevel=logging.INFO):
+        Holon.__init__(self, name, logLevel=logLevel )
 
     def run(self):
         #pub = self._get_publisher("MyTopic", hms.GenericEventInterfacePrx)
-        self.logger.info("publishing to MyTopic")
-        pub = self._get_event_publisher("MyTopic")
+        pub = self._get_publisher("MyTopic")
         counter = 0
         while not self._stop:
             counter +=1
-            pub.new_event("counter", arguments=dict(counter=str(counter)), data=pack("=i", counter) )
+            #pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, data=pack("=i", counter) )))
+            pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, other="MyOther" )))
             time.sleep(0.5)
     
     def getState(self, current):
@@ -27,5 +27,5 @@ class Server(Holon):
 
 
 if __name__ == "__main__":
-    s = Server()
+    s = Server("MyPubklisher")
     run_holon(s)

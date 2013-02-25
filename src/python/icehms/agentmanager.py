@@ -25,13 +25,13 @@ class AgentManager(object):
         if not adapterId:
             adapterId = Ice.generateUUID()
         self.logger = logging.getLogger(self.__class__.__name__ + "::" + adapterId)
-        self.logger.setLevel(logLevel)
         if len(logging.root.handlers) == 0: #dirty hack
-            logging.basicConfig(level=logging.DEBUG)
+            logging.basicConfig()
+        self.logger.setLevel(logLevel)
         self._agents = []
         self._lock = Lock()
         if not icemgr:
-            self.icemgr = icehms.IceManager(adapterId=adapterId, defaultTimeout=defaultTimeout)
+            self.icemgr = icehms.IceManager(adapterId=adapterId, defaultTimeout=defaultTimeout, logLevel=logLevel)
             self.icemgr.init()
         else:
             self.icemgr = icemgr

@@ -11,21 +11,17 @@ class TestHolon(Holon):
         prx = self._get_proxy_blocking(self.other)
         while not self._stop:
             try:
-                self.logger.info( "Got info from %s%s ", prx.get_name(), prx.ice_id())
+                self.logger.info( "The name of proxy is: %s %s ", prx.get_name(), prx.ice_id())
             except Ice.Exception as why:
                 self.logger.warn("Exception while querying proxy: %s", why)
             sleep(1)
-
-    def getState(self, current):
-        #print "CUrrent is ", dir(current),current.id.name, dir(current.con), current.con.toString()
-        return ["Running"]
 
 
 if __name__ == "__main__":
     import logging
     #logging.basicConfig(level=logging.INFO)
     holon = TestHolon("Holon1", logLevel=logging.INFO)
-    holon.other = ("Holon2")
+    holon.other = "Holon2"
     run_holon(holon)
  
 
