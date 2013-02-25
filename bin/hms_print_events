@@ -2,7 +2,7 @@
 
 import sys
 
-from icehms import IceManager, Holon, startHolonStandalone
+from icehms import IceManager, Holon, run_holon
 
 class Client(Holon):
     def __init__(self, tn):
@@ -11,14 +11,7 @@ class Client(Holon):
         self._tn = tn
 
     def run(self):
-        self._subscribe_event(self._tn)
-
-    def new_event(self, name, stringList, bytesStr, ctx=None):
-        print("New Event: ", name, stringList, end=' ') 
-        if bytesStr:
-            print(" and binary data")
-        else:
-            print("")
+        self._subscribe_topic(self._tn)
 
     def put_message(self, msg, ctx=None):
         print("New Message: ", msg) 
@@ -27,7 +20,7 @@ def print_topics():
     mgr = IceManager()
     mgr.init()
     try:
-        topics = mgr.eventMgr.retrieveAll()
+        topics = mgr.get_all_topics()
         print("Events Topics are: \n")
         for name, prx in topics.items():
             print(name)
@@ -45,4 +38,4 @@ if __name__ == "__main__":
         sys.exit(0)
 
     s = Client(topicname)
-    startHolonStandalone(s)
+    run_holon(s)

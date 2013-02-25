@@ -4,12 +4,8 @@ if __name__ == "__main__":
     mgr = icehms.IceManager()
     try:
         mgr.init()
-        topics = mgr.topicMgr.retrieveAll()
+        topics = mgr.get_all_topics()
         print("\nTopics are: \n")
-        for name, prx in topics.items():
-            print(name)
-        topics = mgr.eventMgr.retrieveAll()
-        print("\nEvents Topics are: \n")
         for name, prx in topics.items():
             print(name)
     finally:

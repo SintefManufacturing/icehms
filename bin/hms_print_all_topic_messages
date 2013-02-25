@@ -2,7 +2,7 @@
 
 import sys
 
-from icehms import Holon, startHolonStandalone
+from icehms import Holon, run_holon
 
 class Client(Holon):
     def __init__(self):
@@ -10,7 +10,7 @@ class Client(Holon):
         print("Monitoring all events")
 
     def get_topics(self):
-        topics = self._icemgr.get_all_event_topics()
+        topics = self._icemgr.get_all_topics()
         print("Events Topics are: \n")
         top = []
         for name, prx in topics.items():
@@ -19,7 +19,7 @@ class Client(Holon):
 
     def subscribeToAll(self):
         for name in self.get_topics():
-            self._subscribe_event(name)
+            self._subscribe_topic(name)
 
     def run(self):
         self.subscribeToAll()
@@ -33,4 +33,4 @@ class Client(Holon):
 
 if __name__ == "__main__":
     s = Client()
-    startHolonStandalone(s)
+    run_holon(s)
