@@ -22,13 +22,9 @@ setup (name = "icehms",
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
                       ('doc/icehms', ["README.txt", "INSTALL.txt"]),
-        ('share/icehms/slices', glob.glob('slices/*')) ]
+        ('share/icehms/slices', glob.glob('slices/*')) ],
 
-        )
-        entry_points = {
-        'console_scripts': [
-            'hms_run_servers = icehms.runservers:main'
-        ]
+        entry_points = {'console_scripts': ['hms_run_servers = icehms.runservers:main']}
         )
     
 
