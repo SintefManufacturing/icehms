@@ -17,22 +17,16 @@ IceHMS is holonic or multi-agent framework based on "The Internet Communication 
 It has been implemented to facilitate the development of holonic situated multi-agent systems.
 It requires Ice and Python to be installed. This is a prototype and many things may not work
 
-if IceHMS is installed in an unusual place, this may be necessary: 
+The following environment variables can be necessary:
 export ICEHMS_ROOT=$HOME/icehms/
-
-Define where the registry server is, the default is localhost 12000:
-export ICEHMS_REGISTRY="tcp -p 12000 -h tlpc484.sintef.no"
-export ICEHMS_REGISTRY=p -p 12000 -h localhost"
-#alternative you may do this programmatically after importing icehms in python: icehms.IceRegistrServer = "tcp -p 12000 -h localhost"
-
-you may also need to setup PYTHONPATH: 
+export ICEHMS_REGISTRY="tcp -p 12000 -h tlpc484.sintef.no" #Define where the registry server is, the default is localhost 12000:
+alternatively this can be done programmatically after importing icehms in python: icehms.IceRegistrServer = "tcp -p 12000 -h localhost"
 export PYTHONPATH=$ICEHMS_ROOT/python/:$PYTHONPATH
 
 slices files defining the interface of your objects may be installed in different places:
 they can be installed system width
-then you can have them in the local directory
-or you can have user slice files in ~/.icehms/slices/
-or you can tell IceHMS where to load optional ice slices file
+they can be located in the current directory
+they can be in user slice directory in ~/.icehms/slices/
+they can be at custom places: 
 export ICEHMS_SLICES="$HOME/MyProject/MySlices/;$HOME/MyProject2/Slices"
-export ICEHMS_SLICES="$HOME/initcode/slices"
 

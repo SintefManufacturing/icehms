@@ -18,7 +18,7 @@ setup (name = "icehms",
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",
         
-        scripts = ["bin/hms_topic_print", "bin/hms_cleaner", "bin/lsholons", "bin/lstopics", "bin/hms_run_servers"],
+        scripts = ["bin/hms_topic_print", "bin/hms_cleaner", "bin/lsholons", "bin/lstopics", "bin/hms_run_servers", "windows_postinstall.py"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
                       ('doc/icehms', ["README.txt", "INSTALL.txt"]),
