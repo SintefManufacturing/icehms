@@ -12,7 +12,7 @@ namespace icehms
 
     public class Robot : icehms.Holon, hms.GenericRobotOperations_
     { // THis is just an example class inheriting holon and implementing another interface
-        public Robot(IceApp app, string name)
+        public Robot(IceManager app, string name)
             : base(app, name, false)
         {
             register((Ice.Object)new hms.GenericRobotTie_(this));
@@ -64,12 +64,12 @@ namespace icehms
     {
         public string Name;      // The holon name avertised on the network. It mus be unique
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
-        public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
+        public IceManager IceApp; //a  link to IceApp to communicate with the rest of the world
         public Ice.Object Servant;
         protected log4net.ILog logger;
 
 
-        public Holon(icehms.IceApp app, string name, bool activate = true)
+        public Holon(icehms.IceManager app, string name, bool activate = true)
         {
             //The name must be unique!!
             Name = name;
@@ -113,7 +113,7 @@ namespace icehms
     }
 
 
-    public class IceApp
+    public class IceManager
     {
         /*
         * IceApp faciliate communication with other agents in icehms network
@@ -135,7 +135,7 @@ namespace icehms
         log4net.ILog logger;
 
 
-        public IceApp(string adapterName, string host, int port, bool catchSignals = true)
+        public IceManager(string adapterName, string host, int port, bool catchSignals = true)
         {
 
             IceGridHost = host;
