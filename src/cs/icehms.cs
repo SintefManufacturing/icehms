@@ -66,6 +66,7 @@ namespace icehms
         public Ice.ObjectPrx Proxy; // an Ice proxy to myself
         public IceApp IceApp; //a  link to IceApp to communicate with the rest of the world
         public Ice.Object Servant;
+        protected log4net.ILog logger;
 
 
         public Holon(icehms.IceApp app, string name, bool activate = true)
@@ -73,6 +74,8 @@ namespace icehms
             //The name must be unique!!
             Name = name;
             IceApp = app;
+            logger = log4net.LogManager.GetLogger(this.GetType().Name + "::" + Name);
+
             if (activate)
             {
                 register((Ice.Object)new hms.HolonTie_(this));
@@ -82,14 +85,14 @@ namespace icehms
         protected void register(Ice.Object servant, bool icegrid = true)
         {
             Servant = servant;
-            //log("registering: " + Servant.ice_id());
+            //logger.Info("registering: " + Servant.ice_id());
             Proxy = IceApp.register(Name, Servant, icegrid);
         }
 
         public virtual void shutdown()
         {
             //This must be called before closing application!!
-            log("shutdown!");
+            logger.Info("shutdown!");
             IceApp.deregister(this);
         }
 
@@ -100,7 +103,7 @@ namespace icehms
 
         public virtual void put_message(hms.Message message, Ice.Current current)
         {
-            log("We got a new message: " + message);
+            logger.Warn("We got a new message but method is not implemented ");
         }
 
         public virtual void log(string message)
@@ -129,16 +132,21 @@ namespace icehms
         Ice.ObjectAdapter _Adapter;
         public string Name;
         private List<Ice.Identity> _ServantIds;
+        log4net.ILog logger;
 
 
         public IceApp(string adapterName, string host, int port, bool catchSignals = true)
         {
+
             IceGridHost = host;
             IceGridPort = port;
             Name = adapterName;
+
+            logger = log4net.LogManager.GetLogger(this.GetType().Name + "::" + Name);
+
             _ServantIds = new List<Ice.Identity>(); //keep track of servants for emergency cleanup
             string myIP = findLocalIPAddress();
-            log("My IPAddress is: " + myIP);
+            logger.Info("My IPAddress is: " + myIP);
 
             //initialize Ice
             Ice.Properties prop = Ice.Util.createProperties();
@@ -160,9 +168,9 @@ namespace icehms
             }
             catch (Exception ex)
             {
-                log("Network error, check configuration: " + ex);
-                log("Endpoint(should be local machine): " + prop.getProperty("hms.Endpoints"));
-                log("Locator (should be IceGrid Server): " + prop.getProperty("Ice.Default.Locator"));
+                logger.Fatal("Network error, check configuration: " + ex);
+                logger.Fatal("Endpoint(should be local machine): " + prop.getProperty("hms.Endpoints"));
+                logger.Fatal("Locator (should be IceGrid Server): " + prop.getProperty("Ice.Default.Locator"));
                 throw (ex); // we are dead anyway
             }
             //Now are we ready to communicate with others
@@ -174,13 +182,13 @@ namespace icehms
                 Query = IceGrid.QueryPrxHelper.checkedCast(Communicator.stringToProxy("IceGrid/Query"));
                 if (Query == null)
                 {
-                    log("invalid ICeGrid proxy");
+                    logger.Error("invalid ICeGrid proxy");
                 }
                 // proxy to icestorm to publish events
                 EventMgr = IceStorm.TopicManagerPrxHelper.checkedCast(Communicator.stringToProxy("EventServer/TopicManager"));
                 if (EventMgr == null)
                 {
-                    log("invalid IceStorm proxy");
+                    logger.Error("invalid IceStorm proxy");
                 }
                 //these 2 objects are only needed to get the IceGrid admin object in order to register
                 _Registry = IceGrid.RegistryPrxHelper.uncheckedCast(Communicator.stringToProxy("IceGrid/Registry"));
@@ -189,11 +197,11 @@ namespace icehms
             }
             catch (Ice.NotRegisteredException)
             {
-                log("If we fail here it is probably because the Icebox objects are not registered");
+                logger.Fatal("If we fail here it is probably because the Icebox objects are not registered");
             }
             catch (Exception e)
             {
-                log("IceGrid Server not found!!!!!: " + e);
+                logger.Fatal("IceGrid Server not found!!!!!: " + e);
                 throw (e);//without yellow page system, there is no need to start
             }
             if (catchSignals)
@@ -213,28 +221,23 @@ namespace icehms
 
         private void consoleHandle(object sender, ConsoleCancelEventArgs args)
         {
-            log("Emergency shutdown");
+            logger.Fatal("Emergency shutdown");
             shutdown();
         }
 
         public void shutdown()
         {
             //alway call this, Ice needs to be closed cleanly
-            log("IceApp " + Name + " shutdown");
+            logger.Info("IceApp " + Name + " shutdown");
             foreach (Ice.Identity iceid in _ServantIds) // that least should be empty, but deregister them avoid corrupting db
             {
-                //log("deregistering: " + iceid);
+                //logger.Info("deregistering: " + iceid);
                 _deregister(iceid);
             }
             if (Communicator != null)
             {
                 Communicator.destroy();
             }
-        }
-
-        public void log(string message)
-        {
-            Console.WriteLine("IceHMS: " + message);
         }
 
         private string findLocalIPAddress()
@@ -250,7 +253,7 @@ namespace icehms
             catch (Exception e)
             {
                 // If we get here we have network problem, so returning something is probably stupide
-                log("Error determining IP address, returning 127.0.0.1: " + e);
+                logger.Error("Error determining IP address, returning 127.0.0.1: " + e);
                 return "127.0.0.1";
             }
             System.Net.IPAddress address = ((System.Net.IPEndPoint)udpClient.Client.LocalEndPoint).Address;
@@ -293,7 +296,7 @@ namespace icehms
             // register an object to local Ice adapter and yellowpage service (IceGrid)
 
             Ice.Identity iceid = Communicator.stringToIdentity(Name);
-            log("Registering: " + Name);//+ " with ice_id: " + iceid.ToString());
+            logger.Info("Registering: " + Name);//+ " with ice_id: " + iceid.ToString());
             Ice.ObjectPrx proxy;
             try
             {
@@ -301,7 +304,7 @@ namespace icehms
             }
             catch (Ice.AlreadyRegisteredException ex)
             {
-                log("The name of this holon: " + iceid.ToString() + " is allready used in local adapter");
+                logger.Error("The name of this holon: " + iceid.ToString() + " is allready used in local adapter");
                 //maybe I could try to change name but there is probably something wrong
                 throw (ex);
             }
@@ -325,7 +328,7 @@ namespace icehms
         {
             //remove from IceGrid and from local adapter
             //this must be called before closing!!
-            //log("Deregistring holon: " + holon.getName());
+            //logger.Info("Deregistring holon: " + holon.getName());
             Ice.Identity iceid = holon.Proxy.ice_getIdentity();
             _deregister(iceid);
             _ServantIds.Remove(iceid);
@@ -340,7 +343,7 @@ namespace icehms
             }
             catch (Exception ex)
             {
-                log("Could not deregister holon from IceGrid: " + ex);
+                logger.Warn("Could not deregister holon from IceGrid: " + ex);
             }
             _Adapter.remove(iceid);
         }
@@ -358,9 +361,9 @@ namespace icehms
             }
             catch (IceStorm.AlreadySubscribed)
             {
-                log("Allready subscribed to topic, that is ok");
+                logger.Info("Allready subscribed to topic, that is ok");
             }
-            log(holon.Proxy + " subscribed to " + topicName);
+            logger.Info(holon.Proxy + " subscribed to " + topicName);
         }
 
         public IceStorm.TopicPrx getTopic(string topicName)
