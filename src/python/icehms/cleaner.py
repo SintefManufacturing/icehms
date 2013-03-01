@@ -28,7 +28,7 @@ class Cleaner(object):
         holons = self.mgr.find_holons()
         for prx in holons:
             try:
-                self.mgr.getAdmin().removeObject(prx.ice_getIdentity())
+                self.mgr.get_admin().removeObject(prx.ice_getIdentity())
             except Ice.Exception :
                 self.logger.warn("Could not de-register holon %s: %s", prx)
             else:

@@ -69,6 +69,14 @@ def check_services(force=False):
     else:
         print("IceBox services are up to date")
 
+def clean_registry():
+    try:
+        imgr = icehms.IceManager()
+        imgr.init()
+        c = imgr.get_cleaner()
+        c.clean()
+    finally:
+        imgr.shutdown()
 
 
 def main():
@@ -95,8 +103,10 @@ def main():
     try:
         icegrid = subprocess.Popen(cmd, shell=True)
         check_services(force)
-        print("Running IceGrid")
+        sleep(0.5)
+        clean_registry()
         icegrid.wait()
+        print("Running IceGrid")
         #os.system(cmd)
     finally:
         if os.name == "nt":

@@ -162,15 +162,11 @@ class IceManager(object):
         This contains a lot of python magic and when something breaks in IceHMS it is usually here...
         """
         prx = prx.ice_timeout(300) 
-        debugPrx = prx
         try:
             prx.ice_ping()
         except Ice.Exception as why:
             self.logger.warn("Proxy could not be ping, proxy is dead or database need cleaning %s, %s", why, prx)
-            return prx # prx is dead but maybe wants to investigate it 
-        if not prx: #it seems checkedCast sometimes returns None if it cannot cast to agent
-            self.logger.warn( "Could not cast an obj to an agent, this is not normal %s, %s", prx, debugPrx)
-            return prx
+            return prx # prx is dead but maybe user wants to investigate it 
         #ids = prx.ice_ids()
         tmp = None
         #ids.reverse()
@@ -259,14 +255,13 @@ class IceManager(object):
         holons = self.query.findAllObjectsByType( icetype )
         newlist = []
         for holon in holons:
-            prx = self.automated_cast(holon)
-            if prx:
-                try:
-                    prx.ice_ping()
-                except Ice.Exception:
-                    pass
-                else:
-                    newlist.append(prx)
+            try:
+                holon.proxy.ice_ping()
+            except Ice.Exception:
+                self.get_admin().removeObject(holon.proxy.ice_getIdentity())# it is dead
+            else:
+                prx = self.automated_cast(holon.proxy)
+                newlist.append(prx)
         return newlist
 
     def find_holons(self, icetype="::hms::Holon"):
@@ -280,8 +275,9 @@ class IceManager(object):
             try:
                 if obj.proxy.ice_isA(icetype):
                     holons.append(self.automated_cast(obj.proxy))
-            except Exception:
-                self.logger.warn("%s seems dead", obj.proxy)
+            except Ice.Exception as e:
+                self.get_admin().removeObject(obj.proxy.ice_getIdentity())# it is dead
+                self.logger.warn("%s seems dead: %s, deleting it from registry", obj.proxy, e)
         return holons
     
     def get_topic(self, topicName, create=True, server=None):
