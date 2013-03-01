@@ -79,7 +79,7 @@ def clean_registry():
         imgr.shutdown()
 
 
-def main():
+def run_servers():
     make_dirs()
     force = False
 
@@ -115,4 +115,82 @@ def main():
             icegrid.kill() 
         except Exception as ex:
             print(ex)
-   
+
+
+
+def lsholons():
+    mgr = icehms.IceManager()
+    try:
+        mgr.init()
+        print("The following holons are registered:")
+        holons = mgr.find_holons()
+        for holon in holons:
+            print(holon)
+    finally:
+        mgr.shutdown()
+
+def lstopics():
+    mgr = icehms.IceManager()
+    try:
+        mgr.init()
+        topics = mgr.get_all_topics()
+        print("\nTopics are: \n")
+        for name, prx in topics.items():
+            print(name)
+    finally:
+        mgr.shutdown()
+
+
+class Client(icehms.Holon):
+    def __init__(self, tn):
+        icehms.Holon.__init__(self )
+        self._tn =  tn
+        print("Monitoring all events")
+
+    def get_topics(self):
+        topics = self._icemgr.get_all_topics()
+        print("Events Topics are: \n")
+        top = []
+        for name, prx in topics.items():
+            top.append(name)
+        return top
+
+    def subscribeToAll(self):
+        for name in self.get_topics():
+            self._subscribe_topic(name)
+
+    def run(self):
+        if self._tn:
+            self._subscribe_topic(self._tn)
+        else:
+            self.subscribeToAll()
+
+    def new_event(self, name, stringList, bytesStr, ctx=None):
+        pass
+
+    def put_message(self, msg, ctx=None):
+        print("New event from: ", msg.sender)
+
+def hms_topic_usage():
+    print("Usage: ", sys.argv[0], " [-h|--help] [-a|--all] [TopicName]")
+    print("")
+    lstopics()
+    sys.exit(0)
+
+def hms_topic_print():
+    topicname = None
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if arg in ("-a", "--all"):
+            topicname = None
+        elif arg in ("-h", "--help"):
+            hms_topic_usage()
+        else:
+            topicname = arg
+    else:
+        hms_topic_usage()
+    s = Client(topicname)
+    icehms.run_holon(s)
+
+
+

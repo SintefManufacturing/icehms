@@ -124,8 +124,16 @@ def run_holon(holon, registerToIceGrid=True, logLevel=logging.WARNING, defaultTi
     """
     Helper function to start one agent or holon
     """
-    manager = AgentManager(adapterId=holon.name+"_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel)
-    manager.add_agent(holon, registerToIceGrid)
+    run_holons([holon], registerToIceGrid, logLevel, defaultTimeout)
+
+def run_holons(holons, registerToIceGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
+    """
+    Helper function to start holons
+    """
+    manager = AgentManager(adapterId=holons[0].name+"s_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel)
+    for holon in holons:
+        manager.add_agent(holon, registerToIceGrid)
     manager.wait_for_shutdown()
+
 
 
