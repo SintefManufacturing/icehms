@@ -45,10 +45,35 @@ def make_dirs():
             print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData) 
             sys.exit(1)
 
+def check_services(force=False):
+    # check if icebox config is up to date
+    f = open(icehms.iceboxpath)
+    md5 = hashlib.md5(f.read())
+    f.close()
+    md5 = md5.digest()
+    hashfile = os.path.join(icehms.db_dir, "hashfile")
+    if os.path.isfile(hashfile):
+        h = open(hashfile)
+        oldmd5 = h.read()
+    else:
+        oldmd5 = ""
+    if force  or md5 != oldmd5 :
+        print("Updating service db in 2 seconds ... ", md5, oldmd5 )
+        sleep(2)
+        code = register_services()
+        code = update_services()
+        if code == 0:
+            print("update succesfull, writting hash file")
+            h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
+            h.write(md5)
+    else:
+        print("IceBox services are up to date")
+
 
 
 def main():
     make_dirs()
+    force = False
 
     cmd = "icegridnode"
     cmd += ' --Ice.Config=' + icehms.icecfgpath
@@ -56,38 +81,21 @@ def main():
     cmd += ' --IceGrid.Registry.Client.Endpoints="%s"' % icehms.IceRegistryServer
     cmd += ' --IceGrid.Registry.Data="%s"' % icehms.registryData
     cmd += ' --IceGrid.Node.Data="%s"' % icehms.nodeData
-    if len(sys.argv) > 1: #Add command line arg to iceregistry
-        for idx, a in enumerate(sys.argv):
-            if idx != 0: #argv[0] is program name
-                cmd += " " + a + " "
+    if len(sys.argv) > 1: 
+        if sys.argv[1] == "-f":
+            force = True
+            rest = sys.argv[2:]
+        else:
+            rest = sys.argv[1:]
+        #Add command line args to iceregistry
+        for a in rest:
+            cmd += " " + a + " "
     print(cmd)
 
     try:
         icegrid = subprocess.Popen(cmd, shell=True)
-
-        # check if icebox config is up to date
-        f = open(icehms.iceboxpath)
-        md5 =  hashlib.md5(f.read())
-        md5 = md5.digest()
-        hashfile = os.path.join(icehms.db_dir, "hashfile")
-        if os.path.isfile(hashfile):
-            h = open(hashfile)
-            oldmd5 = h.read()
-        else:
-            oldmd5 = ""
-        if md5 != oldmd5 :
-            print("Service data have changed , updating db in 2 seconds ... ", md5, oldmd5 )
-            sleep(2)
-            code = register_services()
-            code = update_services()
-            if code == 0:
-                print("update succesfull, writting hash file")
-                h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
-                h.write(md5)
-        else:
-            print("IceBox services are up to date")
+        check_services(force)
         print("Running IceGrid")
-
         icegrid.wait()
         #os.system(cmd)
     finally:
