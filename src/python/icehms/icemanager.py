@@ -167,34 +167,23 @@ class IceManager(object):
         except Ice.Exception as why:
             self.logger.warn("Proxy could not be ping, proxy is dead or database need cleaning %s, %s", why, prx)
             return prx # prx is dead but maybe user wants to investigate it 
-        #ids = prx.ice_ids()
-        tmp = None
-        #ids.reverse()
-        #print("ids are: ", ids)
-        ids = [prx.ice_id()]
-        for icetype in ids:
-            icetype = icetype.split("::")
-            try:
-                tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
-            except (ImportError) as ex:
-                self.logger.warn( "Import of slice module % s failed for object %s, %s", icetype[1], icetype, ex)
-                continue
-            try:
-                for t in icetype[2:-1]:
-                    tmp = tmp.__dict__[t]
-                tmp = tmp.__dict__[icetype[-1] + "Prx"]
-            except (KeyError) as ex:
-                self.logger.warn( "Ice type % s not found for object %s, %s" ,  icetype, prx, ex)
-            else:
-                break
-        if tmp:
-            prx = tmp.checkedCast(prx)
+        try:
+            prxobj = self._get_Prx_obj(prx) #Try to cast
+        except (ImportError, KeyError) as ex:
+            self.logger.warn( "Coult not cast to %s, casting to Holon. Error was: %s %s", prx.ice_id(), ex.__repr__(), ex)
+            prxobj = icehms.hms.HolonPrx#If we fail here we have an installation problem or a bug
+        prx = prxobj.checkedCast(prx)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 
-    #def register(self, holon, icegrid=True):
-        #""" register holon to Ice adapter """
-
+    def _get_Prx_obj(self, prx):
+        tmp = None
+        icetype = prx.ice_id()
+        icetype = icetype.split("::")
+        tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
+        for t in icetype[2:-1]:
+            tmp = tmp.__dict__[t]
+        tmp = tmp.__dict__[icetype[-1] + "Prx"]
 
     def register_to_IceGrid(self, agent):
         """ register Agent to iceregistry so that it can be found by type and ID
