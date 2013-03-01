@@ -168,7 +168,7 @@ namespace icehms
             }
             catch (Exception ex)
             {
-                logger.Fatal("Network error, check configuration: " + ex);
+                logger.Fatal("Network error, check configuration: " + ex.Message);
                 logger.Fatal("Endpoint(should be local machine): " + prop.getProperty("hms.Endpoints"));
                 logger.Fatal("Locator (should be IceGrid Server): " + prop.getProperty("Ice.Default.Locator"));
                 throw (ex); // we are dead anyway
@@ -195,13 +195,13 @@ namespace icehms
                 updateIceGridAdmin();
 
             }
-            catch (Ice.NotRegisteredException)
+            catch (Ice.NotRegisteredException e)
             {
-                logger.Fatal("If we fail here it is probably because the Icebox objects are not registered");
+                logger.Fatal("If we fail here it is probably because the Icebox objects are not registered: " + e.Message);
             }
             catch (Exception e)
             {
-                logger.Fatal("IceGrid Server not found!!!!!: " + e);
+                logger.Fatal("IceGrid Server not found!!!!!: " + e.Message);
                 throw (e);//without yellow page system, there is no need to start
             }
             if (catchSignals)

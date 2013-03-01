@@ -7,12 +7,12 @@ def create_windows_menu():
     desktoppath = get_special_folder_path("CSIDL_DESKTOPDIRECTORY")
     menupath = get_special_folder_path("CSIDL_COMMON_PROGRAMS")
     menupath = os.path.join(menupath, "IceHMS")
+    print("Menu path is: ", menupath)
 
     # the other links should always work
-    apprun = os.path.join(sys.prefix, "Scripts", "run_ice_servers.py")
-    appupdate = os.path.join(sys.prefix, "Scripts", "hms_update_services.py")
-    appregister = os.path.join(sys.prefix, "Scripts", "hms_register_services.py")
-    create_shortcut(apprun, "Run Ice servers", os.path.join(desktoppath, "run_ice.lnk") )
+    print("Creating link to desktop")
+    apprun = os.path.join(sys.prefix, "Scripts", "hms_run_servers.py")
+    create_shortcut(apprun, "Run IceHMS servers", os.path.join(desktoppath, "hms_run_servers.lnk") )
 
     if not os.path.isdir(menupath):
         try:
@@ -20,7 +20,7 @@ def create_windows_menu():
         except Exception, why:
             print "Could not create menus for all users"
         else:
-            create_shortcut(apprun, "Run Ice servers", os.path.join(menupath, "run_ice.lnk") )
+            create_shortcut(apprun, "Run IceHMS servers", os.path.join(menupath, "hms_run_servers.lnk") )
             #create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
             #create_shortcut(appupdate, "Update Services", os.path.join(menupath, "update_services.lnk" ) )
 
@@ -34,10 +34,10 @@ def create_windows_menu():
         file_created(appupdate)
         file_created(appregister)
     #some warnings from windows
-    print """
+    print("""
     IceHMS needs a working Ice and python installation to run
     Install Ice and set the PYTHONPATH and PATH environment variable if necessary (see the Ice documentation)
-    """
+    """)
 
 
 if __name__ == "__main__":
