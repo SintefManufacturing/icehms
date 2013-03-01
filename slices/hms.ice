@@ -58,17 +58,17 @@ module hms {
 
     // a few testing interfaces 
 
-	enum CSYS { World, Base, Effector, Tool }; //Very robot oriented
+    enum CSYS { World, Base, Effector, Tool }; //Very robot oriented
 
-	interface GenericRobot extends Holon {
+    interface GenericRobot extends Holon {
         void set_csys(CSYS cref);
-		["ami"] void movel(DoubleSeq pose, double acc, double vel);
-		["ami"] void translate(DoubleSeq pose, double acc, double vel);
-		["ami"] void orient(DoubleSeq pose, double acc, double vel);
-		DoubleSeq getl();
-		["ami"] void movej(DoubleSeq pose, double acc, double vel);
-		DoubleSeq getj();
-		bool is_program_running();
+        ["ami"] void movel(DoubleSeq pose, double acc, double vel);
+        ["ami"] void translate(DoubleSeq pose, double acc, double vel);
+        ["ami"] void orient(DoubleSeq pose, double acc, double vel);
+        DoubleSeq getl();
+        ["ami"] void movej(DoubleSeq pose, double acc, double vel);
+        DoubleSeq getj();
+        bool is_program_running();
         void set_digital_out(int nb, bool val);
         void set_analog_out(int nb, bool val);
         bool get_digital_input(int nb);
@@ -77,7 +77,7 @@ module hms {
         void set_tcp(DoubleSeq tcp); 
         void grasp(); // commodity method 
         void release(); // commodity method 
-	};
+    };
    
 };
 
