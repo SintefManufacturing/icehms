@@ -110,7 +110,7 @@ def run_servers():
         #os.system(cmd)
     finally:
         if os.name == "nt":
-            input("Press Enter to exit...")
+            raw_input("Press Enter to exit...")
         try:
             icegrid.kill() 
         except Exception as ex:

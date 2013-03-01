@@ -68,7 +68,7 @@ class IceManager(object):
         if not properties:
             properties = Ice.createProperties(sys.argv) 
         #self.logger.critical("Using ice registry located at: %s ",  icehms.IceRegistryServer )
-        print("IceHMS::IceManager: Using ice registry located at: {} ".format(icehms.IceRegistryServer))
+        print("IceHMS::IceManager: Using ice registry located at: {0} ".format(icehms.IceRegistryServer))
 
         # those could be in cfg file but setting them programmatically gives much more flexibility
         if self._adapterId:
