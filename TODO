@@ -1,15 +1,9 @@
 
-
 use isinstance to automatically detect agents and holons in agentmanager
-
-
-can we implement thread safe iterator : for i in self.mailbox ??
 
 
 when externaly calling stop holons need to close all other thread and de-register
 if in standalone mode then we should shutdown factory
 
-
-cleanup the getAdmin and getSession in icemanager !!!
 
 
