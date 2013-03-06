@@ -170,7 +170,7 @@ class IceManager(object):
         try:
             prxobj = self._get_Prx_obj(prx) #Try to cast
         except (ImportError, KeyError) as ex:
-            self.logger.warn( "Coult not cast to %s, casting to Holon. Error was: %s %s", prx.ice_id(), ex.__repr__(), ex)
+            self.logger.info( "Coult not cast to %s, casting to Holon. Error was: %s %s", prx.ice_id(), ex.__repr__(), ex)
             prxobj = icehms.hms.HolonPrx#If we fail here we have an installation problem or a bug
         prx = prxobj.checkedCast(prx)
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
@@ -183,7 +183,7 @@ class IceManager(object):
         tmp  = __import__(icetype[1]) #The first identifier is a slice module to import
         for t in icetype[2:-1]:
             tmp = tmp.__dict__[t]
-        tmp = tmp.__dict__[icetype[-1] + "Prx"]
+        return tmp.__dict__[icetype[-1] + "Prx"]
 
     def register_to_IceGrid(self, agent):
         """ register Agent to iceregistry so that it can be found by type and ID
