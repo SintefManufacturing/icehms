@@ -168,7 +168,7 @@ class IceManager(object):
             self.logger.warn("Proxy could not be ping, proxy is dead or database need cleaning %s, %s", why, prx)
             return prx # prx is dead but maybe user wants to investigate it 
         try:
-            prxobj = self._get_Prx_obj(prx) #Try to cast
+            prxobj = self._get_prxobj(prx) #Try to cast
         except (ImportError, KeyError) as ex:
             self.logger.info( "Coult not cast to %s, casting to Holon. Error was: %s %s", prx.ice_id(), ex.__repr__(), ex)
             prxobj = icehms.hms.HolonPrx#If we fail here we have an installation problem or a bug
@@ -176,7 +176,10 @@ class IceManager(object):
         prx = prx.ice_timeout(self._defaultTimeout) #set timeout since we changed it for pinging
         return prx
 
-    def _get_Prx_obj(self, prx):
+    def _get_prxobj(self, prx):
+        """
+        absolutely not understandable python magic I wrote several years ago, but it works...
+        """
         tmp = None
         icetype = prx.ice_id()
         icetype = icetype.split("::")
