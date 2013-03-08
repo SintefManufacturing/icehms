@@ -1,4 +1,3 @@
-
 #ON THE REGISTRY SERVER
 
 # install system wide
@@ -8,9 +7,6 @@ python setup.py install
 export ICEHMS_REGISTRY="tcp -p 12000 -h toto.mydomain.com"
 
 #run registry
-run_ice_servers.py
-
-#setup topic server (only for first installtion)
 hms_run_servers.py
 
 
