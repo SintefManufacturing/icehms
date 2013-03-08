@@ -13,10 +13,13 @@ class TestHolon(Holon):
         self.logger.info("I am "+ self.name)
         while not self._stop:
             listprx = self._icemgr.find_holons("::mymodule::KHolon")
+            tmp = self._icemgr.find_holons("::hms::myproject::CustomHolon")
+            listprx += tmp
             if listprx:
                 for prx in listprx:
                     try:
-                        self.logger.info( "Calling %s custom method which returns: %s", prx.get_name(), prx.customMethod() )
+                        self.logger.info( "Calling %s of type %s custom method which returns: %s", prx.get_name(), prx.ice_id(), prx.customMethod() )
+                        self.logger.info(prx)
                     except Ice.Exception as why:
                         self.logger.info("Exception while querying proxy: %s", why)
             else:

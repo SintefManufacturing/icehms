@@ -34,6 +34,8 @@ if __name__ == "__main__":
         mgr.add_holon(holon)
         holon = custom_interface2.TT("CustomHolon", logLevel=logging.INFO)
         mgr.add_holon(holon)
+        holon = custom_interface2.TT2("CustomHolon2", logLevel=logging.INFO)
+        mgr.add_holon(holon)
         #from IPython.frontend.terminal.embed import InteractiveShellEmbed
         #ipshell = InteractiveShellEmbed( banner1="\n\n  robot object is available  \n\n")
         #ipshell(local_ns=locals())
