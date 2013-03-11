@@ -7,3 +7,4 @@ dist
 build
 src/cs/extlib
 *.egg-info
+*.swp
