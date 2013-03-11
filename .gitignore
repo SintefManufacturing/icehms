@@ -5,3 +5,5 @@ src/cs/hms.cs
 *~
 dist
 build
+src/cs/extlib
+*.egg-info
