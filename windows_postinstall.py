@@ -43,11 +43,10 @@ def create_windows_menu():
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] != "-install":
         pass
-    if os.name == "nt":
+    try:
         create_windows_menu()
-    if os.name != "nt":
-        #ugly hack for debian, no idea, how to avoid it
-        os.system("update-python-modules icehms.public")
+    except Exception as ex:
+        print(ex)
 
    
 
