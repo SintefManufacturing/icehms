@@ -92,9 +92,9 @@ class LightHolon_(BaseHolon_):
     """
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         BaseHolon_.__init__(self, name, hmstype, logLevel)
-        self._publishedTopics = {} 
-        self._subscribedTopics = {}
-        self.mailbox = collections.deque()
+        self._published_topics = {} 
+        self._subscribed_topics = {}
+        self._mailbox = collections.deque()
 
     def _subscribe_topic(self, topicName, server=None):
         """
@@ -105,7 +105,7 @@ class LightHolon_(BaseHolon_):
         if server is None:
             server = self._icemgr.messageTopicMgr
         topic = self._icemgr.subscribe_topic(topicName, self.proxy.ice_twoway(), server=server)
-        self._subscribedTopics[topicName] = topic
+        self._subscribed_topics[topicName] = topic
         return topic
 
     def _subscribe_topic_UDP(self, topicName):
@@ -114,7 +114,7 @@ class LightHolon_(BaseHolon_):
         The holon needs to inherit the topic proxy and implemented the topic methods
         """
         topic = self._icemgr.subscribe_topic(topicName, self.proxy.ice_datagram())
-        self._subscribedTopics[topicName] = topic
+        self._subscribed_topics[topicName] = topic
         return topic
 
     def _get_publisher(self, topicName=None, prxobj=hms.MessageInterfacePrx, server=None):
@@ -129,7 +129,7 @@ class LightHolon_(BaseHolon_):
         if server is None:
             server = self._icemgr.messageTopicMgr
         pub = self._icemgr.get_publisher(topicName, prxobj, server=server)
-        self._publishedTopics[topicName] = (server, True)
+        self._published_topics[topicName] = (server, True)
         return  pub
 
     def _unsubscribe_topic(self, name):
@@ -137,18 +137,18 @@ class LightHolon_(BaseHolon_):
         As the name says. It is necessary to unsubscribe to topics before exiting to avoid exceptions
         and being able to re-subscribe without error next time
         """
-        self._subscribedTopics[name].unsubscribe(self.proxy)
-        del(self._subscribedTopics[name])
+        self._subscribed_topics[name].unsubscribe(self.proxy)
+        del(self._subscribed_topics[name])
 
     def cleanup(self):
         """
         Remove stuff from the database
         not catching exceptions since it is not very important
         """
-        for topic in self._subscribedTopics.keys():
+        for topic in self._subscribed_topics.keys():
             self._unsubscribe_topic(topic)
 
-        for k, v in self._publishedTopics.items():
+        for k, v in self._published_topics.items():
             if not v[1]:
                 topic = self._icemgr.getTopic(k, server=v[0], create=False)
                 if topic:
@@ -159,14 +159,14 @@ class LightHolon_(BaseHolon_):
         """
         Return a list of all topics published by one agent
         """
-        return list[self._publishedTopics.keys()]
+        return list[self._published_topics.keys()]
 
     def put_message(self, msg, current=None):
         """
         Called by other holons
         """
         self.logger.debug("Received message: " + msg.body)
-        self.mailbox.appendleft(msg)
+        self._mailbox.appendleft(msg)
 
 
 
