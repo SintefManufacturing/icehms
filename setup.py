@@ -21,7 +21,7 @@ setup (name = "icehms",
         scripts = ["windows_postinstall.py"],
 
         data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
-                      ('doc/icehms', ["README.txt", "INSTALL.txt"]),
+                      ('share/doc/icehms', ["README.txt", "INSTALL.txt"]),
         ('share/icehms/slices', glob.glob('slices/*')) ],
 
         entry_points = {'console_scripts': 
