@@ -9,14 +9,13 @@ from icehms import Holon, AgentManager
 
 class UIHolon(QtCore.QObject, Holon):
     """
-    to be used to create a brige between vc2hms signals and Qt Signal
     """
-    def __init__(self, window, topicsmodel, holonmodel):
+    def __init__(self, window):
         QtCore.QObject.__init__(self, window)
         Holon.__init__(self, "HMSUIHolon")
         self.window = window
-        self._topics = topicsmodel
-        self._holons = holonmodel
+        self._topics = []
+        self._holons = []
         self._lock = Lock()
         self._sigs = []
 
@@ -24,14 +23,6 @@ class UIHolon(QtCore.QObject, Holon):
         #self.connect_sig("Conveyor", "MySignal", self.window.signal1Slot)
         while not self._stop:
             topics = self._icemgr.get_all_topics()
-            for name, prx in topics.items():
-                add = True
-                for data in self._topics:
-                    if name == data.name:
-                        add = False
-                        break
-                if add:
-                    self._topics.append(DataObject(name, prx))
 
             time.sleep(0.5)
 
@@ -120,14 +111,16 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
 
     view = QtDeclarative.QDeclarativeView()
-    ctx = view.rootContext()
-    topics = [DataObject("klk",1), DataObject( "lklk", 3)]
-    topicsmodel = MyListModel(topics) 
-    ctx.setContextProperty('myModel', topics)
+    #ctx.setContextProperty('myModel', topics)
     view.setSource(QtCore.QUrl('view.qml'))
+    ctx = view.rootContext()
+    root = view.rootObject()
+    root.addTopic("kkk")
+    root.addTopic("llll")
+    root.removeTopic("llll")
     view.show()
     mgr = AgentManager("UIAdapter")
-    holon = UIHolon(view, topicsmodel, [])
+    holon = UIHolon(view)
     mgr.add_holon(holon)
     try:
         app.exec_()

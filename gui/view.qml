@@ -38,9 +38,7 @@ Row {
         width: page.width/2
         height: page.height
         model: topics
-        delegate: TopicItem {
-        }
-
+        delegate: TopicItem {}
     }  
 
 
@@ -50,9 +48,32 @@ Row {
         height: page.height
 
         model: displayedTopics
-        delegate: TopicView {
+        delegate: TopicView {}
+        function getView(name){
         }
     }
 
 }
+
+function addTopic(name){
+    console.log("Adding topic: " + name)
+    topics.append({"name": name})
+}
+
+function removeTopic(name){
+    console.log("Removing topic: " + name)
+    for (var i = 0; i < topics.count; i++){
+        if ( topics.get(i).name == name ) {
+            topics.remove(i)
+            return;
+        }
+    }
+}
+function newevent(topicName, msg){
+    var view = topicview.getView(topicName)
+    if (name != null ) {
+        view.addEvent(msg)
+    }
+}
+
 }
