@@ -1,26 +1,35 @@
 import Qt 4.7
 
-    Item {
-        property int itwidth 
+Item {
+    id: page 
+    property int itwidth 
+    signal trigger (string name)
+    width: parent.width
+    height: 40 
 
-        id: page 
-        width: parent.width
-        height: 40 
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: { page.focus = true; }
-            //onClicked: { page.focus = true; myText.openSoftwareInputPanel(); }
-        }
-
-        Text {
-            text: name; x: 15; y: 8; height: 40; width: 370
-            font.pixelSize: 18; font.bold: true; color: "white"
-            style: Text.Outline; styleColor: "black"
-            rotation: -8
-        }
-
+    Component.onCompleted: {
+        console.log("TopicItem completed: " + name)
+        //ListView.view.trigger.connect(page.trigger)
     }
+    onTrigger: {
+        console.log("TopicItem clicked: " + name)
+        //parent.trigger.connect(page.trigger)
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: { page.focus = true; }
+        onDoubleClicked: { trigger(name); }
+        //onClicked: { page.focus = true; myText.openSoftwareInputPanel(); }
+    }
+
+    Text {
+        text: name; x: 15; y: 8; height: 40; width: 370
+        font.pixelSize: 18; font.bold: true; color: "white"
+        style: Text.Outline; styleColor: "black"
+        rotation: -8
+    }
+
+}
 
 
 

@@ -44,11 +44,32 @@ Row {
     
     ListView {
         id: topiclistview
+        signal trigger (string name)
         header: Text{text: "Available Topics"}
         width: page.width/2
         height: page.height
         model: topics
         delegate: TopicItem {}
+        Component.onCompleted: {
+            //console.log("Connecting signals")
+            //topiclistview.trigger.connect(delegate.trigger)
+            //console.log("signals connected")
+        }
+        ListView.onAdd: {
+            console.log("item added")
+        }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: { page.focus = true; }
+        onDoubleClicked: {
+            console.log("double click i listview")
+            var idx = topiclistview.indexAt(mouseX, mouseY)
+            console.log("index: " + idx)
+            topiclistview.trigger(topics.get(idx).name); 
+            displayTopic(topics.get(idx).name)
+        }
+        //onClicked: { page.focus = true; myText.openSoftwareInputPanel(); }
+    }
     }  
 
 
@@ -83,14 +104,11 @@ function removeTopic(name){
 function newEvent(topicName, newmsg){
     for (var i = 0; i < displayedTopics.count; i++){
         var item  = displayedTopics.get(i)
-        console.log("i=" + i)
         if ( item.name == topicName )  {
-            console.log(2)
             item.events.append({msg: newmsg})
             return;
         }
     }
-    console.log(3)
     console.log("Topic not found, could add event to topic: " + topicName)
 }
 
