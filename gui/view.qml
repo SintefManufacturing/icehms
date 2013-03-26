@@ -22,18 +22,28 @@ Rectangle {
      ListModel {
         id: displayedTopics
         ListElement {
-            name: "firtst element"
+            name: "Conveyor::State"
+            events: [
+                ListElement { msg: "first event" },
+                ListElement { msg: "second event" }
+            ]
         } 
         ListElement {
-            name: "second element"
+            name: "MakinoCell::PullRequest"
+            events: [
+                ListElement { msg: "first event" },
+                ListElement { msg: "second event" }
+            ]
         } 
+        function getView(name){
+        }
     }
    
 Row {
     spacing: 30
     
     ListView {
-        id: topiclist
+        id: topiclistview
         header: Text{text: "Available Topics"}
         width: page.width/2
         height: page.height
@@ -46,11 +56,10 @@ Row {
         id: topicview
         width: page.width/2
         height: page.height
+        //clip: true
 
         model: displayedTopics
         delegate: TopicView {}
-        function getView(name){
-        }
     }
 
 }
@@ -68,12 +77,37 @@ function removeTopic(name){
             return;
         }
     }
+    console.log("Topic not found, could not remove topic: " + name)
 }
-function newevent(topicName, msg){
-    var view = topicview.getView(topicName)
-    if (name != null ) {
-        view.addEvent(msg)
+
+function newEvent(topicName, newmsg){
+    for (var i = 0; i < displayedTopics.count; i++){
+        var item  = displayedTopics.get(i)
+        console.log("i=" + i)
+        if ( item.name == topicName )  {
+            console.log(2)
+            item.events.append({msg: newmsg})
+            return;
+        }
     }
+    console.log(3)
+    console.log("Topic not found, could add event to topic: " + topicName)
 }
+
+function displayTopic(name){
+    console.log("displaying topic: " + name)
+    displayedTopics.append({"name": name, events: [{msg: "empty"}]})
+}
+function hideTopic(name){
+    console.log("hiding topic: " + name)
+    for (var i = 0; i < displayedTopics.count; i++){
+        if ( displayedTopics.get(i).name == name ) {
+            displayedTopics.remove(i)
+            return;
+        }
+    }
+    console.log("Topic not found, could not remove displayed topic: " + name)
+}
+
 
 }

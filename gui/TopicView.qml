@@ -12,6 +12,14 @@ import Qt 4.7
             style: Text.Outline; styleColor: "black"
         }
 
+    ListView {
+        id: eventList
+        width: page.width
+        height: page.height/2
+        model: events
+        delegate: Text {text: msg}
+    }
+
 
         TextEdit {
             id: myText
