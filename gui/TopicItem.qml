@@ -3,22 +3,24 @@ import Qt 4.7
 Item {
     id: page 
     property int itwidth 
-    signal trigger (string name)
+    signal itemtrigger (string name)
     width: parent.width
     height: 40 
 
     Component.onCompleted: {
         console.log("TopicItem completed: " + name)
         //ListView.view.trigger.connect(page.trigger)
+/*
     }
     onTrigger: {
         console.log("TopicItem clicked: " + name)
         //parent.trigger.connect(page.trigger)
+*/
     }
     MouseArea {
         anchors.fill: parent
         onClicked: { page.focus = true; }
-        onDoubleClicked: { trigger(name); }
+        onDoubleClicked: { itemtrigger(name); }
         //onClicked: { page.focus = true; myText.openSoftwareInputPanel(); }
     }
 

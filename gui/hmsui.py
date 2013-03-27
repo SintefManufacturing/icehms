@@ -10,6 +10,9 @@ from icehms import Holon, AgentManager
 class UIHolon(QtCore.QObject, Holon):
     """
     """
+    addtopic = QtCore.pyqtSignal(str)
+    removetopic = QtCore.pyqtSignal(str)
+    newevent = QtCore.pyqtSignal(str, str)
     def __init__(self, window):
         QtCore.QObject.__init__(self, window)
         Holon.__init__(self, "HMSUIHolon")
@@ -21,87 +24,38 @@ class UIHolon(QtCore.QObject, Holon):
 
     def run(self):
         #self.connect_sig("Conveyor", "MySignal", self.window.signal1Slot)
+        #self.addtopic.connect(self.window.addTopic)
+        self.addtopic.connect(self._addTopic) #FIXME why cant I connect to qml method directly????
+        self.removetopic.connect(self._removeTopic)
+        self.newevent.connect(self._newEvent)
+        topics = []
         while not self._stop:
-            topics = self._icemgr.get_all_topics()
+            time.sleep(1)
+            newtopics = self._icemgr.get_all_topics().keys()
+            stopic = set(topics)
+            snew = set(newtopics)
+            topics = newtopics
+            toadd = snew - stopic
+            toremove = stopic - snew
+            for name in toadd:
+                self.addtopic.emit(name)
+            for name in toremove:
+                self.removetopic.emit(name)
 
-            time.sleep(0.5)
+    def _addTopic(self, name):
+        self.window.addTopic(name)
+    def _removeTopic(self, name):
+        self.window.removeTopic(name)
+    def _newEvent(self, name, smg):
+        self.window.newEvent(name, msg)
 
 
-    def connect_sig(self, sender, name, slot):
-        """Using old pyqt signal syntax in order to create signals on the fly"""
-        sigid = sender + "::" + name 
-        signame = sigid + "(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)"
-        print(signame, SIGNAL(signame), slot)
-        self.connect(self, SIGNAL(signame), slot)
-        with self._lock:
-            self._sigs.append((sigid, signame))
-        self._subscribe_topic(sigid)
-
-    def _get_msg_vals(self, msg):
-        mtype = None
-        mname = None
-        mval = None
-        if msg.arguments.has_key("SignalType"):
-            mtype = msg.arguments["SignalType"]
-        if msg.arguments.has_key("SignalName"):
-            mname = msg.arguments["SignalName"]
-        if msg.arguments.has_key("SignalValue"):
-            mval = msg.arguments["SignalValue"]
-        return (mtype, mname, mval)
 
     def put_message(self, msg, cur):
         """
         Override Holon put_message method, this mean nothin arrive in the mailbox
         """
-        with self._lock:
-            stype, sname, sval  = self._get_msg_vals(msg)
-            msgid = msg.sender + "::" + sname
-            if stype == "BooleanSignal":
-                sval = bool(sval)
-            elif stype == "IntegerSignal":
-                sval = int(sval)
-            elif stype == "RealSignal":
-                sval = float(sval)
-            for sigid, signame in self._sigs:
-                if  msgid == sigid:
-                    self.emit(SIGNAL(signame), stype, sname, sval)
-
-class DataObject(QtCore.QObject):
-    nameChanged = QtCore.pyqtSignal()
-
-    def __init__(self, name, prx):
-        super(DataObject, self).__init__()
-        self._name = name
-        self.prx = prx
-
-    @QtCore.pyqtProperty(str, notify=nameChanged)
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        if self._name != name:
-            self._name = name
-            self.nameChanged.emit()
-
-
-            
-class MyListModel(QtCore.QAbstractListModel): 
-    def __init__(self, datain, parent=None, *args): 
-        """ datain: a list where each item is a row
-        """
-        QtCore.QAbstractListModel.__init__(self, parent, *args) 
-        self.listdata = datain
- 
-    def rowCount(self, parent=QtCore.QModelIndex()): 
-        return len(self.listdata) 
- 
-    def data(self, index, role): 
-        if index.isValid() and role == Qt.DisplayRole:
-            return QtCore.QVariant(self.listdata[index.row()])
-        else: 
-            return QtCore.QVariant()
-
+        self.newevent.emit(msg.sender, msg.__str__())
 
 
 
@@ -115,16 +69,16 @@ if __name__ == '__main__':
     view.setSource(QtCore.QUrl('view.qml'))
     ctx = view.rootContext()
     root = view.rootObject()
-    root.addTopic("kkk")
-    root.addTopic("llll")
+    root.addTopic("Conveyor1::State")
+    root.addTopic("Cell2::Pull")
     #root.removeTopic("llll")
     #root.displayTopic("kkk")
     #root.displayTopic("llll")
     #root.hideTopic("llll")
-    root.newEvent("kkk", "New event for kkk")
+    root.newEvent("Conveyor1::State", "Entering state: Idle")
     view.show()
     mgr = AgentManager("UIAdapter")
-    holon = UIHolon(view)
+    holon = UIHolon(root)
     mgr.add_holon(holon)
     try:
         app.exec_()

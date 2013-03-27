@@ -8,35 +8,10 @@ Rectangle {
 
     ListModel {
         id: topics
-        ListElement {
-            name: "topic"
-        } 
-        ListElement {
-            name: "topic 2"
-        } 
-        ListElement {
-            name: "topic 3"
-        } 
     }
 
-     ListModel {
+    ListModel {
         id: displayedTopics
-        ListElement {
-            name: "Conveyor::State"
-            events: [
-                ListElement { msg: "first event" },
-                ListElement { msg: "second event" }
-            ]
-        } 
-        ListElement {
-            name: "MakinoCell::PullRequest"
-            events: [
-                ListElement { msg: "first event" },
-                ListElement { msg: "second event" }
-            ]
-        } 
-        function getView(name){
-        }
     }
    
 Row {
@@ -69,6 +44,11 @@ Row {
             displayTopic(topics.get(idx).name)
         }
         //onClicked: { page.focus = true; myText.openSoftwareInputPanel(); }
+/*
+    }
+    onItemtrigger: {
+        console.log("Item trigger at list level")
+*/
     }
     }  
 
@@ -102,6 +82,7 @@ function removeTopic(name){
 }
 
 function newEvent(topicName, newmsg){
+    console.log("New event from topic {0}: {1}".format(topicName, newmsg))
     for (var i = 0; i < displayedTopics.count; i++){
         var item  = displayedTopics.get(i)
         if ( item.name == topicName )  {
@@ -114,8 +95,14 @@ function newEvent(topicName, newmsg){
 
 function displayTopic(name){
     console.log("displaying topic: " + name)
+    for (var i = 0; i < displayedTopics.count; i++){
+        if ( displayedTopics.get(i).name == name ) {
+            return;
+        }
+    }
     displayedTopics.append({"name": name, events: [{msg: "empty"}]})
 }
+
 function hideTopic(name){
     console.log("hiding topic: " + name)
     for (var i = 0; i < displayedTopics.count; i++){
