@@ -5,6 +5,8 @@ Rectangle {
     id: page
     width: 800; height: 480
     color: "lightgray"
+    signal topicDisplayed(string name)
+    signal topicHidden(string name)
 
     ListModel {
         id: topics
@@ -80,12 +82,15 @@ function removeTopic(name){
 }
 
 function newEvent(topicName, newmsg){
-    console.log("New event from topic " + topicName + ": " + newmsg)
+    console.log("New event from topic " + topicName )
     for (var i = 0; i < displayedTopics.count; i++){
         var item  = displayedTopics.get(i)
         console.log( "item: " + item.name + " topic: " + topicName )  
         if ( item.name == topicName )  {
             item.events.append({msg: newmsg})
+            if ( item.count > 10 ) {
+                item.remove(0)
+            }
             return;
         }
     }
@@ -99,6 +104,7 @@ function displayTopic(name){
             return;
         }
     }
+    topicDisplayed(name)
     displayedTopics.append({"name": name, events: [{msg: "empty"}]})
 }
 
@@ -110,7 +116,8 @@ function hideTopic(name){
             return;
         }
     }
-    console.log("Topic not found, could not remove displayed topic: " + name)
+    topicHidden(name)
+    //console.log("Topic not found, could not remove displayed topic: " + name)
 }
 
 

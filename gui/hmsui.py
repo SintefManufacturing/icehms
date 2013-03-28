@@ -24,11 +24,11 @@ class SubscriberHolon(QtCore.QObject, LightHolon):
         self._unsubscribe_topic(self.topicname)
 
     def _newEvent(self, name, msg):
-        print("Calling newEvent")
         self.window.newEvent(name, msg)
 
     def put_message(self, msg, cur):
-        self.newevent.emit(self.topicname, msg.__str__())
+        #self.newevent.emit(self.topicname, msg.__str__())
+        self.newevent.emit(self.topicname, msg.header)
 
 
 class UIHolon(QtCore.QObject, Holon):
@@ -49,6 +49,8 @@ class UIHolon(QtCore.QObject, Holon):
         self.removetopic.connect(self._removeTopic)
         self.addsubscriber.connect(self._add_subscriber)
         self.removesubscriber.connect(self._remove_subscriber)
+        self.window.topicDisplayed.connect(self._topicDisplayed)
+        self.window.topicHidden.connect(self._topicHidden)
         topics = []
         while not self._stop:
             time.sleep(1)
@@ -60,10 +62,15 @@ class UIHolon(QtCore.QObject, Holon):
             toremove = stopic - snew
             for name in toadd:
                 self.addtopic.emit(name)
-                self.addsubscriber.emit(name) #it looks like we cannot create qt object in thread so we use signals
             for name in toremove:
                 self._unsubscribe_topic(name)
-                self.removesubscriber.emit(name)
+
+    def _topicDisplayed(self, name):
+        print("a topic has been displayed!!")
+        self.addsubscriber.emit(name) #it looks like we cannot create qt object in thread so we use signals
+    def _topicHidden(self, name):
+        print("a topic has been displayed!!")
+        self.removesubscriber.emit(name)
 
     def _add_subscriber(self, name):
         print "adding subi:", type(name)
