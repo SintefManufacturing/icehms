@@ -8,7 +8,7 @@ Item {
     height: 40 
 
     Component.onCompleted: {
-        console.log("TopicItem completed: " + name)
+        //console.log("TopicItem completed: " + name)
         //ListView.view.trigger.connect(page.trigger)
 /*
     }

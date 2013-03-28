@@ -37,9 +37,7 @@ Row {
         anchors.fill: parent
         onClicked: { page.focus = true; }
         onDoubleClicked: {
-            console.log("double click i listview")
             var idx = topiclistview.indexAt(mouseX, mouseY)
-            console.log("index: " + idx)
             topiclistview.trigger(topics.get(idx).name); 
             displayTopic(topics.get(idx).name)
         }
@@ -82,9 +80,10 @@ function removeTopic(name){
 }
 
 function newEvent(topicName, newmsg){
-    console.log("New event from topic {0}: {1}".format(topicName, newmsg))
+    console.log("New event from topic " + topicName + ": " + newmsg)
     for (var i = 0; i < displayedTopics.count; i++){
         var item  = displayedTopics.get(i)
+        console.log( "item: " + item.name + " topic: " + topicName )  
         if ( item.name == topicName )  {
             item.events.append({msg: newmsg})
             return;
