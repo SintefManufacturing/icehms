@@ -28,6 +28,7 @@ class SubscriberHolon(QtCore.QObject, LightHolon):
 
     def put_message(self, msg, cur):
         #self.newevent.emit(self.topicname, msg.__str__())
+        #formating
         self.newevent.emit(self.topicname, msg.header)
 
 
@@ -66,10 +67,9 @@ class UIHolon(QtCore.QObject, Holon):
                 self._unsubscribe_topic(name)
 
     def _topicDisplayed(self, name):
-        print("a topic has been displayed!!")
         self.addsubscriber.emit(name) #it looks like we cannot create qt object in thread so we use signals
+
     def _topicHidden(self, name):
-        print("a topic has been displayed!!")
         self.removesubscriber.emit(name)
 
     def _add_subscriber(self, name):

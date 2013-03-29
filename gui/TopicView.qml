@@ -2,6 +2,7 @@ import Qt 4.7
 
 Item {
     id: page 
+    //property ListModel events 
     width: parent.width
     height: 200
 
@@ -18,10 +19,12 @@ Item {
         width: page.width
         height: page.height/2
         model: events
-        delegate: Text {text: msg}
+        clip: true
+        delegate: EventListDelegate{message: msg}
+        //delegate: Text{text: msg}
     }
 
-    }
+}
 
 
 
