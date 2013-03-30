@@ -7,6 +7,7 @@ Rectangle {
     color: "lightgray"
     signal topicDisplayed(string name)
     signal topicHidden(string name)
+    signal scrollToBottom
 
     ListModel {
         id: topics
@@ -53,6 +54,7 @@ Rectangle {
             //clip: true
             model: displayedTopics
             delegate: TopicView {}
+            signal scrollDown
         }
 
     }
@@ -75,15 +77,27 @@ Rectangle {
 
     function newEvent(topicName, newmsg){
         console.log("New event from topic " + topicName )
+        for (var i = 0; i < topicview.count; i++){
+            
+        }
         for (var i = 0; i < displayedTopics.count; i++){
             var item  = displayedTopics.get(i)
             if ( item.name == topicName )  {
                 item.events.append({msg: newmsg})
-                if ( item.count > 10 ) {
-                    item.remove(0)
+                //item.events.insert(0, {msg: newmsg})
+console.log(1)
+                //item.events.positionViewAtIndex(item.events.count-1, ListView.Contain)
+                //item.events.view.positionViewAtEnd()
+console.log(1.5)
+                if ( item.events.count > 10 ) {
+                    item.events.remove(0)
                 }
-                //item.events.positionViewAtEnd()
+                //item.eventList.currentIndex = item.events.count-1
+                //item.events.view.currentIndex = item.events.count-1
                 //item.eventList.positionViewAtIndex(item.events.count-1, ListView.Contain)
+                //item.eventList.positionViewAtBeginning()
+                topicview.scrollDown()
+                console.log("Move to bottom from newEvent")
                 return;
             }
         }
@@ -98,7 +112,8 @@ Rectangle {
             }
         }
         topicDisplayed(name)
-        displayedTopics.append({"name": name, events: [{msg: "empty"}]})
+        //displayedTopics.append({"name": name, events: [{msg: "empty"}]})
+        displayedTopics.append({"name": name, events: [{msg: "No events yet"}]})
     }
 
     function hideTopic(name){

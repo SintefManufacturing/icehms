@@ -2,7 +2,6 @@ import Qt 4.7
 
 Item {
     id: page 
-    //property ListModel events 
     width: parent.width
     height: 200
 
@@ -19,9 +18,20 @@ Item {
         width: page.width
         height: page.height/2
         model: events
-        clip: true
+        //clip: true
+        snapMode: ListView.SnapToItem
         delegate: EventListDelegate{message: msg}
         //delegate: Text{text: msg}
+    }
+    Component.onCompleted: {
+        //ListView.view.scrollDown.connect(eventList.positionViewAtEnd)
+        ListView.view.scrollDown.connect(scroll)
+        console.log("connecting")
+    }
+    function scroll (){
+        console.log("TESTING")
+        eventList.positionViewAtEnd()
+        console.log("TESTING2")
     }
 
 }
