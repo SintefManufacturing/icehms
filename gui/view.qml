@@ -76,7 +76,7 @@ Rectangle {
     }
 
     function newEvent(topicName, newmsg){
-        console.log("New event from topic " + topicName )
+        //console.log("New event from topic " + topicName )
         for (var i = 0; i < topicview.count; i++){
             
         }
@@ -84,24 +84,14 @@ Rectangle {
             var item  = displayedTopics.get(i)
             if ( item.name == topicName )  {
                 item.events.append({msg: newmsg})
-                //item.events.insert(0, {msg: newmsg})
-console.log(1)
-                //item.events.positionViewAtIndex(item.events.count-1, ListView.Contain)
-                //item.events.view.positionViewAtEnd()
-console.log(1.5)
                 if ( item.events.count > 10 ) {
                     item.events.remove(0)
                 }
-                //item.eventList.currentIndex = item.events.count-1
-                //item.events.view.currentIndex = item.events.count-1
-                //item.eventList.positionViewAtIndex(item.events.count-1, ListView.Contain)
-                //item.eventList.positionViewAtBeginning()
-                topicview.scrollDown()
-                console.log("Move to bottom from newEvent")
+                topicview.scrollDown() //activate event in listview
                 return;
             }
         }
-        console.log("Topic not found, could add event to topic: " + topicName)
+        console.log("Topic not found, could not add event to topic: " + topicName)
     }
 
     function displayTopic(name){

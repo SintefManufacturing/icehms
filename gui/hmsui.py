@@ -54,7 +54,7 @@ class UIHolon(QtCore.QObject, Holon):
         self.window.topicHidden.connect(self._topicHidden)
         topics = []
         while not self._stop:
-            time.sleep(1)
+            time.sleep(0.2)
             newtopics = self._icemgr.get_all_topics().keys()
             stopic = set(topics)
             snew = set(newtopics)
@@ -73,7 +73,6 @@ class UIHolon(QtCore.QObject, Holon):
         self.removesubscriber.emit(name)
 
     def _add_subscriber(self, name):
-        print "adding subi:", type(name)
         sub = SubscriberHolon(name, self.window)
         self._agentMgr.add_holon(sub)
         self._subscribers.append(sub)
