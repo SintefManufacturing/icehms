@@ -74,6 +74,7 @@ class AgentManager(object):
             try:
                 self._remove_agent(agent)
             except Exception as ex: #catch everything we must not fail
+                print("EXception:", ex)
                 self.logger.warn( "Error shuting down agent %s: %s", agent, ex )
 
     def remove_holon(self, agent):

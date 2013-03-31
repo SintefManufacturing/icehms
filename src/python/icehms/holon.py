@@ -70,7 +70,6 @@ class BaseHolon_(object):
     def shutdown(self, ctx=None):
         """
         shutdown a holon, deregister from icegrid and icestorm and call stop() and cleanup on holon instances
-        I read somewhere this should notbe available in a MAS, holons should only shutdown themselves
         """
         try:
             self._agentMgr.remove_agent(self)
@@ -137,8 +136,9 @@ class LightHolon_(BaseHolon_):
         As the name says. It is necessary to unsubscribe to topics before exiting to avoid exceptions
         and being able to re-subscribe without error next time
         """
-        self._subscribed_topics[name].unsubscribe(self.proxy)
-        del(self._subscribed_topics[name])
+        if self._subscribed_topics.has_key(name):
+            self._subscribed_topics[name].unsubscribe(self.proxy)
+            del(self._subscribed_topics[name])
 
     def cleanup(self):
         """
