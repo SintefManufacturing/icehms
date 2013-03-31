@@ -17,14 +17,11 @@ Rectangle {
         id: displayedTopics
     }
    
-    Row {
-        spacing: 30
-        
         ListView {
             id: topiclistview
             signal trigger (string name)
             header: Text{text: "Available Topics"}
-            width: page.width/2
+            width: 200 
             height: page.height
             model: topics
             delegate: TopicItem {}
@@ -49,8 +46,9 @@ Rectangle {
 
         ListView {
             id: topicview
-            width: page.width/2
+            anchors.left: topiclistview.right
             height: page.height
+            width: page.width - topiclistview.width
             //clip: true
             model: displayedTopics
             delegate: TopicView {}
@@ -58,7 +56,6 @@ Rectangle {
             signal topicViewQuit(string name)
         }
 
-    }
     Component.onCompleted: {
         topicview.topicViewQuit.connect(topicHidden)
     }
