@@ -55,8 +55,12 @@ Rectangle {
             model: displayedTopics
             delegate: TopicView {}
             signal scrollDown
+            signal topicViewQuit(string name)
         }
 
+    }
+    Component.onCompleted: {
+        topicview.topicViewQuit.connect(topicHidden)
     }
 
     function addTopic(name){

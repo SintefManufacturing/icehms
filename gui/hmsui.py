@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 from threading import Lock
 import time
+import logging
+
 from PyQt4 import QtCore, QtGui, QtDeclarative
+
 from icehms import Holon, AgentManager, LightHolon
 
 
@@ -11,17 +14,17 @@ class SubscriberHolon(QtCore.QObject, LightHolon):
 
     def __init__(self, topicname, window):
         QtCore.QObject.__init__(self)
-        LightHolon.__init__(self)
+        LightHolon.__init__(self)#, logLevel=logging.DEBUG)
         self.window = window
         self.topicname = str(topicname)
 
     def start(self):
-        self.logger.warn("Starting subscriber for " + self.topicname)
+        self.logger.info("Starting subscriber for " + self.topicname)
         self.newevent.connect(self._newEvent)
         self._subscribe_topic(self.topicname)
 
-    def stop(self):
-        self._unsubscribe_topic(self.topicname)
+    def cleanup(self):
+        LightHolon.cleanup(self)
 
     def _newEvent(self, name, msg):
         self.window.newEvent(name, msg)
@@ -39,11 +42,12 @@ class UIHolon(QtCore.QObject, Holon):
     removetopic = QtCore.pyqtSignal(str)
     addsubscriber = QtCore.pyqtSignal(str)
     removesubscriber = QtCore.pyqtSignal(str)
-    def __init__(self, window):
+    def __init__(self, window, logLevel=logging.WARN):
         QtCore.QObject.__init__(self, window)
-        Holon.__init__(self, "HMSUIHolon")
+        Holon.__init__(self, "HMSUIHolon", logLevel=logLevel)
         self.window = window
         self._subscribers = []
+        self._lock = Lock()
 
     def run(self):
         self.addtopic.connect(self._addTopic) #FIXME why cant I connect to qml method directly????
@@ -73,15 +77,18 @@ class UIHolon(QtCore.QObject, Holon):
         self.removesubscriber.emit(name)
 
     def _add_subscriber(self, name):
-        sub = SubscriberHolon(name, self.window)
-        self._agentMgr.add_holon(sub)
-        self._subscribers.append(sub)
+        with self._lock:
+            sub = SubscriberHolon(name, self.window)
+            self._agentMgr.add_holon(sub)
+            self._subscribers.append(sub)
 
     def _remove_subscriber(self, name):
-        for sub in self._subscribers[:]:
-            if sub.topicname == name:
-                sub.shutdown()
-                return
+        with self._lock:
+            for sub in self._subscribers[:]:
+                if sub.topicname == name:
+                    sub.shutdown()
+                    self._subscribers.remove(sub)
+                    return
 
     def _addTopic(self, name):
         self.window.addTopic(name)
@@ -105,8 +112,8 @@ if __name__ == '__main__':
     #root.hideTopic("llll")
     #root.newEvent("Conveyor1::State", "Entering state: Idle")
     view.show()
-    mgr = AgentManager("UIAdapter")
-    holon = UIHolon(root)
+    mgr = AgentManager("UIAdapter", logLevel=logging.WARN)
+    holon = UIHolon(root, logLevel=logging.WARN)
     mgr.add_holon(holon)
     #sub = SubscriberHolon("MyTopic", root)
     #mgr.add_holon(sub)

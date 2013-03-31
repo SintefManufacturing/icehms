@@ -22,15 +22,19 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                console.log("Click on quitButton")
-                //ListView.view.model.remove(index)  
-                //model.remove(index)  
+                quit() //cannot call ListView.view.model.remove from here, why?
             }
         }
         Text { 
             anchors.centerIn: parent
             text: "Quit"
         }
+    }
+
+    function quit() {
+        ListView.view.topicViewQuit(name)
+        console.log("Topiv view quit: " + name)
+        ListView.view.model.remove(index)  
     }
 
     ListView {
