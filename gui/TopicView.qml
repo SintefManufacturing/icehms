@@ -42,14 +42,26 @@ Item {
     ListView {
         id: eventList
         anchors.top: title.bottom
-        //rotation: -8
         width: page.width 
         height: page.height/2
         model: events
         clip: true
         snapMode: ListView.SnapToItem
         delegate: EventListDelegate{message: msg}
-        //delegate: Text{text: msg}
+        MouseArea {
+            id:mousearea
+            anchors.fill: parent
+            hoverEnabled: true
+        }
+        states: State { // Only show the scrollbars when mouse over FIXME broken!!
+            name: "ShowBars"
+            when: mousearea.containsMouse
+            //when: topiclistview.movingVertically || topiclistview.movingHorizontally
+            PropertyChanges { target: verticalScrollBar; opacity: 1 }
+        }
+        transitions: Transition {
+            NumberAnimation { properties: "opacity"; duration: 400 }
+        }
     }
 
    ScrollBar {
@@ -62,7 +74,7 @@ Item {
         position: eventList.visibleArea.yPosition
         pageSize: eventList.visibleArea.heightRatio
     }
-
+/*
    ScrollBar {
         id: horizontalScrollBar
         width: eventList.width-12; height: 12
@@ -72,6 +84,7 @@ Item {
         position: eventList.visibleArea.xPosition
         pageSize: eventList.visibleArea.widthRatio
     }
+*/
 
 
     Component.onCompleted: {

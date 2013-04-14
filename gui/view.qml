@@ -34,13 +34,26 @@ Rectangle {
             console.log("onAdd method called !!!!!!!!!!!!!")
         }
         MouseArea {
+            id:mousearea
             anchors.fill: parent
             onClicked: { page.focus = true; }
+            hoverEnabled: true
             onDoubleClicked: {
                 var idx = topiclistview.indexAt(mouseX, mouseY)
                 topiclistview.trigger(topics.get(idx).name); 
                 displayTopic(topics.get(idx).name)
             }
+        }
+        // Only show the scrollbars when mouse over 
+        states: State {
+            name: "ShowBars"
+            when: mousearea.containsMouse
+            //when: topiclistview.movingVertically || topiclistview.movingHorizontally
+            PropertyChanges { target: topiclistviewScrollBar; opacity: 0.3 }
+        }
+
+        transitions: Transition {
+            NumberAnimation { properties: "opacity"; duration: 400 }
         }
     }
     ScrollBar {
@@ -48,7 +61,7 @@ Rectangle {
         width: 12; height: topiclistview.height
         anchors.top: topiclistview.top
         anchors.left: topiclistview.left
-        opacity: 1
+        opacity: 0
         orientation: Qt.Vertical
         position: topiclistview.visibleArea.yPosition
         pageSize: topiclistview.visibleArea.heightRatio
@@ -63,13 +76,29 @@ Rectangle {
         delegate: TopicView {}
         signal scrollDown
         signal topicViewQuit(string name)
+        MouseArea {
+            id:mouseareaview
+            anchors.fill: parent
+            hoverEnabled: true
+        }
+        // Only show the scrollbars when mouse over 
+        states: State {
+            name: "ShowBars"
+            when: mouseareaview.containsMouse
+            //when: topiclistview.movingVertically || topiclistview.movingHorizontally
+            PropertyChanges { target: topicviewScrollBar; opacity: 0.3 }
+        }
+
+        transitions: Transition {
+            NumberAnimation { properties: "opacity"; duration: 400 }
+        }
     }
     ScrollBar {
         id: topicviewScrollBar
         width: 12; height: topicview.height
         anchors.top: topicview.top
         anchors.left: topicview.left
-        opacity: 1
+        opacity: 0
         orientation: Qt.Vertical
         position: topicview.visibleArea.yPosition
         pageSize: topicview.visibleArea.heightRatio
