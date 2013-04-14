@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.0
 
 Rectangle {
     id: page
@@ -17,44 +17,64 @@ Rectangle {
         id: displayedTopics
     }
    
-        ListView {
-            id: topiclistview
-            signal trigger (string name)
-            header: Text{text: "Available Topics"}
-            width: 200 
-            height: page.height
-            model: topics
-            delegate: TopicItem {}
-            Component.onCompleted: {
-                //console.log("Connecting signals")
-                //topiclistview.trigger.connect(delegate.trigger)
-                //console.log("signals connected")
-            }
-            ListView.onAdd: {
-                console.log("onAdd method called !!!!!!!!!!!!!")
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: { page.focus = true; }
-                onDoubleClicked: {
-                    var idx = topiclistview.indexAt(mouseX, mouseY)
-                    topiclistview.trigger(topics.get(idx).name); 
-                    displayTopic(topics.get(idx).name)
-                }
-            }
-        }  
-
-        ListView {
-            id: topicview
-            anchors.left: topiclistview.right
-            height: page.height
-            width: page.width - topiclistview.width
-            //clip: true
-            model: displayedTopics
-            delegate: TopicView {}
-            signal scrollDown
-            signal topicViewQuit(string name)
+    ListView {
+        id: topiclistview
+        signal trigger (string name)
+        header: Text{text: "Available Topics"}
+        width: 200 
+        height: page.height
+        model: topics
+        delegate: TopicItem {}
+        Component.onCompleted: {
+            //console.log("Connecting signals")
+            //topiclistview.trigger.connect(delegate.trigger)
+            //console.log("signals connected")
         }
+        ListView.onAdd: {
+            console.log("onAdd method called !!!!!!!!!!!!!")
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: { page.focus = true; }
+            onDoubleClicked: {
+                var idx = topiclistview.indexAt(mouseX, mouseY)
+                topiclistview.trigger(topics.get(idx).name); 
+                displayTopic(topics.get(idx).name)
+            }
+        }
+    }
+    ScrollBar {
+        id: topiclistviewScrollBar
+        width: 12; height: topiclistview.height
+        anchors.top: topiclistview.top
+        anchors.left: topiclistview.left
+        opacity: 1
+        orientation: Qt.Vertical
+        position: topiclistview.visibleArea.yPosition
+        pageSize: topiclistview.visibleArea.heightRatio
+    }
+    ListView {
+        id: topicview
+        anchors.left: topiclistview.right
+        height: page.height
+        width: page.width - topiclistview.width
+        //clip: true
+        model: displayedTopics
+        delegate: TopicView {}
+        signal scrollDown
+        signal topicViewQuit(string name)
+    }
+    ScrollBar {
+        id: topicviewScrollBar
+        width: 12; height: topicview.height
+        anchors.top: topicview.top
+        anchors.left: topicview.left
+        opacity: 1
+        orientation: Qt.Vertical
+        position: topicview.visibleArea.yPosition
+        pageSize: topicview.visibleArea.heightRatio
+    }
+
 
     Component.onCompleted: {
         topicview.topicViewQuit.connect(topicHidden)

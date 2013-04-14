@@ -1,9 +1,11 @@
-import Qt 4.7
+import QtQuick 1.0
 
 Item {
     id: page 
     width: parent.width
     height: 300
+    anchors.left: parent.left
+    anchors.leftMargin: 12
 
     Text {
         id: title
