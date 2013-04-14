@@ -16,7 +16,8 @@ Item {
 
     Rectangle {
         id: quitButton
-        anchors.left: title.right
+        anchors.right: parent.right
+        //anchors.rightMargin: 5 
         height: 40; width: 100 
 
         color: "grey"

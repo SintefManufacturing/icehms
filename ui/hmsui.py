@@ -102,6 +102,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication([])
     view = QtDeclarative.QDeclarativeView()
     view.setSource(QtCore.QUrl('view.qml'))
+    view.setResizeMode(QtDeclarative.QDeclarativeView.SizeRootObjectToView)
     ctx = view.rootContext()
     root = view.rootObject()
     #root.addTopic("Conveyor1::State")
