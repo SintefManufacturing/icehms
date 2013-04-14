@@ -18,7 +18,10 @@ class Server(Holon):
         while not self._stop:
             counter +=1
             #pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, data=pack("=i", counter) )))
-            pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, other="MyOther" )))
+            msg = Message(header="myHeader", body="myBody", arguments=dict(counter=counter, myArgVal="Something", myName=self.name ))
+            print msg
+            print msg.arguments
+            pub.put_message(msg)
             time.sleep(0.5)
     
     def getState(self, current):

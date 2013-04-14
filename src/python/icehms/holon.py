@@ -245,9 +245,9 @@ class Message(hms.Message):
     Wrapper over the Ice Message definition, 
     """
     def __init__(self, *args, **kwargs):
-        hms.Message.__init__(self, *args, **kwargs)
         self.createTime = time()
         self.arguments = dict()
+        hms.Message.__init__(self, *args, **kwargs) # mus be call after custom initialization of class variables over
 
     def __setattr__(self, name, val):
         #format everything to string
