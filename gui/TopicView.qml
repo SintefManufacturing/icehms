@@ -49,15 +49,15 @@ Item {
         snapMode: ListView.SnapToItem
         delegate: EventListDelegate{message: msg}
         MouseArea {
-            id:mousearea
+            id:mymousearea
             anchors.fill: parent
             hoverEnabled: true
         }
         states: State { // Only show the scrollbars when mouse over FIXME broken!!
             name: "ShowBars"
-            when: mousearea.containsMouse
+            when: mymousearea.containsMouse
             //when: topiclistview.movingVertically || topiclistview.movingHorizontally
-            PropertyChanges { target: verticalScrollBar; opacity: 1 }
+            PropertyChanges { target: verticalScrollBar; opacity: 0.3 }
         }
         transitions: Transition {
             NumberAnimation { properties: "opacity"; duration: 400 }
@@ -69,7 +69,7 @@ Item {
         width: 12; height: eventList.height-12
         anchors.top: eventList.top
         anchors.left: eventList.left
-        opacity: 1
+        opacity: 0
         orientation: Qt.Vertical
         position: eventList.visibleArea.yPosition
         pageSize: eventList.visibleArea.heightRatio
@@ -94,7 +94,6 @@ Item {
 
     function scroll (){
         eventList.positionViewAtEnd()
-        console.log("Content height is: " + eventList.contentHeight)
     }
 
 }

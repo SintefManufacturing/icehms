@@ -76,10 +76,12 @@ Rectangle {
         delegate: TopicView {}
         signal scrollDown
         signal topicViewQuit(string name)
+        /*
         MouseArea {
             id:mouseareaview
             anchors.fill: parent
             hoverEnabled: true
+
         }
         // Only show the scrollbars when mouse over 
         states: State {
@@ -92,13 +94,14 @@ Rectangle {
         transitions: Transition {
             NumberAnimation { properties: "opacity"; duration: 400 }
         }
+        */
     }
     ScrollBar {
         id: topicviewScrollBar
         width: 12; height: topicview.height
         anchors.top: topicview.top
         anchors.left: topicview.left
-        opacity: 0
+        opacity: 0.3
         orientation: Qt.Vertical
         position: topicview.visibleArea.yPosition
         pageSize: topicview.visibleArea.heightRatio
