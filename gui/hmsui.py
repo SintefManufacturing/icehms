@@ -30,9 +30,9 @@ class SubscriberHolon(QtCore.QObject, LightHolon):
         self.window.newEvent(name, msg)
 
     def put_message(self, msg, cur):
-        #self.newevent.emit(self.topicname, msg.__str__())
         #formating
-        self.newevent.emit(self.topicname, msg.header)
+        msgstring = str(msg.createTime) + ":" +  msg.sender + ":" + msg.header + ":" + msg.body + ":" + str(msg.arguments)
+        self.newevent.emit(self.topicname, msgstring)
 
 
 class UIHolon(QtCore.QObject, Holon):

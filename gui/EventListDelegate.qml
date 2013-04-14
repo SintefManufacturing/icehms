@@ -4,7 +4,7 @@ Item {
     id: msgitem
     property string message
     height: 30
-    Text {text: "TOTO" + message}
+    Text {text: message}
     ListView.onAdd: {
         //console.log("onAdd: A new item has been added")
         //ListView.view.positionViewAtEnd()

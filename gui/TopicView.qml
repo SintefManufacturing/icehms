@@ -45,7 +45,7 @@ Item {
         width: page.width 
         height: page.height/2
         model: events
-        clip: true
+        //clip: true
         snapMode: ListView.SnapToItem
         delegate: EventListDelegate{message: msg}
         MouseArea {
