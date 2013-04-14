@@ -106,10 +106,6 @@ namespace icehms
             logger.Warn("We got a new message but method is not implemented ");
         }
 
-        public virtual void log(string message)
-        {
-            Console.WriteLine("IceHMS: " + Name + ": " + message);
-        }
     }
 
 
@@ -221,7 +217,7 @@ namespace icehms
 
         private void consoleHandle(object sender, ConsoleCancelEventArgs args)
         {
-            logger.Fatal("Emergency shutdown");
+            logger.Fatal("Signal catched");
             shutdown();
         }
 
