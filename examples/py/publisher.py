@@ -19,8 +19,7 @@ class Server(Holon):
             counter +=1
             #pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, data=pack("=i", counter) )))
             msg = Message(header="myHeader", body="myBody", arguments=dict(counter=counter, myArgVal="Something", myName=self.name ))
-            print msg
-            print msg.arguments
+            self.logger.debug(msg)
             pub.put_message(msg)
             time.sleep(0.5)
     
@@ -30,5 +29,9 @@ class Server(Holon):
 
 
 if __name__ == "__main__":
-    s = Server("MyPubklisher")
-    run_holon(s)
+    #logging.basicConfig()
+    holon = Server("MyPubklisher", logLevel=logging.DEBUG)
+    h = logging.FileHandler(holon.name + ".log", mode='w')
+    h.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    holon.logger.addHandler(h)
+    run_holon(holon)
