@@ -120,25 +120,33 @@ def run_servers():
 
 def lsholons():
     mgr = icehms.IceManager()
+    hs = []
     try:
         mgr.init()
         print("The following holons are registered:")
         holons = mgr.find_holons()
         for holon in holons:
-            print(holon)
+            hs.append(holon.__str__())
     finally:
         mgr.shutdown()
+    hs.sort()
+    for holon in hs:
+        print(holon)
 
 def lstopics():
     mgr = icehms.IceManager()
+    tps = []
     try:
         mgr.init()
         topics = mgr.get_all_topics()
         print("\nTopics are: \n")
         for name, prx in topics.items():
-            print(name)
+            tps.append(name)
     finally:
         mgr.shutdown()
+    tps.sort()
+    for name in tps:
+        print(name)
 
 
 class Client(icehms.Holon):
