@@ -26,7 +26,7 @@ def register_services(update=False):
 
     #cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"' +  icehms.IceRegistryServer + '" -e "application ' + action + icehms.iceboxpath + '"'
     cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"%s" -e "application %s %s ice-version=%s" --username foo --password bar' % (icehms.IceRegistryServer, action, icehms.iceboxpath, version) 
-    print cmd
+    print(cmd)
     p = subprocess.Popen(cmd, shell=True)
     return p.wait()
 
@@ -36,13 +36,13 @@ def make_dirs():
         try:
             os.makedirs(icehms.nodeData)
         except (OSError, IOError):
-            print("Could not create directory for node data, create it and set write permissions :", icehms.nodeData) 
+            print("Could not create directory for node data, create it and set write permissions :", icehms.nodeData)
             sys.exit(1)
     if not os.path.isdir(icehms.registryData):
         try:
             os.makedirs(icehms.registryData)
         except (OSError, IOError):
-            print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData) 
+            print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData)
             sys.exit(1)
 
 def check_services(force=False):
@@ -110,7 +110,7 @@ def run_servers():
         #os.system(cmd)
     finally:
         if os.name == "nt":
-            raw_input("Press Enter to exit...")
+            input("Press Enter to exit...")
         try:
             icegrid.kill() 
         except Exception as ex:
@@ -159,7 +159,7 @@ class Client(icehms.Holon):
         topics = self._icemgr.get_all_topics()
         print("Events Topics are: \n")
         top = []
-        for name, prx in topics.items():
+        for name, prx in list(topics.items()):
             top.append(name)
         return top
 

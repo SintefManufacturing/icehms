@@ -11,8 +11,6 @@ import IceStorm
 
 import icehms 
 
-import cleaner
-
 
 class IceManager(object):
     """
@@ -344,7 +342,7 @@ class IceManager(object):
             return True
 
     def get_cleaner(self):
-        return cleaner.Cleaner(self)
+        return icehms.cleaner.Cleaner(self)
 
 
 
