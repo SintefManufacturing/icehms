@@ -15,7 +15,6 @@ class Subscriber : Holon
     public override void putMessage(hms.Message msg, Ice.Current current)
     {
         log("Got a message from publisher: " + msg + msg.arguments["counter"]);
-
     }
 }
 

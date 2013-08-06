@@ -235,10 +235,6 @@ class IceManager(object):
                     self.logger.info( "got proxy for %s", prx)
         return prx
 
-    def findAllObjectsByType(self, icetype):
-        return self.find_holons(icetype)
-    def find_holons_by_type(self, icetype):
-        return self.find_holons(icetype)
     def find_holons_quick(self, icetype):
         """ simple wrapper around findAllObjectsByType from ice
         but cast proxies to lowest level inherited object before returng list
@@ -271,6 +267,8 @@ class IceManager(object):
                 self.get_admin().removeObject(obj.proxy.ice_getIdentity())# it is dead
                 self.logger.warn("%s seems dead: %s, deleting it from registry", obj.proxy, e)
         return holons
+    findAllObjectsByType = find_holons
+    find_holons_by_type = find_holons
     
     def get_topic(self, topicName, create=True, server=None):
         """
@@ -330,11 +328,10 @@ class IceManager(object):
         self.logger.info( "subscribed %s to topic %s", prx, topicName )
         return topic
 
-    def shutdown(self):
-        self.destroy()
     def destroy(self):
         if self.ic:
             self.ic.destroy()
+    shutdown = destroy
 
     def wait_for_shutdown(self):
         if self.ic: # we might crash here, waitForShutdown crashes if we are allready down
