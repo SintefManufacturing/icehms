@@ -7,7 +7,6 @@ setup necessary variables to run icehms
 import os
 import sys
 import re
-import exceptions
 import Ice
 
 
@@ -98,7 +97,7 @@ for path in slicedirs:
             icefilepath = os.path.normpath(os.path.join(path, icefile))
             try:
                 Ice.loadSlice("", ["--underscore", "--all", "-I" + path, "-I" + sysSlicesPath, icefilepath])
-            except exceptions.RuntimeError as e:
+            except RuntimeError as e:
                 print('icehms.__init__.py: !!! Runtime Error !!!, on loading slice file:', icefile)
         else:
             #print 'icehms.__init__.py: not loading non-slice file:', icefile
@@ -112,4 +111,5 @@ import hms # only to be able to write "from icehms import hms"
 from .holon import *
 from .agentmanager import * 
 from .icemanager import * 
+from .cleaner import Cleaner 
 

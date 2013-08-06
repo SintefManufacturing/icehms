@@ -1,5 +1,4 @@
 from setuptools import setup
-from distutils.command.install_data import install_data
 
 
 import glob

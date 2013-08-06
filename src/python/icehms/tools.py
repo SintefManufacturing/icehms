@@ -47,14 +47,15 @@ def make_dirs():
 
 def check_services(force=False):
     # check if icebox config is up to date
-    f = open(icehms.iceboxpath)
+    f = open(icehms.iceboxpath, "rb")
     md5 = hashlib.md5(f.read())
     f.close()
     md5 = md5.digest()
     hashfile = os.path.join(icehms.db_dir, "hashfile")
     if os.path.isfile(hashfile):
-        h = open(hashfile)
+        h = open(hashfile, "rb")
         oldmd5 = h.read()
+        h.close()
     else:
         oldmd5 = ""
     if force  or md5 != oldmd5 :
@@ -64,7 +65,7 @@ def check_services(force=False):
         code = update_services()
         if code == 0:
             print("update succesfull, writting hash file")
-            h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
+            h = open(os.path.join(icehms.db_dir, "hashfile"), "wb")
             h.write(md5)
     else:
         print("IceBox services are up to date")

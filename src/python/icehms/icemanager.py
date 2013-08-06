@@ -342,7 +342,7 @@ class IceManager(object):
             return True
 
     def get_cleaner(self):
-        return icehms.cleaner.Cleaner(self)
+        return icehms.Cleaner(self)
 
 
 
