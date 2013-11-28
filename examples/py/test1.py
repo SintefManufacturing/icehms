@@ -9,7 +9,7 @@ class TestHolon(Holon):
         self.logger.info("I am "+ self.name)
         sleep(0.2) # wait for verything to initialize 
         prx = self._get_proxy_blocking(self.other)
-        while not self._stop:
+        while not self._stopev:
             try:
                 self.logger.info( "The name of proxy is: %s %s ", prx.get_name(), prx.ice_id())
             except Ice.Exception as why:

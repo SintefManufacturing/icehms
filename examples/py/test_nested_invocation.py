@@ -15,10 +15,10 @@ class TestHolon(Holon):
                 print 2
                 self._prx = self._get_proxy_blocking(self.other)
                 break
-            if self._stop:
+            if self._stopev:
                 return
             sleep(0.2)
-        while not self._stop:
+        while not self._stopev:
             sleep(1)
             self._log(self.other)
 

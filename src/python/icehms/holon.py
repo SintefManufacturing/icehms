@@ -177,7 +177,7 @@ class Holon_(LightHolon_, Thread):
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         Thread.__init__(self)
         LightHolon_.__init__(self, name, hmstype, logLevel)
-        self._stop = False
+        self._stopev = False
         self._lock = Lock()
 
     def start(self):
@@ -191,7 +191,7 @@ class Holon_(LightHolon_, Thread):
         Attempt to stop processing thread
         """
         self.logger.info("stop called ")
-        self._stop = True
+        self._stopev = True
 
     def _get_proxy_blocking(self, address):
         return self._get_holon_blocking(address)
@@ -200,14 +200,14 @@ class Holon_(LightHolon_, Thread):
         """
         Attempt to connect a given holon ID
         block until we connect
-        return none if interrupted by self._stop
+        return none if interrupted by self._stopev
         """
         self.logger.info( "Trying to connect  to " + address)
         prx = None    
         while not prx:
             prx = self._icemgr.get_proxy(address)
             sleep(0.1)
-            if self._stop:
+            if self._stopev:
                 return None
         self.logger.info( "Got connection to %s", address)
         return prx

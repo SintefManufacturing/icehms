@@ -15,7 +15,7 @@ class Server(Holon):
         #pub = self._get_publisher("MyTopic", hms.GenericEventInterfacePrx)
         pub = self._get_publisher("MyTopic")
         counter = 0
-        while not self._stop:
+        while not self._stopev:
             counter +=1
             #pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, data=pack("=i", counter) )))
             msg = Message(header="myHeader", body="myBody", arguments=dict(counter=counter, myArgVal="Something", myName=self.name ))

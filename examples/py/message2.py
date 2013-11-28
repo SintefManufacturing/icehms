@@ -8,7 +8,7 @@ class Client(Holon):
 
     def run(self):
         self.logger.info("Starting waiting for messages")
-        while not self._stop:
+        while not self._stopev:
             if len(self.mailbox) > 0:
                 msg = self.mailbox.pop()
                 self.logger.info( "got message %s:", msg.body)

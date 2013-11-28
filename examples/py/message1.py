@@ -17,7 +17,7 @@ class TestHolon(Holon):
         sleep(0.2) # wait for verything to initialize 
         prx = self._get_proxy_blocking(self.other)
         cb = CB()
-        while not self._stop:
+        while not self._stopev:
             masync = Message(body="Async message from "+ self.name, arguments=dict(type="Async Message", name=self.name))
             msync = Message(body="Sync message from "+ self.name)
             try:

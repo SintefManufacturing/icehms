@@ -11,7 +11,7 @@ class TestHolon(Holon):
         Holon.__init__(self, name, logLevel=logLevel)
     def run(self):
         self.logger.info("I am "+ self.name)
-        while not self._stop:
+        while not self._stopev:
             listprx = self._icemgr.find_holons("::mymodule::KHolon")
             tmp = self._icemgr.find_holons("::hms::myproject::CustomHolon")
             listprx += tmp
