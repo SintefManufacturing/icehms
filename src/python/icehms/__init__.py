@@ -18,7 +18,7 @@ else:
     #See if we are started from sourcetree
     root = os.path.realpath(os.path.dirname(__file__))
     root = os.path.normpath(os.path.join(root, "../../../"))
-    if os.path.isdir(os.path.join(root, "icefg")) and os.path.isdir(os.path.join(root, "slices")):
+    if os.path.isdir(os.path.join(root, "icecfg")) and os.path.isdir(os.path.join(root, "slices")):
         print("Looks like we are in source tree")
         intree = True
     else:
@@ -41,8 +41,7 @@ if "ICEHMS_DB" in os.environ:
     db_dir = os.environ["ICEHMS_DB"]
 else:
     if intree:
-        nodeData = os.path.join(root, "db", "node") # node registry
-        registryData = os.path.join(root, "db", "registry") #registry database path
+        db_dir = os.path.join(root, "db") 
     else:
         if os.name == "nt":
             appdata = os.environ["APPDATA"]
