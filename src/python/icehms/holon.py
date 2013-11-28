@@ -93,7 +93,7 @@ class LightHolon_(BaseHolon_):
         BaseHolon_.__init__(self, name, hmstype, logLevel)
         self._published_topics = {} 
         self._subscribed_topics = {}
-        self._mailbox = collections.deque()
+        self.mailbox = collections.deque()
 
     def _subscribe_topic(self, topicName, server=None):
         """
@@ -166,7 +166,7 @@ class LightHolon_(BaseHolon_):
         Called by other holons
         """
         self.logger.debug("Received message: " + msg.body)
-        self._mailbox.appendleft(msg)
+        self.mailbox.appendleft(msg)
 
 
 

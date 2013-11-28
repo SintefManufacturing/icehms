@@ -19,8 +19,6 @@ class Server(Holon):
             counter +=1
             #pub.put_message(Message(header="myHeader", arguments=dict(counter=counter, data=pack("=i", counter) )))
             msg = Message(header="myHeader", body="myBody", arguments=dict(counter=counter, myArgVal="Something", myName=self.name ))
-            print msg
-            print msg.arguments
             pub.put_message(msg)
             time.sleep(0.5)
     
