@@ -1,0 +1,5 @@
+src/python/icehms /usr/lib/python3/dist-packages/
+icecfg/* /usr/share/icehms/icecfg/
+slices/* /usr/share/icehms/slices/
+bin/ls* /usr/bin/
+bin/hms* /usr/bin/

@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import icehms.tools
 
 if __name__ == "__main__":
-    icehms.tools.main()
+    icehms.tools.run_servers()
 
