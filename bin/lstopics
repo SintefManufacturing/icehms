@@ -1,13 +1,5 @@
 #!/usr/bin/env python
-import icehms
+import icehms.tools
 if __name__ == "__main__":
-    mgr = icehms.IceManager()
-    try:
-        mgr.init()
-        topics = mgr.get_all_topics()
-        print("\nTopics are: \n")
-        for name, prx in topics.items():
-            print(name)
-    finally:
-        mgr.shutdown()
+    icehms.tools.lstopics()
 

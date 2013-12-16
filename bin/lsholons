@@ -1,29 +1,9 @@
 #!/usr/bin/env python
 
-import icehms
+import icehms.tools
 
 if __name__ == "__main__":
-    dead = []
-    alive = []
-    mgr = icehms.IceManager()
-    try:
-        mgr.init()
-        print("Alive holons are :")
-        holons = mgr.find_holons()
-        for holon in holons:
-            try:
-                holon.ice_ping()
-            except Exception :
-                dead.append(holon)
-            else:
-                print(holon)
-    finally:
-        mgr.shutdown()
-
-if len(dead) > 0:
-    print("\nThe following holons are registered but unreachable:")
-    for obj in dead:
-        print(obj)
+    icehms.tools.lsholons()
 
 
 
