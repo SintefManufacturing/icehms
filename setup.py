@@ -1,5 +1,4 @@
 from setuptools import setup
-from distutils.command.install_data import install_data
 
 
 import glob
@@ -13,7 +12,7 @@ setup (name = "icehms",
         version = VERSION,
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
         author = "Olivier R-D",
-        url = 'https://launchpad.net/icehms',
+        url = 'git@github.com:oroulet/icehms.git',
         packages = ["icehms"],
         package_dir = {'icehms': 'src/python/icehms'},
         license = "GNU General Public License",

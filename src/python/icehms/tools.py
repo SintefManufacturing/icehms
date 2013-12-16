@@ -26,7 +26,7 @@ def register_services(update=False):
 
     #cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"' +  icehms.IceRegistryServer + '" -e "application ' + action + icehms.iceboxpath + '"'
     cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"%s" -e "application %s %s ice-version=%s" --username foo --password bar' % (icehms.IceRegistryServer, action, icehms.iceboxpath, version) 
-    print cmd
+    print(cmd)
     p = subprocess.Popen(cmd, shell=True)
     return p.wait()
 
@@ -36,25 +36,26 @@ def make_dirs():
         try:
             os.makedirs(icehms.nodeData)
         except (OSError, IOError):
-            print("Could not create directory for node data, create it and set write permissions :", icehms.nodeData) 
+            print("Could not create directory for node data, create it and set write permissions :", icehms.nodeData)
             sys.exit(1)
     if not os.path.isdir(icehms.registryData):
         try:
             os.makedirs(icehms.registryData)
         except (OSError, IOError):
-            print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData) 
+            print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData)
             sys.exit(1)
 
 def check_services(force=False):
     # check if icebox config is up to date
-    f = open(icehms.iceboxpath)
+    f = open(icehms.iceboxpath, "rb")
     md5 = hashlib.md5(f.read())
     f.close()
     md5 = md5.digest()
     hashfile = os.path.join(icehms.db_dir, "hashfile")
     if os.path.isfile(hashfile):
-        h = open(hashfile)
+        h = open(hashfile, "rb")
         oldmd5 = h.read()
+        h.close()
     else:
         oldmd5 = ""
     if force  or md5 != oldmd5 :
@@ -64,7 +65,7 @@ def check_services(force=False):
         code = update_services()
         if code == 0:
             print("update succesfull, writting hash file")
-            h = open(os.path.join(icehms.db_dir, "hashfile"), "w")
+            h = open(os.path.join(icehms.db_dir, "hashfile"), "wb")
             h.write(md5)
     else:
         print("IceBox services are up to date")
@@ -110,7 +111,7 @@ def run_servers():
         #os.system(cmd)
     finally:
         if os.name == "nt":
-            raw_input("Press Enter to exit...")
+            input("Press Enter to exit...")
         try:
             icegrid.kill() 
         except Exception as ex:
@@ -120,25 +121,33 @@ def run_servers():
 
 def lsholons():
     mgr = icehms.IceManager()
+    hs = []
     try:
         mgr.init()
         print("The following holons are registered:")
         holons = mgr.find_holons()
         for holon in holons:
-            print(holon)
+            hs.append(holon.__str__())
     finally:
         mgr.shutdown()
+    hs.sort()
+    for holon in hs:
+        print(holon)
 
 def lstopics():
     mgr = icehms.IceManager()
+    tps = []
     try:
         mgr.init()
         topics = mgr.get_all_topics()
         print("\nTopics are: \n")
         for name, prx in topics.items():
-            print(name)
+            tps.append(name)
     finally:
         mgr.shutdown()
+    tps.sort()
+    for name in tps:
+        print(name)
 
 
 class Client(icehms.Holon):
@@ -151,7 +160,7 @@ class Client(icehms.Holon):
         topics = self._icemgr.get_all_topics()
         print("Events Topics are: \n")
         top = []
-        for name, prx in topics.items():
+        for name, prx in list(topics.items()):
             top.append(name)
         return top
 

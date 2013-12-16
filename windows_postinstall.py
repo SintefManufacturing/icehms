@@ -17,8 +17,8 @@ def create_windows_menu():
     if not os.path.isdir(menupath):
         try:
             os.makedirs(menupath)
-        except Exception, why:
-            print "Could not create menus for all users"
+        except Exception as why:
+            print("Could not create menus for all users")
         else:
             create_shortcut(apprun, "Run IceHMS servers", os.path.join(menupath, "hms_run_servers.lnk") )
             #create_shortcut(appregister, "Register Services", os.path.join(menupath, "register_services.lnk" ) )
@@ -27,7 +27,7 @@ def create_windows_menu():
 
 
     #inform setup.py that we created files
-    if globals().has_key("directory_created"):
+    if "directory_created" in globals():
         #we are called from distutil
         directory_created(menupath)
         file_created(apprun)

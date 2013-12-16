@@ -20,5 +20,5 @@ class Client(Holon):
 
 
 if __name__ == "__main__":
-    s = Client("MyTopicClient", topicname)
+    s = Client("MyTopicClient")
     run_holon(s)

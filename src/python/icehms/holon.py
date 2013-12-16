@@ -93,7 +93,7 @@ class LightHolon_(BaseHolon_):
         BaseHolon_.__init__(self, name, hmstype, logLevel)
         self._published_topics = {} 
         self._subscribed_topics = {}
-        self._mailbox = collections.deque()
+        self.mailbox = collections.deque()
 
     def _subscribe_topic(self, topicName, server=None):
         """
@@ -166,7 +166,7 @@ class LightHolon_(BaseHolon_):
         Called by other holons
         """
         self.logger.debug("Received message: " + msg.body)
-        self._mailbox.appendleft(msg)
+        self.mailbox.appendleft(msg)
 
 
 
@@ -177,7 +177,7 @@ class Holon_(LightHolon_, Thread):
     def __init__(self, name=None, hmstype=None, logLevel=logging.WARNING):
         Thread.__init__(self)
         LightHolon_.__init__(self, name, hmstype, logLevel)
-        self._stop = False
+        self._stopev = False
         self._lock = Lock()
 
     def start(self):
@@ -191,7 +191,7 @@ class Holon_(LightHolon_, Thread):
         Attempt to stop processing thread
         """
         self.logger.info("stop called ")
-        self._stop = True
+        self._stopev = True
 
     def _get_proxy_blocking(self, address):
         return self._get_holon_blocking(address)
@@ -200,14 +200,14 @@ class Holon_(LightHolon_, Thread):
         """
         Attempt to connect a given holon ID
         block until we connect
-        return none if interrupted by self._stop
+        return none if interrupted by self._stopev
         """
         self.logger.info( "Trying to connect  to " + address)
         prx = None    
         while not prx:
             prx = self._icemgr.get_proxy(address)
             sleep(0.1)
-            if self._stop:
+            if self._stopev:
                 return None
         self.logger.info( "Got connection to %s", address)
         return prx
@@ -245,8 +245,9 @@ class Message(hms.Message):
     Wrapper over the Ice Message definition, 
     """
     def __init__(self, *args, **kwargs):
-        self.arguments = dict()
-        hms.Message.__init__(self, *args, **kwargs) # mus be call after custom initialization of class variables over
+        hms.Message.__init__(self, *args, **kwargs) 
+        if self.arguments == None:
+            self.arguments = dict()
         self.createTime = time()
 
     def __setattr__(self, name, val):
