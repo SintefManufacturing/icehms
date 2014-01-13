@@ -4,14 +4,13 @@ from setuptools import setup
 import glob
 import os
 
-from icehmsversion import VERSION
-
 
 
 setup (name = "icehms", 
-        version = VERSION,
+        version = "1.0alpha",
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
         author = "Olivier R-D",
+        author_email = "Olivier.roulet@gmail.com",
         url = 'git@github.com:oroulet/icehms.git',
         packages = ["icehms"],
         package_dir = {'icehms': 'src/python/icehms'},
@@ -19,9 +18,10 @@ setup (name = "icehms",
         
         scripts = ["windows_postinstall.py"],
 
-        data_files = [('share/icehms/icecfg', glob.glob('icecfg/*')),
-                      ('share/doc/icehms', ["README.txt", "INSTALL.txt"]),
-        ('share/icehms/slices', glob.glob('slices/*')) ],
+        data_files = [('share/icehms/icecfg', ["icecfg/icebox.xml", "icecfg/icegrid.cfg"]),
+            ('share/doc/icehms', ["README.txt", "INSTALL.txt"]),
+            ('share/icehms/slices', ['slices/hms.ice' ])
+            ],
 
         entry_points = {'console_scripts': 
             ['hms_run_servers = icehms.tools:run_servers',
