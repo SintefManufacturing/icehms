@@ -1,2 +1,4 @@
-include README example_environment.sh Makefile 
-recursive-include src db bin examples icecfg slices 
+include *.txt  
+recursive-include src *.py 
+recursive-include slices * 
+recursive-include icecfg * 
