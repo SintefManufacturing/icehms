@@ -136,7 +136,7 @@ class LightHolon_(BaseHolon_):
         As the name says. It is necessary to unsubscribe to topics before exiting to avoid exceptions
         and being able to re-subscribe without error next time
         """
-        if self._subscribed_topics.has_key(name):
+        if name in self._subscribed_topics:
             self._subscribed_topics[name].unsubscribe(self.proxy)
             del(self._subscribed_topics[name])
 
