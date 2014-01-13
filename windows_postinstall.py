@@ -11,7 +11,7 @@ def create_windows_menu():
 
     # the other links should always work
     print("Creating link to desktop")
-    apprun = os.path.join(sys.prefix, "Scripts", "hms_run_servers.py")
+    apprun = os.path.join(sys.prefix, "Scripts", "hms_run_servers.exe")
     create_shortcut(apprun, "Run IceHMS servers", os.path.join(desktoppath, "hms_run_servers.lnk") )
 
     if not os.path.isdir(menupath):
