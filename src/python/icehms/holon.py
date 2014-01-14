@@ -145,7 +145,7 @@ class LightHolon_(BaseHolon_):
         Remove stuff from the database
         not catching exceptions since it is not very important
         """
-        for topic in self._subscribed_topics.keys():
+        for topic in list(self._subscribed_topics.keys()).copy():
             self._unsubscribe_topic(topic)
 
         for k, v in self._published_topics.items():

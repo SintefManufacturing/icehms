@@ -15,19 +15,12 @@ intree = False
 if "ICEHMS_ROOT" in os.environ:
     root = os.environ["ICEHMS_ROOT"]
 else:
-    #See if we are started from sourcetree
-    root = os.path.realpath(os.path.dirname(__file__))
-    root = os.path.normpath(os.path.join(root, "../../../"))
-    if os.path.isdir(os.path.join(root, "icecfg")) and os.path.isdir(os.path.join(root, "slices")):
-        print("Looks like we are in source tree")
-        intree = True
+    tmp = os.path.join(sys.prefix, "share", "icehms")
+    if os.path.isdir(tmp): # look like icehms has been installed ealier, try that
+        root = tmp
     else:
-        tmp = os.path.join(sys.prefix, "share", "icehms")
-        if os.path.isdir(tmp): # look like icehms has been installed ealier, try that
-            root = tmp
-        else:
-            print("Error: IceHMS libraries not found, set ICEHMS_ROOT environment variable")
-            sys.exit(1)
+        print("Error: IceHMS libraries not found, install icehms or set ICEHMS_ROOT environment variable")
+        sys.exit(1)
 
 #print "icehms root is ", root
 

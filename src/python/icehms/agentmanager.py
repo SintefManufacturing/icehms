@@ -1,7 +1,6 @@
 """
 AgentManager
 """
-from copy import copy 
 import signal
 from threading import Lock, Thread
 import logging
@@ -74,8 +73,7 @@ class AgentManager(object):
             try:
                 self._remove_agent(agent)
             except Exception as ex: #catch everything we must not fail
-                print("EXception:", ex)
-                self.logger.warn( "Error shuting down agent %s: %s", agent, ex )
+                self.logger.warn( "Error shutting down agent %s: %s", agent, ex )
 
     def remove_holon(self, agent):
         self.remove_agent(agent)
@@ -114,7 +112,7 @@ class AgentManager(object):
             for agent in self._agents: #send stop signal to all holons 
                 self.logger.info( "sending stop to %s", agent.name )
                 agent.stop() 
-            for agent in copy(self._agents):# now really stop them 
+            for agent in self._agents.copy():# now really stop them 
                 try:
                     self._remove_agent(agent, stop=False)
                 except Exception as ex: #catch everything we must not fail
