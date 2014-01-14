@@ -26,8 +26,9 @@ if __name__ == "__main__":
 
         holon = publisher.Server("TestPublisher", logLevel=logging.INFO)
         mgr.add_holon(holon)
-        holon = subscriber.Client("TestClient", logLevel=logging.INFO)
-        mgr.add_holon(holon)
+        for i in range(30):
+            holon = subscriber.Client("MyTopicClient" + str(i), logLevel=logging.INFO)
+            mgr.add_holon(holon)
 
 
         holon = custom_interface1.TestHolon("CustomHolonClient", logLevel=logging.INFO)
