@@ -7,7 +7,7 @@ import os
 
 
 setup (name = "icehms", 
-        version = "1.0alpha",
+        version = "1.0alpha2",
         description = "Thin Framework to Develop Holonic or Multi-Agent Systems",
         author = "Olivier R-D",
         author_email = "Olivier.roulet@gmail.com",
