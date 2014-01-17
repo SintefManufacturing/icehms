@@ -4,6 +4,7 @@ AgentManager
 import signal
 from threading import Lock, Thread
 import logging
+from copy import copy
 
 import Ice 
 
@@ -16,11 +17,12 @@ class AgentManager(object):
     create an IceManager if necessary
     also takes care of catching signals 
     """
-    def __init__(self, adapterId=None, catchSignals=True, icemgr=None, logLevel=logging.WARNING, defaultTimeout=500):
+    def __init__(self, adapterId=None, catchSignals=True, icemgr=None, logLevel=logging.WARNING, defaultTimeout=500, auto_shutdown=False):
         """
         adapterID will be the Ice name of the adapter
         catchSginal will catch ctrl-C, this should only be done once per process.
         """
+        self.auto_shutdown = auto_shutdown
         if not adapterId:
             adapterId = Ice.generateUUID()
         self.logger = logging.getLogger(self.__class__.__name__ + "::" + adapterId)
@@ -71,22 +73,24 @@ class AgentManager(object):
         """
         with self._lock:
             try:
-                self._remove_agent(agent)
+                self._remove_agent(agent, join=False)
             except Exception as ex: #catch everything we must not fail
                 self.logger.warn( "Error shutting down agent %s: %s", agent, ex )
+        if self.auto_shutdown and len(self._agents) == 0:
+            self.shutdown()
 
     def remove_holon(self, agent):
         self.remove_agent(agent)
 
-    def _remove_agent(self, agent, stop=True):
+    def _remove_agent(self, agent, stop=True, join=True):
         if stop:
             agent.stop() 
-        if isinstance(agent, Thread):
+        if join and isinstance(agent, Thread):
             self.logger.info( "Waiting for agent %s to stop ..." % agent.name  )
             if agent.isAlive():
                 agent.join(2) 
         agent.cleanup() # let agent cleanup itself
-        if isinstance(agent, Thread) and agent.isAlive():
+        if join and isinstance(agent, Thread) and agent.isAlive():
             self.logger.warn( "Failed to stop main thread for agent: %s", agent.name)
         else:
             self.logger.info( "agent %s stopped" % agent.name )
@@ -112,24 +116,24 @@ class AgentManager(object):
             for agent in self._agents: #send stop signal to all holons 
                 self.logger.info( "sending stop to %s", agent.name )
                 agent.stop() 
-            for agent in self._agents.copy():# now really stop them 
+            for agent in copy(self._agents):# now really stop them 
                 try:
                     self._remove_agent(agent, stop=False)
                 except Exception as ex: #catch everything we must not fail
                     self.logger.warn("Error shuting down agent %s, %s", agent.name, ex )
         self.icemgr.destroy()
 
-def run_holon(holon, registerToIceGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
+def run_holon(holon, registerToIceGrid=True, logLevel=logging.WARNING, defaultTimeout=500, auto_shutdown=False):
     """
     Helper function to start one agent or holon
     """
-    run_holons([holon], registerToIceGrid, logLevel, defaultTimeout)
+    run_holons([holon], registerToIceGrid, logLevel, defaultTimeout, auto_shutdown=auto_shutdown)
 
-def run_holons(holons, registerToIceGrid=True, logLevel=logging.WARNING, defaultTimeout=500):
+def run_holons(holons, registerToIceGrid=True, logLevel=logging.WARNING, defaultTimeout=500, auto_shutdown=False):
     """
     Helper function to start holons
     """
-    manager = AgentManager(adapterId=holons[0].name+"s_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel)
+    manager = AgentManager(adapterId=holons[0].name+"s_adapter", defaultTimeout=defaultTimeout, logLevel=logLevel, auto_shutdown=auto_shutdown)
     for holon in holons:
         manager.add_agent(holon, registerToIceGrid)
     manager.wait_for_shutdown()

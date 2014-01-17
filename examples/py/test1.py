@@ -7,7 +7,6 @@ from icehms import Holon, run_holon
 class TestHolon(Holon):
     def run(self):
         self.logger.info("I am "+ self.name)
-        sleep(0.2) # wait for verything to initialize 
         prx = self._get_proxy_blocking(self.other)
         while not self._stopev:
             try:

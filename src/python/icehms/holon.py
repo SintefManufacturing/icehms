@@ -10,6 +10,7 @@ import collections
 from time import sleep, time
 import uuid
 import logging
+from copy import copy
 
 import Ice 
 
@@ -145,7 +146,7 @@ class LightHolon_(BaseHolon_):
         Remove stuff from the database
         not catching exceptions since it is not very important
         """
-        for topic in list(self._subscribed_topics.keys()).copy():
+        for topic in copy(list(self._subscribed_topics.keys())):
             self._unsubscribe_topic(topic)
 
         for k, v in self._published_topics.items():
@@ -253,7 +254,7 @@ class Message(hms.Message):
     def __setattr__(self, name, val):
         #format everything to string
         if name == "arguments" and val:
-            val = {k:str(v) for k,v in val.items()} # does not work with python < 2.6
+            val = {k:str(v) for k, v in val.items()} # does not work with python < 2.6
             #d = dict()
             #for k, v in val.items():
             #    if v in ("None", None): 

@@ -5,6 +5,7 @@ import test1, test2
 import message1, message2
 import publisher, subscriber
 import custom_interface1, custom_interface2
+import alone
 
 if __name__ == "__main__":
     
@@ -36,6 +37,9 @@ if __name__ == "__main__":
         holon = custom_interface2.TT("CustomHolon", logLevel=logging.INFO)
         mgr.add_holon(holon)
         holon = custom_interface2.TT2("CustomHolon2", logLevel=logging.INFO)
+        mgr.add_holon(holon)
+
+        holon = alone.TestHolon("Alone", logLevel=logging.INFO)
         mgr.add_holon(holon)
         #from IPython.frontend.terminal.embed import InteractiveShellEmbed
         #ipshell = InteractiveShellEmbed( banner1="\n\n  robot object is available  \n\n")
