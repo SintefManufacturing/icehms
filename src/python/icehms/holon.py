@@ -253,13 +253,13 @@ class Message(hms.Message):
     def __setattr__(self, name, val):
         #format everything to string
         if name == "arguments" and val:
-            #val = {k:str(v) for k,v in val.items()} # does not work with python < 2.6
-            d = dict()
-            for k, v in val.items():
-                if v in ("None", None): 
-                    v = ""
-                d[k] = str(v)
-            val = d
+            val = {k:str(v) for k,v in val.items()} # does not work with python < 2.6
+            #d = dict()
+            #for k, v in val.items():
+            #    if v in ("None", None): 
+            #        v = ""
+            #    d[k] = str(v)
+            #val = d
         return hms.Message.__setattr__(self, name, val)
 
 
