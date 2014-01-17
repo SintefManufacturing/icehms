@@ -16,6 +16,7 @@ class Cleaner(object):
         self._clean_topics(self.mgr.topicMgr)
     
     def _clean_topics(self, mgr):
+        self.logger.debug("Start cleaning topics")
         topics = mgr.retrieveAll()
         for name, prx in list(topics.items()):
             try:
@@ -25,7 +26,8 @@ class Cleaner(object):
                 self.logger.warn("Could not destroy topic %s", name)
 
     def clean_holons(self):
-        holons = self.mgr.find_holons()
+        self.logger.debug("Start cleaning holons")
+        holons = self.mgr.find_holons(cast=False)
         for prx in holons:
             try:
                 self.mgr.get_admin().removeObject(prx.ice_getIdentity())
@@ -35,6 +37,7 @@ class Cleaner(object):
                 self.logger.info("Holon %s de-registered", prx)
 
     def clean_adapters(self):
+        self.logger.debug("Start cleaning adapters")
         ids = self.mgr.get_admin().getAllAdapterIds()
         self.logger.debug("Found adapters: %s", ids)
         if not ids:

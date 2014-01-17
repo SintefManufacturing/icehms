@@ -250,7 +250,7 @@ class IceManager(object):
                 newlist.append(prx)
         return newlist
 
-    def find_holons(self, icetype="::hms::Holon"):
+    def find_holons(self, icetype="::hms::Holon", cast=True):
         """
         more expensive version of find_holons
         returns all object which inherit the given type
@@ -260,7 +260,10 @@ class IceManager(object):
         for obj in objs:
             try:
                 if obj.proxy.ice_isA(icetype):
-                    holons.append(self.automated_cast(obj.proxy))
+                    if not cast:
+                        holons.append(obj.proxy)
+                    else:
+                        holons.append(self.automated_cast(obj.proxy))
             except Ice.Exception as e:
                 self.get_admin().removeObject(obj.proxy.ice_getIdentity())# it is dead
                 self.logger.warn("%s seems dead: %s, deleting it from registry", obj.proxy, e)
