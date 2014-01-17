@@ -106,9 +106,8 @@ def run_servers():
         check_services(force)
         sleep(0.5)
         clean_registry()
+        print("IceHMS servers started")
         icegrid.wait()
-        print("Running IceGrid")
-        #os.system(cmd)
     finally:
         if os.name == "nt":
             input("Press Enter to exit...")
