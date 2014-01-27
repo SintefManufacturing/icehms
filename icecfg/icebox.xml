@@ -3,9 +3,9 @@
 
         <service-template id="IceStorm">
           <parameter name="instance-name" default="${application}.IceStorm"/>
-          <parameter name="topic-manager-endpoints" default="default -h localhost"/>
-          <parameter name="publish-endpoints" default="default -h localhost"/>
-          <parameter name="node-endpoints" default="default -h localhost"/>
+          <parameter name="topic-manager-endpoints" default="default"/>
+          <parameter name="publish-endpoints" default="default"/>
+          <parameter name="node-endpoints" default="default"/>
 
           <service name="${instance-name}" entry="IceStormService,${ice-version}:createIceStorm">
 
