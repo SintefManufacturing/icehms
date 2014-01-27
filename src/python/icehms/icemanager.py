@@ -77,9 +77,12 @@ class IceManager(object):
             properties.setProperty("hms.Endpoints", "tcp " + myIP + ":udp " + myIP)
         properties.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.IceRegistryServer)
         properties.setProperty("Ice.ThreadPool.Server.Size", "5")
-        properties.setProperty("Ice.ThreadPool.Server.SizeMax", "100000")
+        properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "180")
+        properties.setProperty("Ice.ThreadPool.Server.SizeMax", "200")
         properties.setProperty("Ice.ThreadPool.Client.Size", "5")
-        properties.setProperty("Ice.ThreadPool.Client.SizeMax", "100000")
+        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "180")
+        properties.setProperty("Ice.ThreadPool.Client.SizeMax", "200")
+        properties.setProperty("Ice.IPv6", "0")#disable ipv6 as it may hang on some systems
         if self._publishedEndpoints:
             self.logger.info( "setting published endpoints %s: ", self._publishedEndpoints)
             properties.setProperty("hms.PublishedEndpoints", self._publishedEndpoints)
@@ -265,8 +268,12 @@ class IceManager(object):
                     else:
                         holons.append(self.automated_cast(obj.proxy))
             except Ice.Exception as e:
-                self.get_admin().removeObject(obj.proxy.ice_getIdentity())# it is dead
                 self.logger.warn("%s seems dead: %s, deleting it from registry", obj.proxy, e)
+                try:
+                    self.get_admin().removeObject(obj.proxy.ice_getIdentity())# it is dead
+                except Ice.Exception as ex:
+                    pass #This fails sometimes if the object has been deleted in-between and we do not care
+
         return holons
     findAllObjectsByType = find_holons
     find_holons_by_type = find_holons

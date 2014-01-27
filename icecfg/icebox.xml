@@ -1,80 +1,64 @@
 <icegrid>
-
-
     <application name="IceBoxApp">
 
-    <service-template id="IceStorm">
+        <service-template id="IceStorm">
+          <parameter name="instance-name" default="${application}.IceStorm"/>
+          <parameter name="topic-manager-endpoints" default="default -h localhost"/>
+          <parameter name="publish-endpoints" default="default -h localhost"/>
+          <parameter name="node-endpoints" default="default -h localhost"/>
 
-      <parameter name="instance-name" default="${application}.IceStorm"/>
-      <parameter name="topic-manager-endpoints" default="default"/>
-      <parameter name="publish-endpoints" default="default"/>
+          <service name="${instance-name}" entry="IceStormService,${ice-version}:createIceStorm">
 
-      <service name="${instance-name}" entry="IceStormService,${ice-version}:createIceStorm">
-        <dbenv name="${service}"/>
-        <adapter name="${service}.TopicManager"
-		 id="${instance-name}.TopicManager" 
-		 endpoints="${topic-manager-endpoints}">
-          <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
-	</adapter>
-	<adapter name="${service}.Publish" 
-		 id="${instance-name}.Publish" 
-		 endpoints="${publish-endpoints}"/>
-        <properties>
-           <property name="${service}.InstanceName" value="${instance-name}"/>
-            <!-- do not create a database on disk -->
-            <property name="${name}.Transient" value="1"/>
-            <!-- This are vey configuration dependent cf documentation -->
-            <!--
-            <property name="${service}.Publish.ThreadPool.Client.Size" value="3"/>
-            <property name="${service}.Publish.ThreadPool.Client.SizeMax" value="1000"/>
-            -->
-            <property name="${name}.Publish.ThreadPool.Size" value="3"/>
-            <property name="${name}.Publish.ThreadPool.SizeMax" value="1000"/>
-        </properties>
-      </service>
+            <dbenv name="${service}"/>
+            <adapter name="${service}.TopicManager"
+                id="${instance-name}.TopicManager" 
+                endpoints="${topic-manager-endpoints}">
+                <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
+            </adapter>
 
-    </service-template>
+            <adapter name="${service}.Publish" 
+                id="${instance-name}.Publish" 
+                endpoints="${publish-endpoints}"/>
 
+            <properties>
+                <property name="${service}.InstanceName" value="${instance-name}"/>
+                <property name="${service}.Transient" value="1"/>
+                <property name="${service}.Trace.Topic" value="1"/>
+                <property name="${service}.Trace.TopicManager" value="1"/>
+                <property name="${service}.Trace.Subscriber" value="1"/>
+            </properties>
 
+          </service>
 
-
+        </service-template>
 
         <node name="HMSDefaultNode">
             <icebox id="IceBoxServer" exe="icebox" activation="on-demand">
 
-    <!-- Default IceStorm server -->
-    <service-instance  template="IceStorm" instance-name="IceStorm" >
-            <property name="${name}.Send.Timeout" value="60000"/>
-            <property name="${name}.Discard.Interval" value="0"/>
-    </service-instance>
+                <!-- Default IceStorm server -->
+                <service-instance  template="IceStorm" instance-name="IceStorm" >
+                </service-instance>
 
-    <!-- Event IceStorm server -->
-    <service-instance  template="IceStorm" instance-name="EventServer" >
-        <variable name="name" value="IceStorm"/>
-            <property name="${name}.Trace.Topic" value="0"/>
-            <property name="${name}.Trace.TopicManager" value="0"/>
-            <property name="${name}.Trace.Subscriber" value="0"/>
-            <!-- time in ms before removing a dead subscriber, This MUST be high, otherwise some clients may be removed-->
-            <property name="${name}.Send.Timeout" value="2000"/>
-            <!-- wait x second before retrying to send to dead subscriber, must be low -->
-            <property name="${name}.Discard.Interval" value="1"/>
-            <property name="Ice.Trace.Network" value="0"/>
-            <property name="Ice.Trace.Protocol" value="0"/>
- 
-    </service-instance>
+                <!-- Event IceStorm server -->
+                <service-instance  template="IceStorm" instance-name="EventServer" >
+                    <variable name="name" value="IceStorm"/>
+                    <properties>
+                        <property name="${service}.Send.Timeout" value="10000"/>
+                        <property name="${service}.Discard.Interval" value="1"/>
+                    </properties>
+                </service-instance>
 
-
-    <!-- IceStorm server for real-time data-->
-    <service-instance  template="IceStorm" instance-name="RealTimeServer" >
-            <!-- time in ms before removing a dead subscriber, This MUST be high, otherwise some clients may be removed-->
-            <property name="${name}.Send.Timeout" value="60000"/>
-            <!-- wait x second before retrying to send to dead subscriber, must be low -->
-            <property name="${name}.Discard.Interval" value="0"/>
-            <!-- batch reliability frequence timeout in ms, high value increases latency -->
-    </service-instance>
+                <!-- IceStorm server for real-time data-->
+                <service-instance  template="IceStorm" instance-name="RealTimeServer" >
+                    <properties>
+                        <property name="${service}.Send.Timeout" value="1000"/>
+                        <property name="${service}.Discard.Interval" value="0"/>
+                    </properties>
+                </service-instance>
 
             </icebox>
         </node>
+
     </application>
 </icegrid>
 

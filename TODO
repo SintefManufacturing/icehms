@@ -5,5 +5,7 @@ use isinstance to automatically detect agents and holons in agentmanager
 when externaly calling stop holons need to close all other thread and de-register
 if in standalone mode then we should shutdown factory
 
+hms_print_topic should have -v option to print entire event
+
 
 

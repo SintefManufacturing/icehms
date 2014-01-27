@@ -177,7 +177,7 @@ class Client(icehms.Holon):
         pass
 
     def put_message(self, msg, ctx=None):
-        print("New event from: ", msg.sender)
+        print("New event from: ", msg.sender, msg)
 
 def hms_topic_usage():
     print("Usage: ", sys.argv[0], " [-h|--help] [-a|--all] [TopicName]")
