@@ -1,13 +1,11 @@
 """
-set of hacks to run the IceHMS discovery server
+command line toold of IceHMS
 """
 
 import os
 import sys
 import subprocess
-import hashlib
 from time import sleep
-
 
 import icehms
 
@@ -20,12 +18,13 @@ def register_services(update=False):
     version = v[0] + v[2]
 
     if update:
-        action = " add "
-    else:
         action = " update "
+    else:
+        action = " add "
 
     #cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"' +  icehms.IceRegistryServer + '" -e "application ' + action + icehms.iceboxpath + '"'
-    cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"%s" -e "application %s %s ice-version=%s" --username foo --password bar' % (icehms.IceRegistryServer, action, icehms.iceboxpath, version) 
+    cmd = 'icegridadmin --Ice.Default.Locator=IceGrid/Locator:"{}" -e "application {} {} ice-version={} endpoint={}" --username foo --password bar'.format(icehms.IceRegistryServer, action, icehms.iceboxpath, version, "'tcp -h {}'".format(icehms.IceServerHost)) 
+
     print(cmd)
     p = subprocess.Popen(cmd, shell=True)
     return p.wait()
@@ -45,30 +44,11 @@ def make_dirs():
             print("Could not create directory for registry data, create it and set write permissions :", icehms.registryData)
             sys.exit(1)
 
-def check_services(force=False):
-    # check if icebox config is up to date
-    f = open(icehms.iceboxpath, "rb")
-    md5 = hashlib.md5(f.read())
-    f.close()
-    md5 = md5.digest()
-    hashfile = os.path.join(icehms.db_dir, "hashfile")
-    if os.path.isfile(hashfile):
-        h = open(hashfile, "rb")
-        oldmd5 = h.read()
-        h.close()
-    else:
-        oldmd5 = ""
-    if force  or md5 != oldmd5 :
-        print("Updating service db in 2 seconds ... ", md5, oldmd5 )
-        sleep(2)
-        code = register_services()
-        code = update_services()
-        if code == 0:
-            print("update succesfull, writting hash file")
-            h = open(os.path.join(icehms.db_dir, "hashfile"), "wb")
-            h.write(md5)
-    else:
-        print("IceBox services are up to date")
+def update_icebox_config():
+    code = register_services()
+    code = update_services()
+    if code == 0:
+        print("update icebox config succesfull")
 
 def clean_registry():
     try:
@@ -82,28 +62,24 @@ def clean_registry():
 
 def run_servers():
     make_dirs()
-    force = False
 
     cmd = "icegridnode"
     cmd += ' --Ice.Config=' + icehms.icecfgpath
+    cmd += ' --Ice.Default.Host="{}"'.format(icehms.IceServerHost)
     cmd += ' --Ice.Default.Locator="IceGrid/Locator:%s"' % icehms.IceRegistryServer 
     cmd += ' --IceGrid.Registry.Client.Endpoints="%s"' % icehms.IceRegistryServer
+    cmd += ' --IceGrid.Node.Endpoints="tcp -h %s"' % icehms.IceServerHost
     cmd += ' --IceGrid.Registry.Data="%s"' % icehms.registryData
     cmd += ' --IceGrid.Node.Data="%s"' % icehms.nodeData
     if len(sys.argv) > 1: 
-        if sys.argv[1] == "-f":
-            force = True
-            rest = sys.argv[2:]
-        else:
-            rest = sys.argv[1:]
-        #Add command line args to iceregistry
-        for a in rest:
+        for a in sys.argv[1:]:
             cmd += " " + a + " "
     print(cmd)
 
     try:
         icegrid = subprocess.Popen(cmd, shell=True)
-        check_services(force)
+        sleep(0.5)
+        update_icebox_config()
         sleep(0.5)
         clean_registry()
         print("IceHMS servers started")

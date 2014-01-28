@@ -5,6 +5,7 @@ import sys
 import socket # to get ip address
 import logging
 
+
 import Ice 
 import IceGrid
 import IceStorm
@@ -72,17 +73,15 @@ class IceManager(object):
         if self._adapterId:
             properties.setProperty("hms.AdapterId", self._adapterId)
             myIP = self._getIP_to_IceGrid()
-            if myIP:
-                myIP = " -h " + myIP
-            properties.setProperty("hms.Endpoints", "tcp " + myIP + ":udp " + myIP)
+            properties.setProperty("hms.Endpoints", "tcp -h {}: udp -h {}".format( myIP, myIP))
         properties.setProperty("Ice.Default.Locator", "IceGrid/Locator:" + icehms.IceRegistryServer)
-        properties.setProperty("Ice.ThreadPool.Server.Size", "5")
+        properties.setProperty("Ice.ThreadPool.Server.Size", "1")
         properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "180")
         properties.setProperty("Ice.ThreadPool.Server.SizeMax", "200")
-        properties.setProperty("Ice.ThreadPool.Client.Size", "5")
+        properties.setProperty("Ice.ThreadPool.Client.Size", "1")
         properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "180")
         properties.setProperty("Ice.ThreadPool.Client.SizeMax", "200")
-        properties.setProperty("Ice.Trace.Network", "2")
+        properties.setProperty("Ice.Trace.Network", "1")
         properties.setProperty("Ice.IPv6", "0")#disable ipv6 as it may hang on some systems
         if self._publishedEndpoints:
             self.logger.info( "setting published endpoints %s: ", self._publishedEndpoints)
@@ -135,8 +134,9 @@ class IceManager(object):
             return "" 
         s.connect((ip, 0))#opening a dummy socket on the icegrid server machine
         ip = s.getsockname()[0]
-        self.logger.info( "Deduced local IP address is: %s", s.getsockname()[0])
-        return s.getsockname()[0]
+        self.logger.info( "Deduced local IP address is: ".format(ip))
+        print( "Deduced local IP address is: ", ip) 
+        return ip 
     
     def _initAdmin(self):
         self._session = self.registry.createAdminSession(self._adminUser, self._adminPasswd)

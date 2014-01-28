@@ -8,6 +8,7 @@ import os
 import sys
 import re
 import Ice
+import argparse
 
 
 #Find The installation root and setup some paths 
@@ -47,8 +48,24 @@ registryData = os.path.join(db_dir, "registry")
 #setup ice registry address 
 if "ICEHMS_REGISTRY" in os.environ:
     IceRegistryServer = os.environ["ICEHMS_REGISTRY"]
+    tmp = os.environ["ICEHMS_REGISTRY"].split()
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("-h")
+    parser.add_argument("-p")
+    res = parser.parse_known_args(tmp)[0]
+    IceServerHost = res.h
+    if not IceServerHost:
+        IceServerHost = "localhost"
+    IceServerPort = res.p
+    if not IceServerPort:
+        IceServerPort = 12000
 else:
-    IceRegistryServer = 'tcp -p 12000 ' #we let Ice chose the network interface
+    IceServerHost = "localhost"
+    IceServerPort = 12000
+IceRegistryServer = 'tcp -h {} -p {}'.format(IceServerHost, IceServerPort)
+
+
+
 
 
 
@@ -84,7 +101,7 @@ slicedirs.append(".")
 
 for path in slicedirs:
     for icefile in os.listdir(path):
-        if re.match("[^#\.].*\.ice$", icefile):
+        if re.match(r"[^#\.].*\.ice$", icefile):
             #print 'icehms.__init__.py: trying to load slice definition:', icefile
             icefilepath = os.path.normpath(os.path.join(path, icefile))
             try:
