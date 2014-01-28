@@ -23,9 +23,11 @@
             <properties>
                 <property name="${service}.InstanceName" value="${instance-name}"/>
                 <property name="${service}.Transient" value="1"/>
+                <!--
                 <property name="${service}.Trace.Topic" value="1"/>
                 <property name="${service}.Trace.TopicManager" value="1"/>
                 <property name="${service}.Trace.Subscriber" value="1"/>
+                -->
             </properties>
 
           </service>

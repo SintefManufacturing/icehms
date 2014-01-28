@@ -81,7 +81,7 @@ class IceManager(object):
         properties.setProperty("Ice.ThreadPool.Client.Size", "1")
         properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "180")
         properties.setProperty("Ice.ThreadPool.Client.SizeMax", "200")
-        properties.setProperty("Ice.Trace.Network", "1")
+        #properties.setProperty("Ice.Trace.Network", "1") #debugging
         properties.setProperty("Ice.IPv6", "0")#disable ipv6 as it may hang on some systems
         if self._publishedEndpoints:
             self.logger.info( "setting published endpoints %s: ", self._publishedEndpoints)
