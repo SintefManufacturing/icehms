@@ -25,7 +25,7 @@ class Client(Holon):
 
 
 if __name__ == "__main__":
-    holons = [Client("MyTopicClient" + str(i) + "_" + str(j), tn="MyPublisher" + str(j) ) for i in range(20) for j in range(80)]
+    holons = [Client("MyTopicClient" + str(i) + "_" + str(j), tn="MyPublisher" + str(j) ) for i in range(10) for j in range(20)]
     run_holons(holons)
     print([h.counter for h in holons])
     #print([h.received for h in holons])
