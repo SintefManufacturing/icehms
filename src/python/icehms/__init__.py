@@ -16,12 +16,14 @@ intree = False
 if "ICEHMS_ROOT" in os.environ:
     root = os.environ["ICEHMS_ROOT"]
 else:
-    tmp = os.path.join(sys.prefix, "share", "icehms")
-    if os.path.isdir(tmp): # look like icehms has been installed ealier, try that
-        root = tmp
+    # try to find our config files
+    for prefix in (os.path.join(os.sep, "usr"), os.path.join(os.sep, "usr", "local"), sys.prefix):
+        tmp = os.path.join(prefix, "share", "icehms")
+        if os.path.isdir(tmp): 
+            root = tmp
+            break
     else:
-        print("Error: IceHMS libraries not found, install icehms or set ICEHMS_ROOT environment variable")
-        sys.exit(1)
+        raise RuntimeError("Error: IceHMS libraries not found, install icehms or set ICEHMS_ROOT environment variable")
 
 #print "icehms root is ", root
 
